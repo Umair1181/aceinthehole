@@ -109,8 +109,7 @@ Router.post("/add-new-password", (req, res) => {
     message = false;
   }
   if (message === false) {
-    seller
-      .findOne({ email: seller.email })
+    Seller.findOne({ email: seller.email })
       .then(sellerFound => {
         if (sellerFound) {
           bcrypt.genSalt(10, (err, salt) => {

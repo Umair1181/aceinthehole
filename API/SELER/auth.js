@@ -1,10 +1,103 @@
 const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const { Seller } = require("../../MODELS");
+const { Seller, EmailVerification } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+
+Router.post("/verify-code-of-email", (req, res) => {
+  let { email, code } = req.body;
+  EmailVerification.findOne({ email: email })
+    .then(found => {
+      if (found !== null) {
+        if (found.code === code) {
+          found.code = null;
+          found
+            .save()
+            .then(UpdateVerified => {
+              if (UpdateVerified) {
+                return res
+                  .json({ msg: "Code Matched & Updated!", success: true })
+                  .status(200);
+              } else {
+                return res
+                  .json({ msg: "Code Not Update!", success: false })
+                  .status(400);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+              return res.json({ msg: "Failed!", success: false }).status(500);
+            });
+        } else {
+          return res
+            .json({ msg: "Code Not Matched!", success: false })
+            .status(400);
+        }
+      } else {
+        return res
+          .json({ msg: "Seller Not Found!", success: false })
+          .status(400);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      return res.json({ msg: "Find Failed!", success: false }).status(500);
+    });
+});
+
+////////////////////Password Reset By Email////////step 1///////////////////////
+Router.post("/send-random-code-on-email", (req, res) => {
+  let { email } = req.body;
+  const RandomNumber = randomize("0", 6);
+  let newEmailVerification = new EmailVerification({
+    email: email,
+    code: RandomNumber
+  });
+
+  newEmailVerification
+    .save()
+    .then(Saved => {
+      if (Saved) {
+        const mailOptions = {
+          from: "mhanzlanaveed@gmail.com", // sender address
+          to: email, // list of receivers
+          subject: "Ace In A Hole app Email Verification Code ✔", // Subject line
+          html: `<p>Email Verification Code: </p> ${Saved.code} ` // plain text body
+        };
+        // Email Sending Second Step
+        transporter.sendMail(mailOptions, function(err, info) {
+          if (err) {
+            console.log(err);
+            return res
+              .json({ msg: "Email Failed!", success: false })
+              .status(400);
+          } else {
+            console.log("Email Sent!!!!!");
+            return res
+              .json({
+                msg: `Email Sent to ${Saved.email}`,
+
+                success: true
+              })
+              .status(200);
+          }
+        }); // NODEMAILER END HERE
+      } else {
+        return res
+          .json({ msg: "Random Code Not Saved", success: false })
+          .status(400);
+      }
+      // Email Sending First Step Email Content
+    })
+    .catch(err => {
+      return res
+        .json({ msg: "Code Not Saved In DATABASE", success: false })
+        .status(400);
+    });
+});
+
 //////////////////// Emailed Code Matched,Check and Change///////////////////////////////
 Router.post("/add-new-password", (req, res) => {
   let { seller } = req.body;

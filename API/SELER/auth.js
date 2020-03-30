@@ -5,7 +5,111 @@ const { upload, CreateURL } = require("../../storage")();
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+///////////Sign up with Image of seller/////////////
+Router.post(
+  "/update-seller-with-image",
+  upload.fields([{ name: "sellerImages", maxCount: 1 }]),
+  (req, res) => {
+    let { data } = req.body;
 
+    // const IdCardImage = CreateURL(req.files["IdCardImages"][0].filename);
+    // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+    let seller = JSON.parse(data);
+
+    //VALIDATIONS STARTS HERE
+    let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    let message = false;
+    if (seller.sellerName.length < 3 && seller.sellerName === "") {
+      message = "invalid seller name";
+    } else if (seller.phoneNumber === "" && seller.phoneNumber.length < 6) {
+      message = "invalid phoneNumber";
+    }
+    // else if (seller.password === "" && seller.password.length < 6) {
+    //   message = "invalid password";
+    // }
+    else if (seller.address === "" && seller.address.length < 3) {
+      message = "invalid address";
+    } else if (seller.dateOfBirth === "") {
+      message = "invalid dateOfBirth";
+    } else if (seller.webSite === "") {
+      message = "invalid webSite";
+    } else if (seller.description === "") {
+      message = "invalid description";
+    } else if (seller.gender === "") {
+      message = "invalid gender";
+    }
+    // else if (!RegularExpression.test(String(seller.email).toLowerCase())) {
+    //   message = "invalid email";
+    // }
+    else {
+      message = false;
+    }
+    if (message === false) {
+      Seller.findOne({ _id: seller._id })
+        .then(foundSeller => {
+          if (foundSeller !== null) {
+            foundSeller.sellerName = seller.sellerName;
+            foundSeller.email = foundSeller.email; //same
+            foundSeller.phoneNumber = foundSeller.phoneNumber; //same
+            foundSeller.dateOfBirth = seller.dateOfBirth;
+            foundSeller.address = seller.address;
+            foundSeller.webSite = seller.webSite;
+            foundSeller.description = seller.description;
+            foundSeller.gender = seller.gender;
+            foundSeller.password = foundSeller.password; //same
+
+            foundSeller.profileImgURL = foundSeller.profileImgURL; //same or changeable
+
+            if (req.files["sellerImages"]) {
+              const sellerProfileImage = CreateURL(
+                req.files["sellerImages"][0].filename
+              );
+              foundSeller.profileImgURL = sellerProfileImage;
+              console.log("Image Changed");
+            }
+            foundSeller.idCardImgURL = foundSeller.idCardImgURL; //same
+            foundSeller
+              .save()
+              .then(sSeller => {
+                if (sSeller) {
+                  sSeller.password = "";
+                  return res
+                    .json({
+                      msg: "Seller Updated!",
+                      newSeller: sSeller,
+                      success: true
+                    })
+                    .status(200);
+                } else {
+                  return res
+                    .json({ msg: "Seller Not Updated!", success: false })
+                    .status(400);
+                }
+              })
+              .catch(err => {
+                console.log(err);
+                console.log("error found");
+                return res
+                  .json({ msg: "seller catch error", success: false })
+                  .status(400);
+              });
+          } else {
+            return res
+              .json({ msg: "Seller Not Found", success: false })
+              .status(400);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          return res
+            .json({ msg: "Catch Error Email", success: false })
+            .status(400);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(400);
+    }
+  }
+);
 Router.post("/verify-code-of-email", (req, res) => {
   let { email, code } = req.body;
   EmailVerification.findOne({ email: email })

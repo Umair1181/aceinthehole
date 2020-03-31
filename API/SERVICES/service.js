@@ -3,6 +3,59 @@ const bcrypt = require("bcryptjs");
 const { EmailVerification, Service, ServiceCategory } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 
+Router.post("/show-all-services", (req, res) => {
+  Service.find()
+    .then(foundServices => {
+      if (foundServices.length > 0) {
+        return res
+          .json({
+            msg: "All Services!",
+            foundServices: foundServices,
+            success: true
+          })
+          .status(200);
+      } else {
+        return res
+          .json({
+            msg: "No Service Found!",
+            success: false
+          })
+          .status(400);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/show-single-service", (req, res) => {
+  let { _id } = req.body;
+  Service.findOne({ _id: _id })
+    .then(foundService => {
+      if (foundService) {
+        return res
+          .json({
+            msg: "Service Found!",
+            foundService: foundService,
+            success: true
+          })
+          .status(200);
+      } else {
+        return res
+          .json({
+            msg: "No Service Found!",
+            success: false
+          })
+          .status(400);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 ///////////Sign up with Image of seller/////////////
 Router.post(
   "/add-new-service-of-seller-with-image",
@@ -17,6 +70,7 @@ Router.post(
     for (let x = 0; x < req.files["serviceImgs"].length; x++) {
       serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
     }
+
     for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
       certificateImgArray.push(
         CreateURL(req.files["certificatesImgs"][y].filename)

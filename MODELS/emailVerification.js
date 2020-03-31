@@ -3,8 +3,7 @@ const Schema = mongoose.Schema;
 
 const EmailVerification = new Schema({
   email: {
-    type: String,
-    required: true
+    type: String
   },
 
   code: {

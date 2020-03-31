@@ -153,8 +153,10 @@ Router.post("/verify-code-of-email", (req, res) => {
   EmailVerification.findOne({ email: email })
     .then(found => {
       if (found !== null) {
+        console.log(found.code);
         if (found.code === code) {
           found.code = null;
+          found.email = null;
           found
             .save()
             .then(UpdateVerified => {
@@ -220,7 +222,7 @@ Router.post("/send-random-code-on-email", (req, res) => {
             return res
               .json({
                 msg: `Email Sent to ${Saved.email}`,
-
+                Saved,
                 success: true
               })
               .status(200);

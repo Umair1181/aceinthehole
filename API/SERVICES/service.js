@@ -11,6 +11,7 @@ Router.post(
     { name: "serviceImgs", maxCount: 3 }
   ]),
   (req, res) => {
+    return res.json(5);
     let { data } = req.body;
     const certificatesImgs = CreateURL(
       req.files["certificatesImgs"][0].filename
@@ -179,30 +180,50 @@ Router.post("/show-single-service-category", (req, res) => {
     });
 });
 
-Router.post("/add-new-service-category", (req, res) => {
-  let { serviceCategoryName } = req.body;
-  let newserviceCategoryName = new ServiceCategory({
-    serviceCategoryName: serviceCategoryName
-  });
-  newserviceCategoryName
-    .save()
-    .then(savedCategory => {
-      if (savedCategory) {
-        return res
-          .json({
-            msg: "New Service Category Added",
-            savedCategory: savedCategory,
-            success: true
-          })
-          .status(200);
-      } else {
-        return res.json({ msg: "Not Added", success: false }).status(400);
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
+Router.post(
+  "/add-new-service-category",
+  upload.fields([{ name: "serviceCategoryIMG", maxCount: 4 }]),
+  (req, res) => {
+    let { data } = req.body;
+    let service = JSON.parse(data);
+
+    if (!req.files["serviceCategoryIMG"]) {
+      return res.json({ msg: "Img is Compulsory", success: false }).status(404);
+    }
+    if (service.serviceCategoryName !== null) {
+      return res
+        .json({ msg: "Invalid serviceCategoryName", success: false })
+        .status(404);
+    }
+
+    const serviceCategoryIMG = CreateURL(
+      req.files["serviceCategoryIMG"][0].filename
+    );
+
+    let newserviceCategoryName = new ServiceCategory({
+      serviceCategoryName: service.serviceCategoryName,
+      categoryImgURL: serviceCategoryIMG
     });
-});
+    newserviceCategoryName
+      .save()
+      .then(savedCategory => {
+        if (savedCategory) {
+          return res
+            .json({
+              msg: "New Service Category Added",
+              savedCategory: savedCategory,
+              success: true
+            })
+            .status(200);
+        } else {
+          return res.json({ msg: "Not Added", success: false }).status(400);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        return res.json({ msg: "Failed!", success: false }).status(505);
+      });
+  }
+);
 
 module.exports = Router;

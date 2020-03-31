@@ -5,6 +5,9 @@ const ServiceCategory = new Schema({
   serviceCategoryName: {
     type: String,
     required: true
+  },
+  categoryImgURL: {
+    type: String
   }
 });
 module.exports = mongoose.model("tblservicecategorys", ServiceCategory);

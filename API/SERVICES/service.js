@@ -3,6 +3,33 @@ const bcrypt = require("bcryptjs");
 const { EmailVerification, Service, ServiceCategory } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 
+Router.post("/delete-service", (req, res) => {
+  let { _id } = req.body;
+  Service.remove({ _id: _id })
+    .then(foundService => {
+      if (foundService.n === 1) {
+        return res
+          .json({
+            msg: "Service  Deleted!",
+            removedService: _id,
+            success: true
+          })
+          .status(200);
+      } else {
+        return res
+          .json({
+            msg: "Invalid!",
+            success: false
+          })
+          .status(400);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post("/show-all-services", (req, res) => {
   Service.find()
     .then(foundServices => {

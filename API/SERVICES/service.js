@@ -11,12 +11,22 @@ Router.post(
     { name: "serviceImgs", maxCount: 3 }
   ]),
   (req, res) => {
-    return res.json(5);
     let { data } = req.body;
-    const certificatesImgs = CreateURL(
-      req.files["certificatesImgs"][0].filename
-    );
-    const serviceImgs = CreateURL(req.files["serviceImgss"][0].filename);
+    let serviceImgArray = [];
+    let certificateImgArray = [];
+    for (let x = 0; x < req.files["serviceImgs"].length; x++) {
+      serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
+    }
+    for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
+      certificateImgArray.push(
+        CreateURL(req.files["certificatesImgs"][y].filename)
+      );
+    }
+
+    // const certificatesImgs = CreateURL(
+    //   req.files["certificatesImgs"][0].filename
+    // );
+    // const serviceImgs = CreateURL(req.files["serviceImgss"][0].filename);
     // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
     let service = JSON.parse(data);
 
@@ -32,7 +42,7 @@ Router.post(
       message = "invalid price";
     } else if (service.description === "") {
       message = "invalid description";
-    } else if (service.serviceDaysArray.length > 0) {
+    } else if (service.serviceDaysArray === "") {
       message = "invalid serviceDaysArray";
     } else if (service.toTime === "") {
       message = "invalid toTime";
@@ -58,8 +68,8 @@ Router.post(
               serviceDaysArray: service.serviceDaysArray,
               toTime: service.toTime,
               fromTime: service.fromTime,
-              serviceImgsURLs: serviceImgs,
-              certificatesImgsURLs: certificatesImgs
+              serviceImgsURLs: serviceImgArray,
+              certificatesImgsURLs: certificateImgArray
             });
             newService
               .save()

@@ -3,6 +3,117 @@ const bcrypt = require("bcryptjs");
 const { EmailVerification, Service, ServiceCategory } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 
+Router.post(
+  "/update-service-of-seller-with-image",
+  upload.fields([
+    // { name: "certificatesImgs", maxCount: 4 },
+    { name: "serviceImgs", maxCount: 3 }
+  ]),
+  (req, res) => {
+    let { data } = req.body;
+    let serviceImgArray = [];
+    // let certificateImgArray = [];
+
+    // return res.json(req.files["serviceImgs"]);
+
+    // for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
+    //   certificateImgArray.push(
+    //     CreateURL(req.files["certificatesImgs"][y].filename)
+    //   );
+    // }
+
+    // const certificatesImgs = CreateURL(
+    //   req.files["certificatesImgs"][0].filename
+    // );
+    // const serviceImgs = CreateURL(req.files["serviceImgss"][0].filename);
+    // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+    let service = JSON.parse(data);
+
+    //VALIDATIONS STARTS HERE
+    let message = false;
+    if (service.serviceName === "") {
+      message = "invalid service name";
+    } else if (service._id === "") {
+      message = "invalid _id";
+    }
+    //  else if (service.category === "") {
+    //   message = "invalid category";
+    // }
+    else if (service.price === "") {
+      message = "invalid price";
+    } else if (service.description === "") {
+      message = "invalid description";
+    } else if (service.serviceDaysArray === "") {
+      message = "invalid serviceDaysArray";
+    } else if (service.toTime === "") {
+      message = "invalid toTime";
+    } else if (service.fromTime === "") {
+      message = "invalid fromTime";
+    } else {
+      message = false;
+    }
+    if (message === false) {
+      Service.findOne({ _id: service._id })
+        .then(foundService => {
+          if (foundService !== null) {
+            foundService.serviceName = service.serviceName;
+            foundService.seller = foundService.seller;
+            foundService.category = foundService.category;
+            foundService.price = service.price;
+            foundService.description = service.description;
+            foundService.serviceDaysArray = service.serviceDaysArray;
+            foundService.toTime = service.toTime;
+            foundService.fromTime = service.fromTime;
+            foundService.serviceImgsURLs = foundService.serviceImgsURLs;
+            if (req.files["serviceImgs"]) {
+              for (let x = 0; x < req.files["serviceImgs"].length; x++) {
+                serviceImgArray.push(
+                  CreateURL(req.files["serviceImgs"][x].filename)
+                );
+              }
+              foundService.serviceImgsURLs = serviceImgArray;
+            }
+            foundService.certificatesImgsURLs =
+              foundService.certificatesImgsURLs;
+
+            foundService
+              .save()
+              .then(sService => {
+                if (sService) {
+                  return res
+                    .json({
+                      msg: "Service Updated!",
+                      newService: sService,
+                      success: true
+                    })
+                    .status(200);
+                } else {
+                  return res
+                    .json({ msg: "Service Not Updated!", success: false })
+                    .status(400);
+                }
+              })
+              .catch(err => {
+                console.log(err);
+                console.log("error found");
+                return res
+                  .json({ msg: "Service catch error", success: false })
+                  .status(400);
+              });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          return res
+            .json({ msg: "Catch Error Email", success: false })
+            .status(400);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(400);
+    }
+  }
+);
+
 Router.post("/delete-service", (req, res) => {
   let { _id } = req.body;
   Service.remove({ _id: _id })
@@ -156,7 +267,6 @@ Router.post(
               .save()
               .then(sService => {
                 if (sService) {
-                  sService.password = "";
                   return res
                     .json({
                       msg: "Service Created!",

@@ -58,12 +58,9 @@ Router.post(
     let seller = JSON.parse(data);
 
     //VALIDATIONS STARTS HERE
-    let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     let message = false;
     if (seller.sellerName.length < 3 && seller.sellerName === "") {
       message = "invalid seller name";
-    } else if (seller.phoneNumber === "" && seller.phoneNumber.length < 6) {
-      message = "invalid phoneNumber";
     }
     // else if (seller.password === "" && seller.password.length < 6) {
     //   message = "invalid password";

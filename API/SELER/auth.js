@@ -5,6 +5,47 @@ const { upload, CreateURL } = require("../../storage")();
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+Router.post("/seller-online-offline-toggle", (req, res) => {
+  let { sellerID } = req.body;
+  Seller.findOne({ _id: sellerID })
+    .then(foundSeller => {
+      if (foundSeller) {
+        foundSeller.isOnline = !foundSeller.isOnline;
+        foundSeller
+          .save()
+          .then(sellerSaved => {
+            if (sellerSaved.isOnline === true) {
+              return res
+                .json({
+                  msg: "Online",
+                  foundSeller: foundSeller,
+                  success: true
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: "Ofline",
+                  foundSeller: foundSeller,
+                  success: true
+                })
+                .status(200);
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            return res.json({ msg: "Failed!", success: false }).status(505);
+          });
+      } else {
+        return res.json({ msg: "No Seller", success: false }).status(404);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 ///////////Sign up with Image of seller/////////////
 Router.post(
   "/update-seller-with-image",

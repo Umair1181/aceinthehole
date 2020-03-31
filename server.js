@@ -22,6 +22,7 @@ mongoose
     global.mongodbconndbs = m.connection;
     ///////////////// API ROUTES ////////////////
     app.use("/seller", require("./ROUTES/sellerRoutes"));
+    app.use("/service", require("./ROUTES/sellerRoutes"));
     app.use("/files", require("./API/FIES/imageAPI"));
     app.get("/", (req, res) => {
       res.json({ msg: "server running..." }).status(200);

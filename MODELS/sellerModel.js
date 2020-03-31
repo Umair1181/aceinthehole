@@ -28,6 +28,10 @@ const Seller = new Schema({
   address: {
     type: String
   },
+  isOnline: {
+    type: Boolean,
+    default: true
+  },
   description: {
     type: String
   },

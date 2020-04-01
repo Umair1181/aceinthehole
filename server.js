@@ -21,6 +21,7 @@ mongoose
   .then(m => {
     global.mongodbconndbs = m.connection;
     ///////////////// API ROUTES ////////////////
+    app.use("/admin", require("./ROUTES/adminRoutes"));
     app.use("/seller", require("./ROUTES/sellerRoutes"));
     app.use("/service", require("./ROUTES/sellerRoutes"));
     app.use("/files", require("./API/FIES/imageAPI"));

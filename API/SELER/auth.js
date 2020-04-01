@@ -1,10 +1,36 @@
 const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const { Seller, EmailVerification } = require("../../MODELS");
+const { Seller, EmailVerification, Service } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+
+Router.post("/show-certificates-of-specific-service", (req, res) => {
+  let { serviceID } = req.body;
+
+  Service.findOne({ _id: serviceID })
+    .then(foundService => {
+      if (foundService) {
+        return res
+          .json({
+            msg: "All certificates in this serivce",
+            certificates: foundService.certificatesImgsURLs,
+            success: true
+          })
+          .status(200);
+      } else {
+        return res
+          .json({ msg: "No Certificate found!", success: false })
+          .status(505);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post("/seller-online-offline-toggle", (req, res) => {
   let { sellerID } = req.body;
   Seller.findOne({ _id: sellerID })

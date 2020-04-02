@@ -202,6 +202,7 @@ Router.post(
     { name: "serviceImgs", maxCount: 3 }
   ]),
   (req, res) => {
+    return res.json(req.files["serviceImgs"]);
     let { data } = req.body;
     let serviceImgArray = [];
     let certificateImgArray = [];

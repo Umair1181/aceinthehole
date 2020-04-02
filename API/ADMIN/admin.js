@@ -1,7 +1,7 @@
 const Router = require("express").Router();
 const { TermsAndCondition } = require("../../MODELS");
-
-///////////////////////////////////////////
+// df;
+///////ddfd////////////////////////////////////
 Router.post(
   "/delete-specific-terms-and-condition-against-id",
   async (req, res) => {

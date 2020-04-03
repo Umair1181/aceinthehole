@@ -22,37 +22,37 @@ Router.post(
 );
 
 /////////////////////////////////////////////
-Router.post("/add-new-terms-and-condition", async (req, res) => {
-  let { termsAndCondition, isSellerOrUser } = req.body;
-  let message = false;
-  if (termsAndCondition === "") {
-    message = "Invalid termsAndCondition";
-  } else if (isSellerOrUser === "") {
-    message = "Invalid isSellerOrUser";
-  }
-  if (message === false) {
-    let newTermsAndCondition = new TermsAndCondition({
-      termsAndCondition: termsAndCondition,
-      isSellerOrUser: isSellerOrUser
-    });
-    let savedTermsAndCondition = await newTermsAndCondition.save();
-    if (savedTermsAndCondition) {
-      return res
-        .json({
-          msg: `New Terms and Cndition Added for ${
-            isSellerOrUser ? "Seller" : "Buyer"
-          }`,
-          savedTermsAndCondition: savedTermsAndCondition,
-          success: true
-        })
-        .status(200);
-    } else {
-      return res.json({ msg: "Value is Saved", success: false }).status(400);
-    }
-  } else {
-    return res.json({ msg: message, success: false }).status(400);
-  }
-});
+// Router.post("/add-new-terms-and-condition", async (req, res) => {
+//   let { termsAndCondition, isSellerOrUser } = req.body;
+//   let message = false;
+//   if (termsAndCondition === "") {
+//     message = "Invalid termsAndCondition";
+//   } else if (isSellerOrUser === "") {
+//     message = "Invalid isSellerOrUser";
+//   }
+//   if (message === false) {
+//     let newTermsAndCondition = new TermsAndCondition({
+//       termsAndCondition: termsAndCondition,
+//       isSellerOrUser: isSellerOrUser
+//     });
+//     let savedTermsAndCondition = await newTermsAndCondition.save();
+//     if (savedTermsAndCondition) {
+//       return res
+//         .json({
+//           msg: `New Terms and Cndition Added for ${
+//             isSellerOrUser ? "Seller" : "Buyer"
+//           }`,
+//           savedTermsAndCondition: savedTermsAndCondition,
+//           success: true
+//         })
+//         .status(200);
+//     } else {
+//       return res.json({ msg: "Value is Saved", success: false }).status(400);
+//     }
+//   } else {
+//     return res.json({ msg: message, success: false }).status(400);
+//   }
+// });
 /////////////////////////////////////////////
 Router.post("/show-specific-terms-and-condition", async (req, res) => {
   let { _id } = req.body;

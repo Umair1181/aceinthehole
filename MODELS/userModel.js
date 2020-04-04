@@ -21,6 +21,15 @@ const User = new Schema({
   password: {
     type: String
   },
+  gender: {
+    type: String
+  },
+  country: {
+    type: String
+  },
+  state: {
+    type: String
+  },
 
   // address: {
   //   type: String
@@ -32,10 +41,13 @@ const User = new Schema({
       default: "/files/vendor-files/image/4ac52dd5e908961c7cb9954cb5375b15.jpg"
     }
   ],
-  //   isActiveStatus: {
-  //     type: Boolean,
-  //     default: true
-  //   }
+  isOnlineStatus: {
+    type: Boolean,
+    default: true
+  },
+  dateOfBirth: {
+    type: Date
+  },
   registerDate: {
     type: Date,
     default: Date.now()

@@ -6,6 +6,28 @@ const { upload, CreateURL } = require("../../storage")();
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
 
+Router.post("/all-services-of-specific-seller", (req, res) => {
+  let { sellerID } = req.body;
+  Service.find({ seller: sellerID })
+    .then(foundServices => {
+      if (foundServices.length > 0) {
+        return res
+          .json({
+            msg: "all-services-of-specific-seller!",
+            foundServices: foundServices,
+            success: true
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "No Service", success: false }).status(404);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post("/show-certificates-of-specific-service", (req, res) => {
   let { serviceID } = req.body;
 
@@ -547,6 +569,7 @@ Router.post(
     { name: "IdCardImages", maxCount: 8 }
   ]),
   (req, res) => {
+    // return res.json(1);
     let { data } = req.body;
     const sellerProfileImage = CreateURL(req.files["sellerImages"][0].filename);
     const IdCardImage = CreateURL(req.files["IdCardImages"][0].filename);

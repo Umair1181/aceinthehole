@@ -1,33 +1,53 @@
 const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const ProductPostClass = require("../BusinessLogic/user");
+// const ProductPostClass = require("../BusinessLogic/user");
 
-const {
-  User,
-  UserStats,
-  ProductPost,
-  Store,
-  StoreStats
-} = require("../../MODELS");
+const { User } = require("../../MODELS");
 const { upload } = require("../../storage")();
 ///email send import
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
 
-Router.post("/count-total-followed-stores-of-specific-user", (req, res) => {
+Router.post("/user-online-offline-toggle", (req, res) => {
   let { userID } = req.body;
-  UserStats.findOne({ user: userID })
+
+  User.findOne({ _id: userID })
     .then(foundUser => {
       if (foundUser) {
+        foundUser.isOnlineStatus = !foundUser.isOnlineStatus;
+        foundUser
+          .save()
+          .then(savedUser => {
+            if (savedUser.isOnlineStatus === true) {
+              return res
+                .json({
+                  msg: "You Are Online",
+                  savedUser: savedUser,
+                  success: true
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: "You Are Offline",
+                  savedUser: savedUser,
+                  success: true
+                })
+                .status(200);
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            return res.json({ msg: "Failed!", success: false }).status(505);
+          });
+      } else {
         return res
           .json({
-            msg: "Total followed stores",
-            total: foundUser.followedStores.length,
-            success: true
+            msg: "No Such User Exits!",
+            foundUser: foundUser,
+            success: false
           })
-          .status(200);
-      } else {
-        return res.json({ msg: "No Such User", success: false }).status(505);
+          .status(400);
       }
     })
     .catch(err => {
@@ -36,242 +56,27 @@ Router.post("/count-total-followed-stores-of-specific-user", (req, res) => {
     });
 });
 
-// ////////////////SHOW SINGLE user DETAILS//////
-Router.post("/list-of-all-followed-stores-by-user", (req, res) => {
-  let { userID } = req.body;
-
-  UserStats.findOne({ user: userID })
-    .populate({ path: "followedStores" })
-    .then(founduserStat => {
-      if (founduserStat !== null) {
-        return res
-          .json({
-            msg: "user follow these stores!",
-            followedStores: founduserStat.followedStores,
-            success: true
-          })
-          .status(200);
-      } else {
-        return res.json({ msg: "stat Not Found!", success: false }).status(404);
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(500);
-    });
-});
-
-Router.post("/show-users-app-share", (req, res) => {
-  let { userID } = req.body;
-
-  UserStats.findOne({ user: userID })
-    .then(async foundUserStat => {
-      if (foundUserStat) {
-        return res
-          .json({
-            msg: "Total App Shares of User",
-            totalAppShares: foundUserStat.totalUserAppShares,
-            success: true
-          })
-          .status(200);
-      } else {
-        return res
-          .json({ msg: "No Such User Stats Exist", success: false })
-          .status(400);
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(500);
-    });
-
-  // else {
-  //   UserStats.update({ user: userID }, { $pull: { likedPosts: postID } }).then(
-  //     async storeUnfollowed => {
-  //       let foundPost = await ProductPost.findOne({ _id: postID });
-  //       if (foundPost) {
-  //         foundPost.totalLikes = foundPost.totalLikes - 1;
-  //         let savedincrement = await foundPost.save();
-  //         if (savedincrement) {
-  //           console.log("Saved decrement");
-  //         }
-
-  //         if (storeUnfollowed) {
-  //           let foundStat = await UserStats.findOne({ user: userID });
-  //           return res
-  //             .json({
-  //               msg: "storeUnfollowed",
-  //               foundPost,
-  //               foundStat,
-  //               success: true
-  //             })
-  //             .status(200);
-  //         }
-  //       } else {
-  //         return res
-  //           .json({
-  //             msg: "Not storeUnfollowed",
-  //             storeUnfollowed,
-  //             success: false
-  //           })
-  //           .status(400);
-  //       }
-  //     }
-  //   );
-  // }
-});
-Router.post("/share-app-by-user", (req, res) => {
-  let { userID } = req.body;
-
-  UserStats.findOne({ user: userID })
-    .then(async foundUserStat => {
-      if (foundUserStat) {
-        foundUserStat.totalUserAppShares = foundUserStat.totalUserAppShares + 1;
-        foundUserStat
-          .save()
-          .then(storeSharedSaved => {
-            if (storeSharedSaved) {
-              return res
-                .json({
-                  msg: "Store Shared!",
-                  storeSharedSaved: storeSharedSaved,
-                  success: true
-                })
-                .status(200);
-            } else {
-              return res
-                .json({ msg: "Store Not Shared!", success: false })
-                .status(200);
-            }
-          })
-          .catch(err => {
-            console.log(err);
-            return res.json({ msg: "Failed!", success: false }).status(500);
-          });
-      } else {
-        return res
-          .json({ msg: "No Such User Stats Exist", success: false })
-          .status(400);
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(500);
-    });
-
-  // else {
-  //   UserStats.update({ user: userID }, { $pull: { likedPosts: postID } }).then(
-  //     async storeUnfollowed => {
-  //       let foundPost = await ProductPost.findOne({ _id: postID });
-  //       if (foundPost) {
-  //         foundPost.totalLikes = foundPost.totalLikes - 1;
-  //         let savedincrement = await foundPost.save();
-  //         if (savedincrement) {
-  //           console.log("Saved decrement");
-  //         }
-
-  //         if (storeUnfollowed) {
-  //           let foundStat = await UserStats.findOne({ user: userID });
-  //           return res
-  //             .json({
-  //               msg: "storeUnfollowed",
-  //               foundPost,
-  //               foundStat,
-  //               success: true
-  //             })
-  //             .status(200);
-  //         }
-  //       } else {
-  //         return res
-  //           .json({
-  //             msg: "Not storeUnfollowed",
-  //             storeUnfollowed,
-  //             success: false
-  //           })
-  //           .status(400);
-  //       }
-  //     }
-  //   );
-  // }
-});
-
-Router.post("/share-post-by-user", (req, res) => {
-  let { userID, postID } = req.body;
-
-  UserStats.findOne({ user: userID })
-    .then(async foundUserStat => {
-      if (foundUserStat) {
-        foundUserStat.sharedPosts.push(postID);
-        let foundPost = await ProductPost.findOne({ _id: postID });
-        if (foundPost) {
-          foundPost.totalShares = foundPost.totalShares + 1;
-          let savedincrement = await foundPost.save();
-          if (savedincrement) {
-            console.log("Saved increment");
-          }
-        }
-        foundUserStat.save().then(storeFollowedSaved => {
-          if (storeFollowedSaved) {
-            return res
-              .json({
-                msg: "Post Like and Saved!",
-                foundPost,
-                storeFollowedSaved: storeFollowedSaved,
-                success: true
-              })
-              .status(200);
-          } else {
-            return res
-              .json({ msg: "Post Like Not Saved!", success: false })
-              .status(200);
-          }
-        });
-      } else {
-        return res
-          .json({ msg: "No Such User Stats Exist", success: false })
-          .status(400);
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(500);
-    });
-
-  // else {
-  //   UserStats.update({ user: userID }, { $pull: { likedPosts: postID } }).then(
-  //     async storeUnfollowed => {
-  //       let foundPost = await ProductPost.findOne({ _id: postID });
-  //       if (foundPost) {
-  //         foundPost.totalLikes = foundPost.totalLikes - 1;
-  //         let savedincrement = await foundPost.save();
-  //         if (savedincrement) {
-  //           console.log("Saved decrement");
-  //         }
-
-  //         if (storeUnfollowed) {
-  //           let foundStat = await UserStats.findOne({ user: userID });
-  //           return res
-  //             .json({
-  //               msg: "storeUnfollowed",
-  //               foundPost,
-  //               foundStat,
-  //               success: true
-  //             })
-  //             .status(200);
-  //         }
-  //       } else {
-  //         return res
-  //           .json({
-  //             msg: "Not storeUnfollowed",
-  //             storeUnfollowed,
-  //             success: false
-  //           })
-  //           .status(400);
-  //       }
-  //     }
-  //   );
-  // }
-});
+// Router.post("/count-total-followed-stores-of-specific-user", (req, res) => {
+//   let { userID } = req.body;
+//   UserStats.findOne({ user: userID })
+//     .then(foundUser => {
+//       if (foundUser) {
+//         return res
+//           .json({
+//             msg: "Total followed stores",
+//             total: foundUser.followedStores.length,
+//             success: true
+//           })
+//           .status(200);
+//       } else {
+//         return res.json({ msg: "No Such User", success: false }).status(505);
+//       }
+//     })
+//     .catch(err => {
+//       console.log(err);
+//       return res.json({ msg: "Failed!", success: false }).status(505);
+//     });
+// });
 
 ///////////register-user-with-image/////////////
 Router.post(
@@ -329,7 +134,7 @@ Router.post(
                       return res
                         .json({
                           msg: "New User Registered!",
-                          savedseller: savedUser,
+                          savedUser: savedUser,
                           success: true
                         })
                         .status(200);
@@ -372,71 +177,6 @@ Router.post(
   }
 );
 
-Router.post("/liked-disLiked-products-of-any-user", async (req, res) => {
-  let { userID, limit, offset } = req.body;
-  UserStats.findOne({ user: userID })
-    .then(foundUserStat => {
-      ProductPost.find()
-        // .sort({ totalLikes: -1 })
-        .limit(limit)
-        .skip(offset)
-        .then(async allProducts => {
-          // neow let me see
-          // return res.json ({ list: allProducts, list2: foundUserStat });
-          new ProductPostClass()
-            .checkIsLikedOrNot(allProducts, foundUserStat.likedPosts)
-            .then(result => {
-              if (result.length > 0) {
-                return res
-                  .json({
-                    msg: "All Liked and Disliked Products",
-                    allLikedCHeckedPro: result,
-                    success: true
-                  })
-                  .status(200);
-              } else {
-                return res
-                  .json({ msg: "No Result!", success: false })
-                  .status(404);
-              }
-            });
-        })
-        .catch(err => {
-          console.log(err);
-          console.log("Catch error of finding product posts");
-        });
-    })
-    .catch(err => {
-      console.log(err);
-      console.log("Catch error of finding user stats form userStat");
-    });
-});
-
-// ////////////////SHOW SINGLE user DETAILS//////
-Router.post("/single-user-stat", (req, res) => {
-  let { userID } = req.body;
-
-  UserStats.findOne({ user: userID })
-    .populate({ path: "followedStores" })
-    .then(founduserStat => {
-      if (founduserStat !== null) {
-        return res
-          .json({
-            msg: "user stat Found!",
-            founduserStat: founduserStat,
-            success: true
-          })
-          .status(200);
-      } else {
-        return res.json({ msg: "stat Not Found!", success: false }).status(404);
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(500);
-    });
-});
-
 /////////////remove-specific-user/////////////////
 Router.post("/remove-specific-user", (req, res) => {
   let { userID } = req.body;
@@ -458,206 +198,6 @@ Router.post("/remove-specific-user", (req, res) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(500);
     });
-});
-
-Router.post("/store-follow-unfollow-by-user", async (req, res) => {
-  let { userID, storeID, wantfollowOrUnFollow } = req.body;
-  if (wantfollowOrUnFollow === true) {
-    let foundStoreStat = await StoreStats.findOne({ store: storeID });
-    for (let y = 0; y < foundStoreStat.followers.length; y++) {
-      // return res.json(foundStoreStat.followers[y]);
-      if (foundStoreStat.followers[y].toString() === userID.toString()) {
-        return res
-          .json({ msg: "Already Followed", success: false })
-          .status(404);
-      }
-    }
-    console.log("next to loop");
-    foundStoreStat.followers.push(userID);
-    let savedStoreStat = await foundStoreStat.save();
-    if (!savedStoreStat) {
-      return res
-        .json({ msg: "Store Stat Not Saved!", success: false })
-        .status(400);
-    }
-    console.log(savedStoreStat);
-    let foundStore = await Store.findOne({ _id: storeID });
-
-    if (foundStore) {
-      foundStore.totalFollowers = foundStore.totalFollowers + 1;
-      let storeSaved = await foundStore.save();
-      if (storeSaved) {
-        console.log("Store Saved and and one follower incremented!");
-      }
-    }
-
-    UserStats.findOne({ user: userID })
-      .then(foundUserStat => {
-        if (foundUserStat) {
-          foundUserStat.followedStores.push(storeID);
-          foundUserStat.save().then(storeFollowedSaved => {
-            if (storeFollowedSaved) {
-              return res
-                .json({
-                  msg: "Store Followed and Saved!",
-                  savedStoreStat,
-                  foundStore,
-                  storeFollowedSaved: storeFollowedSaved,
-                  success: true
-                })
-                .status(200);
-            } else {
-              return res
-                .json({ msg: "Store Follow  Not Saved!", success: false })
-                .status(200);
-            }
-          });
-        } else {
-          return res
-            .json({ msg: "No Such User Stats Exist", success: false })
-            .status(400);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-        return res.json({ msg: "Failed!", success: false }).status(500);
-      });
-  } else {
-    let foundStore = await Store.findOne({ _id: storeID });
-
-    if (foundStore) {
-      foundStore.totalFollowers = foundStore.totalFollowers - 1;
-      let storeSaved = await foundStore.save();
-      if (storeSaved) {
-        console.log("Store Saved and and one follower decremented!");
-      }
-    }
-    /////////////
-    StoreStats.update(
-      { store: storeID },
-      { $pull: { followers: userID } }
-    ).then(async storeUnfollowed => {
-      if (storeUnfollowed) {
-        UserStats.update(
-          { user: userID },
-          { $pull: { followedStores: storeID } }
-        ).then(async storeUnfollowed => {
-          if (storeUnfollowed) {
-            let foundStat = await UserStats.findOne({ user: userID });
-            return res
-              .json({
-                msg: "storeUnfollowed",
-                foundStore,
-                foundStat,
-                success: true
-              })
-              .status(200);
-          } else {
-            return res
-              .json({
-                msg: "Not storeUnfollowed",
-                storeUnfollowed,
-                success: false
-              })
-              .status(400);
-          }
-        });
-        // let foundStat = await UserStats.findOne({ user: userID });
-        // return res
-        //   .json({
-        //     msg: "storeUnfollowed",
-        //     foundStore,
-        //     foundStat,
-        //     success: true
-        //   })
-        //   .status(200);
-      } else {
-        return res
-          .json({ msg: "Not storeUnfollowed", storeUnfollowed, success: false })
-          .status(400);
-      }
-    });
-
-    ////////
-  }
-});
-
-Router.post("/post-liked-disliked-by-user", (req, res) => {
-  let { userID, postID, wantAddOrRemove } = req.body;
-
-  if (wantAddOrRemove === true) {
-    UserStats.findOne({ user: userID })
-      .then(async foundUserStat => {
-        if (foundUserStat) {
-          foundUserStat.likedPosts.push(postID);
-          let foundPost = await ProductPost.findOne({ _id: postID });
-          if (foundPost) {
-            foundPost.totalLikes = foundPost.totalLikes + 1;
-            let savedincrement = await foundPost.save();
-            if (savedincrement) {
-              console.log("Saved increment");
-            }
-          }
-          foundUserStat.save().then(storeFollowedSaved => {
-            if (storeFollowedSaved) {
-              return res
-                .json({
-                  msg: "Post Like and Saved!",
-                  foundPost,
-                  storeFollowedSaved: storeFollowedSaved,
-                  success: true
-                })
-                .status(200);
-            } else {
-              return res
-                .json({ msg: "Post Like Not Saved!", success: false })
-                .status(200);
-            }
-          });
-        } else {
-          return res
-            .json({ msg: "No Such User Stats Exist", success: false })
-            .status(400);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-        return res.json({ msg: "Failed!", success: false }).status(500);
-      });
-  } else {
-    UserStats.update({ user: userID }, { $pull: { likedPosts: postID } }).then(
-      async storeUnfollowed => {
-        let foundPost = await ProductPost.findOne({ _id: postID });
-        if (foundPost) {
-          foundPost.totalLikes = foundPost.totalLikes - 1;
-          let savedincrement = await foundPost.save();
-          if (savedincrement) {
-            console.log("Saved decrement");
-          }
-
-          if (storeUnfollowed) {
-            let foundStat = await UserStats.findOne({ user: userID });
-            return res
-              .json({
-                msg: "storeUnfollowed",
-                foundPost,
-                foundStat,
-                success: true
-              })
-              .status(200);
-          }
-        } else {
-          return res
-            .json({
-              msg: "Not storeUnfollowed",
-              storeUnfollowed,
-              success: false
-            })
-            .status(400);
-        }
-      }
-    );
-  }
 });
 
 // //////////////////// add-new-password///////////////////////////////
@@ -815,7 +355,7 @@ Router.post("/forget-pass-send-email", (req, res) => {
       } else {
         return res
           .json({
-            msg: "Seller Not Exist !!! ",
+            msg: "Invalid !!! ",
             success: false
           })
           .status(400);
@@ -928,59 +468,202 @@ Router.post("/user-login", (req, res) => {
   }
 }); //user LOGIN API ENDS
 
-// ///////////update-profile-image/////////////
+// // ///////////update-profile-image/////////////
+// Router.post(
+//   "/update-profile-image",
+//   upload.array("userImages", 2),
+//   (req, res) => {
+//     let imageArrays = req.files;
+//     let { data } = req.body;
+//     // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+//     let user = JSON.parse(data);
+//     // return res.json(user);
+//     // IMAGE URLS WILL BE CREATE BELOW
+//     let ImageURLsArray = [];
+//     imageArrays.forEach(eachFoundPic => {
+//       ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
+//     });
+//     //VALIDATIONS STARTS HERE
+//     let message = false;
+//     if (user._id === "") {
+//       message = "invalid _id";
+//     } else {
+//       message = false;
+//     }
+//     if (message === false) {
+//       //   let { _id:store._id}=req.body;
+
+//       User.findOne({
+//         _id: user._id
+//         // $or: [{ email: store.email }, { storeName: store.storeName }]
+//       })
+//         .then(foundUser => {
+//           if (foundUser !== null) {
+//             if (ImageURLsArray.length >= 2) {
+//               return res
+//                 .json({
+//                   msg: "Only One Profile Image Allowed!",
+//                   success: false
+//                 })
+//                 .status(400);
+//             }
+//             foundUser.profileImgURL = ImageURLsArray;
+//             foundUser
+//               .save()
+//               .then(UserUpdated => {
+//                 if (UserUpdated) {
+//                   UserUpdated.password = "";
+//                   return res
+//                     .json({
+//                       msg: "User Updated!",
+//                       success: true
+//                     })
+//                     .status(200);
+//                 } else {
+//                   return res
+//                     .json({ msg: "User Not Save!", success: false })
+//                     .status(400);
+//                 }
+//               })
+//               .catch(err => {
+//                 console.log(err);
+//                 console.log("error found");
+//                 return res
+//                   .json({
+//                     msg: "Failed: Save Catch Error!",
+//                     success: false
+//                   })
+//                   .status(400);
+//               });
+//           }
+//         })
+//         .catch(err => {
+//           console.log(err);
+//           return res
+//             .json({ msg: "Catch Error: Found Email", success: false })
+//             .status(400);
+//         });
+//     } else {
+//       return res.json({ msg: message, success: false }).status(400);
+//     }
+//   }
+// );
+
+// /////////////////////////
+// Router.post("/update-user-details", (req, res) => {
+//   let { user } = req.body;
+//   let message = false;
+//   if (user.userName === "") {
+//     message = "invalid userName";
+//   }
+//   if (message === false) {
+//     User.findOne({ _id: user._id })
+//       .then(foundUser => {
+//         if (foundUser) {
+//           foundUser.userName = user.userName;
+//           // foundUser.phoneNumber = user.phoneNumber;
+//           // foundUser.address = user.address;
+//           foundUser.save().then(saveduser => {
+//             if (saveduser) {
+//               saveduser.password = "";
+//               return res
+//                 .json({
+//                   msg: "user Updated",
+//                   saveduser: saveduser,
+//                   success: true
+//                 })
+//                 .status(200);
+//             } else {
+//               return res.json({ msg: "Not Saved", success: false }).status(400);
+//             }
+//           });
+//         } else {
+//           return res.json({ msg: "Not Found", success: false }).status(400);
+//         }
+//       })
+//       .catch(err => {
+//         return res.json({ msg: "Failed!", success: false }).status(500);
+//       });
+//   } else {
+//     return res.json({ msg: message, success: false }).status(400);
+//   }
+// });
+///////////register-user-with-image/////////////
 Router.post(
-  "/update-profile-image",
+  "/update-user-with-image",
   upload.array("userImages", 2),
   (req, res) => {
     let imageArrays = req.files;
     let { data } = req.body;
     // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
     let user = JSON.parse(data);
-    // return res.json(user);
     // IMAGE URLS WILL BE CREATE BELOW
     let ImageURLsArray = [];
     imageArrays.forEach(eachFoundPic => {
       ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
     });
     //VALIDATIONS STARTS HERE
+    let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     let message = false;
-    if (user._id === "") {
-      message = "invalid _id";
-    } else {
+    if (user.userName === "") {
+      message = "invalid userName";
+    }
+    // else if (store.phoneNumber === "" && store.phoneNumber.length < 6) {
+    //   message = "invalid phoneNumber";
+    // }
+    else if (user.password === "" && user.password.length < 6) {
+      message = "invalid password";
+    } else if (!RegularExpression.test(String(user.email).toLowerCase())) {
+      message = "invalid email!";
+    }
+    //  else if (store.address === "") {
+    //   message = "invalid address";
+    // }
+    else {
       message = false;
     }
     if (message === false) {
-      // return res.json(seller);
-      //   let { _id:store._id}=req.body;
-
-      User.findOne({
-        _id: user._id
-        // $or: [{ email: store.email }, { storeName: store.storeName }]
-      })
-        .then(foundUser => {
-          if (foundUser !== null) {
-            if (ImageURLsArray.length >= 2) {
-              return res
-                .json({
-                  msg: "Only One Profile Image Allowed!",
-                  success: false
-                })
-                .status(400);
+      User.findOne({ _id: user._id })
+        .then(founduser => {
+          if (founduser !== null) {
+            founduser.userName = user.userName;
+            founduser.dateOfBirth = user.dateOfBirth;
+            founduser.state = user.state;
+            founduser.email = founduser.email;
+            founduser.gender = user.gender;
+            founduser.country = user.country;
+            founduser.password = founduser.password;
+            founduser.profileImgURL = founduser.profileImgURL;
+            if (ImageURLsArray.length > 0) {
+              founduser.profileImgURL = ImageURLsArray;
             }
-            foundUser.profileImgURL = ImageURLsArray;
-            foundUser
+            founduser
               .save()
-              .then(UserUpdated => {
-                if (UserUpdated) {
-                  UserUpdated.password = "";
+              .then(userUpdated => {
+                if (userUpdated) {
                   return res
                     .json({
                       msg: "User Updated!",
-                      savedseller: UserUpdated,
+                      userUpdated: userUpdated,
                       success: true
                     })
                     .status(200);
+                  // savedUser.password = "";
+                  // let newUserStats = new UserStats({
+                  //   user: savedUser._id
+                  // });
+                  // newUserStats.save().then(UserStatsSaved => {
+                  //   if (UserStatsSaved) {
+
+                  //   } else {
+                  //     return res
+                  //       .json({
+                  //         msg: "User Stats Not Created!",
+                  //         success: false
+                  //       })
+                  //       .status(400);
+                  //   }
+                  // });
                 } else {
                   return res
                     .json({ msg: "User Not Save!", success: false })
@@ -1010,56 +693,15 @@ Router.post(
     }
   }
 );
-
-/////////////////////////
-Router.post("/update-user-details", (req, res) => {
-  let { user } = req.body;
-  let message = false;
-  if (user.userName === "") {
-    message = "invalid userName";
-  }
-  if (message === false) {
-    User.findOne({ _id: user._id })
-      .then(foundUser => {
-        if (foundUser) {
-          foundUser.userName = user.userName;
-          // foundUser.phoneNumber = user.phoneNumber;
-          // foundUser.address = user.address;
-          foundUser.save().then(saveduser => {
-            if (saveduser) {
-              saveduser.password = "";
-              return res
-                .json({
-                  msg: "user Updated",
-                  saveduser: saveduser,
-                  success: true
-                })
-                .status(200);
-            } else {
-              return res.json({ msg: "Not Saved", success: false }).status(400);
-            }
-          });
-        } else {
-          return res.json({ msg: "Not Found", success: false }).status(400);
-        }
-      })
-      .catch(err => {
-        return res.json({ msg: "Failed!", success: false }).status(500);
-      });
-  } else {
-    return res.json({ msg: message, success: false }).status(400);
-  }
-});
 ///////////register-user-with-image/////////////
 Router.post(
-  "/register-user-with-image",
+  "/login-or-register-user-with-image-by-social-media",
   upload.array("userImages", 2),
   (req, res) => {
     let imageArrays = req.files;
     let { data } = req.body;
     // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
     let user = JSON.parse(data);
-    // return res.json(user);
     // IMAGE URLS WILL BE CREATE BELOW
     let ImageURLsArray = [];
     imageArrays.forEach(eachFoundPic => {
@@ -1088,8 +730,122 @@ Router.post(
       message = false;
     }
     if (message === false) {
-      // return res.json(seller);
+      User.findOne({
+        $or: [{ email: user.email }, { userName: user.storeName }]
+      })
+        .then(founduser => {
+          if (founduser !== null) {
+            if (founduser.email === user.email) {
+              return res
+                .json({ msg: "User Authenticated!", success: true })
+                .status(400);
+            }
+          } else {
+            let newUser = new User({
+              userName: user.userName,
+              dateOfBirth: user.dateOfBirth,
+              state: user.state,
+              email: user.email,
+              gender: user.gender,
+              country: user.country,
+              //   phoneNumber: user.phoneNumber,
+              password: null,
+              // address: user.address,
+              profileImgURL: ImageURLsArray
+            });
+            newUser
+              .save()
+              .then(savedUser => {
+                if (savedUser) {
+                  return res
+                    .json({
+                      msg: "New User Registered!",
+                      savedUser: savedUser,
+                      success: true
+                    })
+                    .status(200);
+                  // savedUser.password = "";
+                  // let newUserStats = new UserStats({
+                  //   user: savedUser._id
+                  // });
+                  // newUserStats.save().then(UserStatsSaved => {
+                  //   if (UserStatsSaved) {
 
+                  //   } else {
+                  //     return res
+                  //       .json({
+                  //         msg: "User Stats Not Created!",
+                  //         success: false
+                  //       })
+                  //       .status(400);
+                  //   }
+                  // });
+                } else {
+                  return res
+                    .json({ msg: "User Not Save!", success: false })
+                    .status(400);
+                }
+              })
+              .catch(err => {
+                console.log(err);
+                console.log("error found");
+                return res
+                  .json({
+                    msg: "Failed: Save Catch Error!",
+                    success: false
+                  })
+                  .status(400);
+              });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          return res
+            .json({ msg: "Catch Error: Found Email", success: false })
+            .status(400);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(400);
+    }
+  }
+);
+///////////register-user-with-image/////////////
+Router.post(
+  "/register-user-with-image",
+  upload.array("userImages", 2),
+  (req, res) => {
+    let imageArrays = req.files;
+    let { data } = req.body;
+    // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+    let user = JSON.parse(data);
+    // IMAGE URLS WILL BE CREATE BELOW
+    let ImageURLsArray = [];
+    imageArrays.forEach(eachFoundPic => {
+      ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
+    });
+    //VALIDATIONS STARTS HERE
+    let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    let message = false;
+    if (user.userName === "") {
+      message = "invalid userName";
+    }
+    // else if (store.phoneNumber === "" && store.phoneNumber.length < 6) {
+    //   message = "invalid phoneNumber";
+    // }
+    else if (user.password === "" && user.password.length < 6) {
+      message = "invalid password";
+    } else if (!RegularExpression.test(String(user.email).toLowerCase())) {
+      message = "invalid email";
+    }
+    //  else if (store.address === "") {
+    //   message = "invalid address";
+    // }
+    else if (ImageURLsArray.length < 1) {
+      message = "One Image is compulsory!";
+    } else {
+      message = false;
+    }
+    if (message === false) {
       User.findOne({
         $or: [{ email: user.email }, { userName: user.storeName }]
       })
@@ -1121,7 +877,11 @@ Router.post(
                 }
                 let newUser = new User({
                   userName: user.userName,
+                  dateOfBirth: user.dateOfBirth,
+                  state: user.state,
                   email: user.email,
+                  gender: user.gender,
+                  country: user.country,
                   //   phoneNumber: user.phoneNumber,
                   password: hash,
                   // address: user.address,
@@ -1131,28 +891,29 @@ Router.post(
                   .save()
                   .then(savedUser => {
                     if (savedUser) {
-                      savedUser.password = "";
-                      let newUserStats = new UserStats({
-                        user: savedUser._id
-                      });
-                      newUserStats.save().then(UserStatsSaved => {
-                        if (UserStatsSaved) {
-                          return res
-                            .json({
-                              msg: "New User Registered!",
-                              savedseller: savedUser,
-                              success: true
-                            })
-                            .status(200);
-                        } else {
-                          return res
-                            .json({
-                              msg: "User Stats Not Created!",
-                              success: false
-                            })
-                            .status(400);
-                        }
-                      });
+                      return res
+                        .json({
+                          msg: "New User Registered!",
+                          savedUser: savedUser,
+                          success: true
+                        })
+                        .status(200);
+                      // savedUser.password = "";
+                      // let newUserStats = new UserStats({
+                      //   user: savedUser._id
+                      // });
+                      // newUserStats.save().then(UserStatsSaved => {
+                      //   if (UserStatsSaved) {
+
+                      //   } else {
+                      //     return res
+                      //       .json({
+                      //         msg: "User Stats Not Created!",
+                      //         success: false
+                      //       })
+                      //       .status(400);
+                      //   }
+                      // });
                     } else {
                       return res
                         .json({ msg: "User Not Save!", success: false })

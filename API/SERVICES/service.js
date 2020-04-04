@@ -1,30 +1,38 @@
 const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const { EmailVerification, Service, ServiceCategory } = require("../../MODELS");
+const { Service, ServiceCategory } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
+
+Router.post("/delete-any-certificate-in-existing-service", (req, res) => {
+  let { _id, removedCertificatedURLs } = req.body;
+
+  Service({ _id: _id }).then(foundService => {
+    if (foundService) {
+      if (foundService.certificatesImgsURLs.length > 0) {
+        for (let x = 0; x < foundService.certificatesImgsURLs.length; x++) {
+          if (
+            foundService.certificatesImgsURLs[x] === removedCertificatedURLs
+          ) {
+          }
+        }
+      } else {
+        return res.json({ msg: "No Certificate", success: false }).status(400);
+      }
+    } else {
+      return res.json({ msg: "No Service", success: false }).status(500);
+    }
+  });
+});
 
 Router.post(
   "/update-service-of-seller-with-image",
   upload.fields([
-    // { name: "certificatesImgs", maxCount: 4 },
+    { name: "certificatesImgs", maxCount: 4 },
     { name: "serviceImgs", maxCount: 3 }
   ]),
   (req, res) => {
     let { data } = req.body;
     let serviceImgArray = [];
-    // let certificateImgArray = [];
-
-    // return res.json(req.files["serviceImgs"]);
-
-    // for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
-    //   certificateImgArray.push(
-    //     CreateURL(req.files["certificatesImgs"][y].filename)
-    //   );
-    // }
-
-    // const certificatesImgs = CreateURL(
-    //   req.files["certificatesImgs"][0].filename
-    // );
     // const serviceImgs = CreateURL(req.files["serviceImgss"][0].filename);
     // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
     let service = JSON.parse(data);
@@ -167,6 +175,33 @@ Router.post("/show-all-services", (req, res) => {
     });
 });
 
+Router.post("/show-all-services-of-specific-seller", (req, res) => {
+  let { sellerID } = req.body;
+  Service.find({ seller: sellerID })
+    .then(foundService => {
+      if (foundService.length > 0) {
+        return res
+          .json({
+            msg: "all-services-of-specific-seller",
+            foundService: foundService,
+            success: true
+          })
+          .status(200);
+      } else {
+        return res
+          .json({
+            msg: "No Service Found!",
+            success: false
+          })
+          .status(400);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post("/show-single-service", (req, res) => {
   let { _id } = req.body;
   Service.findOne({ _id: _id })
@@ -193,6 +228,72 @@ Router.post("/show-single-service", (req, res) => {
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
 });
+
+///////////Sign up with Image of seller/////////////
+Router.post(
+  "/add-new-certificate-in-existing-service",
+  upload.fields([{ name: "certificatesImgs", maxCount: 4 }]),
+  (req, res) => {
+    let { data } = req.body;
+    let certificateImgArray = [];
+    for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
+      certificateImgArray.push(
+        CreateURL(req.files["certificatesImgs"][y].filename)
+      );
+    }
+    // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+    let service = JSON.parse(data);
+    //VALIDATIONS STARTS HERE
+    let message = false;
+    if (service._id === "") {
+      message = "invalid _id";
+    } else {
+      message = false;
+    }
+    if (message === false) {
+      Service.findOne({ _id: service._id })
+        .then(foundService => {
+          // return res.json(foundService);
+          // foundService.certificatesImgsURLs.push({ certificateImgArray });
+          foundService.certificatesImgsURLs =
+            foundService.certificatesImgsURLs + certificateImgArray;
+
+          foundService
+            .save()
+            .then(savedCertificate => {
+              if (savedCertificate) {
+                return res
+                  .json({
+                    msg: "Certificate added!",
+                    newCertificate: savedCertificate,
+                    success: true
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({ msg: "Service Not Save!", success: false })
+                  .status(400);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+              console.log("error found");
+              return res
+                .json({ msg: "Service catch error", success: false })
+                .status(400);
+            });
+        })
+        .catch(err => {
+          console.log(err);
+          return res
+            .json({ msg: "Catch Error Email", success: false })
+            .status(400);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(400);
+    }
+  }
+);
 
 ///////////Sign up with Image of seller/////////////
 Router.post(

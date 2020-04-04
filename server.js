@@ -21,9 +21,9 @@ mongoose
   .then(m => {
     global.mongodbconndbs = m.connection;
     ///////////////// API ROUTES ////////////////
-    // app.use("/admin", require("./ROUTES/adminRoutes"));
+    app.use("/admin", require("./ROUTES/adminRoutes"));
     app.use("/seller", require("./ROUTES/sellerRoutes"));
-    // app.use("/user", require("./ROUTES/userRoutes"));
+    app.use("/user", require("./ROUTES/userRoutes"));
     app.use("/service", require("./ROUTES/sellerRoutes"));
     app.use("/files", require("./API/FIES/imageAPI"));
     app.get("/", (req, res) => {
@@ -37,7 +37,7 @@ mongoose
     // return res.json({ msg: "db catch error" }).status(400);
   });
 ///////////// PORT ENVOIRMENT //////////////////
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {
   console.log(`SERVER RUNNING AT PORT ${port}`);
 });

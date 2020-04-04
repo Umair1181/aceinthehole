@@ -8,6 +8,10 @@ const Admin = new Schema({
   password: {
     type: String,
     required: true
+  },
+  RandomNumber: {
+    type: String,
+    default: null
   }
 });
 module.exports = mongoose.model("tbladmins", Admin);

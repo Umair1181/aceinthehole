@@ -603,7 +603,6 @@ Router.post(
       ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
     });
     //VALIDATIONS STARTS HERE
-    let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     let message = false;
     if (user.userName === "") {
       message = "invalid userName";
@@ -613,8 +612,6 @@ Router.post(
     // }
     else if (user.password === "" && user.password.length < 6) {
       message = "invalid password";
-    } else if (!RegularExpression.test(String(user.email).toLowerCase())) {
-      message = "invalid email!";
     }
     //  else if (store.address === "") {
     //   message = "invalid address";

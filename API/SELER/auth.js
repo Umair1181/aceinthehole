@@ -243,15 +243,9 @@ Router.post("/verify-code-of-email", (req, res) => {
 Router.post("/send-random-code-on-email", (req, res) => {
   let { email } = req.body;
   const RandomNumber = randomize("0", 6);
-  let newEmailVerification = new EmailVerification({
-    email: email,
-    code: RandomNumber,
-  });
-
-  newEmailVerification
-    .save()
-    .then((Saved) => {
-      if (Saved) {
+  EmailVerification.findOne({ email: email })
+    .then((alreadyFound) => {
+      if (alreadyFound !== null) {
         const mailOptions = {
           from: "mhanzlanaveed@gmail.com", // sender address
           to: email, // list of receivers
@@ -277,11 +271,52 @@ Router.post("/send-random-code-on-email", (req, res) => {
           }
         }); // NODEMAILER END HERE
       } else {
-        return res
-          .json({ msg: "Random Code Not Saved", success: false })
-          .status(400);
+        let newEmailVerification = new EmailVerification({
+          email: email,
+          code: RandomNumber,
+        });
+
+        newEmailVerification
+          .save()
+          .then((Saved) => {
+            if (Saved) {
+              const mailOptions = {
+                from: "mhanzlanaveed@gmail.com", // sender address
+                to: email, // list of receivers
+                subject: "Ace In A Hole app Email Verification Code ✔", // Subject line
+                html: `<p>Email Verification Code: </p> ${Saved.code} `, // plain text body
+              };
+              // Email Sending Second Step
+              transporter.sendMail(mailOptions, function (err, info) {
+                if (err) {
+                  console.log(err);
+                  return res
+                    .json({ msg: "Email Failed!", success: false })
+                    .status(400);
+                } else {
+                  console.log("Email Sent!!!!!");
+                  return res
+                    .json({
+                      msg: `Email Sent to ${Saved.email}`,
+                      Saved,
+                      success: true,
+                    })
+                    .status(200);
+                }
+              }); // NODEMAILER END HERE
+            } else {
+              return res
+                .json({ msg: "Random Code Not Saved", success: false })
+                .status(400);
+            }
+            // Email Sending First Step Email Content
+          })
+          .catch((err) => {
+            return res
+              .json({ msg: "Code Not Saved In DATABASE", success: false })
+              .status(400);
+          });
       }
-      // Email Sending First Step Email Content
     })
     .catch((err) => {
       return res

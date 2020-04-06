@@ -610,9 +610,7 @@ Router.post(
     // else if (store.phoneNumber === "" && store.phoneNumber.length < 6) {
     //   message = "invalid phoneNumber";
     // }
-    else if (user.password === "" && user.password.length < 6) {
-      message = "invalid password";
-    }
+
     //  else if (store.address === "") {
     //   message = "invalid address";
     // }

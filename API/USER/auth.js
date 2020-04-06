@@ -12,18 +12,18 @@ Router.post("/user-online-offline-toggle", (req, res) => {
   let { userID } = req.body;
 
   User.findOne({ _id: userID })
-    .then(foundUser => {
+    .then((foundUser) => {
       if (foundUser) {
         foundUser.isOnlineStatus = !foundUser.isOnlineStatus;
         foundUser
           .save()
-          .then(savedUser => {
+          .then((savedUser) => {
             if (savedUser.isOnlineStatus === true) {
               return res
                 .json({
                   msg: "You Are Online",
                   savedUser: savedUser,
-                  success: true
+                  success: true,
                 })
                 .status(200);
             } else {
@@ -31,12 +31,12 @@ Router.post("/user-online-offline-toggle", (req, res) => {
                 .json({
                   msg: "You Are Offline",
                   savedUser: savedUser,
-                  success: true
+                  success: true,
                 })
                 .status(200);
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err);
             return res.json({ msg: "Failed!", success: false }).status(505);
           });
@@ -45,12 +45,12 @@ Router.post("/user-online-offline-toggle", (req, res) => {
           .json({
             msg: "No Such User Exits!",
             foundUser: foundUser,
-            success: false
+            success: false,
           })
           .status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
@@ -90,7 +90,7 @@ Router.post(
     // return res.json(user);
     // IMAGE URLS WILL BE CREATE BELOW
     let ImageURLsArray = [];
-    imageArrays.forEach(eachFoundPic => {
+    imageArrays.forEach((eachFoundPic) => {
       ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
     });
     let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -105,13 +105,13 @@ Router.post(
     }
     if (message === false) {
       User.findOne({ email: user.email })
-        .then(founduser => {
+        .then((founduser) => {
           if (founduser !== null) {
             return res
               .json({
                 msg: "User Authenticated!",
                 founduser: founduser,
-                success: true
+                success: true,
               })
               .status(200);
           } else {
@@ -119,30 +119,30 @@ Router.post(
               userName: user.userName,
               email: user.email,
               password: null,
-              profileImgURL: ImageURLsArray
+              profileImgURL: ImageURLsArray,
             });
             newUser
               .save()
-              .then(savedUser => {
+              .then((savedUser) => {
                 if (savedUser) {
                   savedUser.password = "";
                   let newUserStats = new UserStats({
-                    user: savedUser._id
+                    user: savedUser._id,
                   });
-                  newUserStats.save().then(UserStatsSaved => {
+                  newUserStats.save().then((UserStatsSaved) => {
                     if (UserStatsSaved) {
                       return res
                         .json({
                           msg: "New User Registered!",
                           savedUser: savedUser,
-                          success: true
+                          success: true,
                         })
                         .status(200);
                     } else {
                       return res
                         .json({
                           msg: "User Stats Not Created!",
-                          success: false
+                          success: false,
                         })
                         .status(400);
                     }
@@ -153,19 +153,19 @@ Router.post(
                     .status(400);
                 }
               })
-              .catch(err => {
+              .catch((err) => {
                 console.log(err);
                 console.log("error found");
                 return res
                   .json({
                     msg: "Failed: Save Catch Error!",
-                    success: false
+                    success: false,
                   })
                   .status(400);
               });
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           return res
             .json({ msg: "Catch Error: Found Email", success: false })
@@ -181,20 +181,20 @@ Router.post(
 Router.post("/remove-specific-user", (req, res) => {
   let { userID } = req.body;
   User.remove({ _id: userID })
-    .then(foundUser => {
+    .then((foundUser) => {
       if (foundUser.n === 1) {
         return res
           .json({
             msg: "User Deleted!",
             foundUser: userID,
-            success: true
+            success: true,
           })
           .status(200);
       } else {
         return res.json({ msg: "Invalid ID!", success: false }).status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(500);
     });
@@ -211,14 +211,14 @@ Router.post("/add-new-password", (req, res) => {
     message = false;
   }
   if (message === false) {
-    User.findOne({ email: user.email }).then(userFound => {
+    User.findOne({ email: user.email }).then((userFound) => {
       if (userFound) {
         bcrypt.genSalt(10, (err, salt) => {
           if (err) {
             return res
               .json({
                 msg: "Salt Creation Failed!",
-                success: false
+                success: false,
               })
               .status(400);
           }
@@ -231,22 +231,22 @@ Router.post("/add-new-password", (req, res) => {
             userFound.password = hash;
             userFound
               .save()
-              .then(saveduser => {
+              .then((saveduser) => {
                 return res
                   .json({
                     msg: "user Found & Password Updated",
                     userName: saveduser.userName,
-                    success: true
+                    success: true,
                   })
                   .status(200);
               })
-              .catch(err => {
+              .catch((err) => {
                 console.log(err);
                 return res
                   .json({
                     msg: "user Invalid!!!",
                     userPassword: saveduser.password,
-                    success: false
+                    success: false,
                   })
                   .status(500);
               });
@@ -275,17 +275,17 @@ Router.post("/forget-pass-code-match", (req, res) => {
 
     User.findOne({
       email: user.email,
-      RandomNumber: user.randomcode
+      RandomNumber: user.randomcode,
     })
-      .then(founduser => {
+      .then((founduser) => {
         if (founduser !== null) {
           founduser.RandomNumber = null; //Change the code from dataBase
-          founduser.save().then(Updateuser => {
+          founduser.save().then((Updateuser) => {
             console.log(Updateuser.RandomNumber);
             return res
               .json({
                 msg: "user And Code Verified",
-                success: true
+                success: true,
               })
               .status(200);
           });
@@ -293,12 +293,12 @@ Router.post("/forget-pass-code-match", (req, res) => {
           return res
             .json({
               msg: "Invalid Email Or Code!!!!",
-              success: false
+              success: false,
             })
             .status(400);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         return res.json({ msg: "Failed!", success: false }).status(500);
       });
   }
@@ -309,21 +309,21 @@ Router.post("/forget-pass-send-email", (req, res) => {
   let { email } = req.body;
   const RandomNumber = randomize("0", 6);
   User.findOne({ email: email })
-    .then(foundStore => {
+    .then((foundStore) => {
       if (foundStore !== null) {
         foundStore.RandomNumber = RandomNumber;
         foundStore
           .save()
-          .then(SavedRandomNumber => {
+          .then((SavedRandomNumber) => {
             if (SavedRandomNumber) {
               const mailOptions = {
                 from: "mhanzlanaveed@gmail.com", // sender address
                 to: email, // list of receivers
                 subject: "Pinterest App Reset Code ✔", // Subject line
-                html: `<p>Password Reset Code: </p> ${RandomNumber} ` // plain text body
+                html: `<p>Password Reset Code: </p> ${RandomNumber} `, // plain text body
               };
               // Email Sending Second Step
-              transporter.sendMail(mailOptions, function(err, info) {
+              transporter.sendMail(mailOptions, function (err, info) {
                 if (err) {
                   console.log(err);
                   return res
@@ -335,7 +335,7 @@ Router.post("/forget-pass-send-email", (req, res) => {
                     .json({
                       msg: `Email Sent to ${foundStore.userName}`,
 
-                      success: true
+                      success: true,
                     })
                     .status(200);
                 }
@@ -347,7 +347,7 @@ Router.post("/forget-pass-send-email", (req, res) => {
             }
             // Email Sending First Step Email Content
           })
-          .catch(err => {
+          .catch((err) => {
             return res
               .json({ msg: "Code Not Saved In DATABASE", success: false })
               .status(400);
@@ -356,12 +356,12 @@ Router.post("/forget-pass-send-email", (req, res) => {
         return res
           .json({
             msg: "Invalid !!! ",
-            success: false
+            success: false,
           })
           .status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!!!", success: false }).status(500);
     });
@@ -370,20 +370,20 @@ Router.post("/forget-pass-send-email", (req, res) => {
 ////////////////SHOW all-users-details//////
 Router.post("/all-users-details", (req, res) => {
   User.find()
-    .then(foundUsers => {
+    .then((foundUsers) => {
       if (foundUsers.length > 0) {
         return res
           .json({
             msg: "All Users Details!",
             foundUsers: foundUsers,
-            success: true
+            success: true,
           })
           .status(200);
       } else {
         return res.json({ msg: "No User!", success: false }).status(404);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(500);
     });
@@ -394,7 +394,7 @@ Router.post("/single-user-details", (req, res) => {
   let { userID } = req.body;
 
   User.findOne({ _id: userID })
-    .then(founduser => {
+    .then((founduser) => {
       if (founduser !== null) {
         return res
           .json({ msg: "user Found!", founduser: founduser, success: true })
@@ -403,7 +403,7 @@ Router.post("/single-user-details", (req, res) => {
         return res.json({ msg: "user Not Found!", success: false }).status(404);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(500);
     });
@@ -425,19 +425,19 @@ Router.post("/user-login", (req, res) => {
   }
   if (message === false) {
     User.findOne({ email: user.email })
-      .then(founduser => {
+      .then((founduser) => {
         if (founduser) {
           ///////////// Password Compare /////////
           bcrypt
             .compare(user.password, founduser.password)
-            .then(checkPwMatch => {
+            .then((checkPwMatch) => {
               if (checkPwMatch) {
                 founduser.password = "";
                 return res
                   .json({
                     msg: "Authenticated user!",
                     user: founduser,
-                    success: true
+                    success: true,
                   })
                   .status(200);
               } else {
@@ -446,12 +446,12 @@ Router.post("/user-login", (req, res) => {
                   .status(400);
               }
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err);
               return res
                 .json({
                   msg: "catch error password comparison",
-                  success: false
+                  success: false,
                 })
                 .status(400);
             });
@@ -459,7 +459,7 @@ Router.post("/user-login", (req, res) => {
           return res.json({ msg: "Invalid Email", success: false }).status(400);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return res.json({ msg: "catch error ", success: false }).status(500);
       });
@@ -599,7 +599,7 @@ Router.post(
     let user = JSON.parse(data);
     // IMAGE URLS WILL BE CREATE BELOW
     let ImageURLsArray = [];
-    imageArrays.forEach(eachFoundPic => {
+    imageArrays.forEach((eachFoundPic) => {
       ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
     });
     //VALIDATIONS STARTS HERE
@@ -624,28 +624,28 @@ Router.post(
     }
     if (message === false) {
       User.findOne({ _id: user._id })
-        .then(founduser => {
+        .then((founduser) => {
           if (founduser !== null) {
             founduser.userName = user.userName;
             founduser.dateOfBirth = user.dateOfBirth;
             founduser.state = user.state;
-            founduser.email = founduser.email;
+            founduser.email = founduser.email; //same
             founduser.gender = user.gender;
             founduser.country = user.country;
-            founduser.password = founduser.password;
+            founduser.password = founduser.password; //same
             founduser.profileImgURL = founduser.profileImgURL;
             if (ImageURLsArray.length > 0) {
               founduser.profileImgURL = ImageURLsArray;
             }
             founduser
               .save()
-              .then(userUpdated => {
+              .then((userUpdated) => {
                 if (userUpdated) {
                   return res
                     .json({
                       msg: "User Updated!",
                       userUpdated: userUpdated,
-                      success: true
+                      success: true,
                     })
                     .status(200);
                   // savedUser.password = "";
@@ -670,19 +670,19 @@ Router.post(
                     .status(400);
                 }
               })
-              .catch(err => {
+              .catch((err) => {
                 console.log(err);
                 console.log("error found");
                 return res
                   .json({
                     msg: "Failed: Save Catch Error!",
-                    success: false
+                    success: false,
                   })
                   .status(400);
               });
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           return res
             .json({ msg: "Catch Error: Found Email", success: false })
@@ -704,7 +704,7 @@ Router.post(
     let user = JSON.parse(data);
     // IMAGE URLS WILL BE CREATE BELOW
     let ImageURLsArray = [];
-    imageArrays.forEach(eachFoundPic => {
+    imageArrays.forEach((eachFoundPic) => {
       ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
     });
     //VALIDATIONS STARTS HERE
@@ -731,9 +731,9 @@ Router.post(
     }
     if (message === false) {
       User.findOne({
-        $or: [{ email: user.email }, { userName: user.storeName }]
+        $or: [{ email: user.email }, { userName: user.storeName }],
       })
-        .then(founduser => {
+        .then((founduser) => {
           if (founduser !== null) {
             if (founduser.email === user.email) {
               return res
@@ -751,17 +751,17 @@ Router.post(
               //   phoneNumber: user.phoneNumber,
               password: null,
               // address: user.address,
-              profileImgURL: ImageURLsArray
+              profileImgURL: ImageURLsArray,
             });
             newUser
               .save()
-              .then(savedUser => {
+              .then((savedUser) => {
                 if (savedUser) {
                   return res
                     .json({
                       msg: "New User Registered!",
                       savedUser: savedUser,
-                      success: true
+                      success: true,
                     })
                     .status(200);
                   // savedUser.password = "";
@@ -786,19 +786,19 @@ Router.post(
                     .status(400);
                 }
               })
-              .catch(err => {
+              .catch((err) => {
                 console.log(err);
                 console.log("error found");
                 return res
                   .json({
                     msg: "Failed: Save Catch Error!",
-                    success: false
+                    success: false,
                   })
                   .status(400);
               });
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           return res
             .json({ msg: "Catch Error: Found Email", success: false })
@@ -820,7 +820,7 @@ Router.post(
     let user = JSON.parse(data);
     // IMAGE URLS WILL BE CREATE BELOW
     let ImageURLsArray = [];
-    imageArrays.forEach(eachFoundPic => {
+    imageArrays.forEach((eachFoundPic) => {
       ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
     });
     //VALIDATIONS STARTS HERE
@@ -847,9 +847,9 @@ Router.post(
     }
     if (message === false) {
       User.findOne({
-        $or: [{ email: user.email }, { userName: user.storeName }]
+        $or: [{ email: user.email }, { userName: user.storeName }],
       })
-        .then(founduser => {
+        .then((founduser) => {
           if (founduser !== null) {
             if (founduser.email === user.email) {
               return res
@@ -885,17 +885,17 @@ Router.post(
                   //   phoneNumber: user.phoneNumber,
                   password: hash,
                   // address: user.address,
-                  profileImgURL: ImageURLsArray
+                  profileImgURL: ImageURLsArray,
                 });
                 newUser
                   .save()
-                  .then(savedUser => {
+                  .then((savedUser) => {
                     if (savedUser) {
                       return res
                         .json({
                           msg: "New User Registered!",
                           savedUser: savedUser,
-                          success: true
+                          success: true,
                         })
                         .status(200);
                       // savedUser.password = "";
@@ -920,13 +920,13 @@ Router.post(
                         .status(400);
                     }
                   })
-                  .catch(err => {
+                  .catch((err) => {
                     console.log(err);
                     console.log("error found");
                     return res
                       .json({
                         msg: "Failed: Save Catch Error!",
-                        success: false
+                        success: false,
                       })
                       .status(400);
                   });
@@ -934,7 +934,7 @@ Router.post(
             });
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           return res
             .json({ msg: "Catch Error: Found Email", success: false })

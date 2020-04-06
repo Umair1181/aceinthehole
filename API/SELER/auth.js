@@ -228,9 +228,7 @@ Router.post("/verify-code-of-email", (req, res) => {
             .status(400);
         }
       } else {
-        return res
-          .json({ msg: "Seller Not Found!", success: false })
-          .status(400);
+        return res.json({ msg: "Not Found!", success: false }).status(400);
       }
     })
     .catch((err) => {
@@ -263,7 +261,7 @@ Router.post("/send-random-code-on-email", (req, res) => {
             console.log("Email Sent!!!!!");
             return res
               .json({
-                msg: `Email Sent to ${Saved.email}`,
+                msg: `Email RE Sent to ${Saved.email}`,
                 Saved,
                 success: true,
               })

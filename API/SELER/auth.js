@@ -204,7 +204,6 @@ Router.post("/verify-code-of-email", (req, res) => {
         console.log(found.code);
         if (found.code === code) {
           found.code = null;
-          found.email = null;
           found
             .save()
             .then((UpdateVerified) => {
@@ -244,30 +243,37 @@ Router.post("/send-random-code-on-email", (req, res) => {
   EmailVerification.findOne({ email: email })
     .then((alreadyFound) => {
       if (alreadyFound !== null) {
-        const mailOptions = {
-          from: "mhanzlanaveed@gmail.com", // sender address
-          to: email, // list of receivers
-          subject: "Ace In A Hole app Email Verification Code ✔", // Subject line
-          html: `<p>Email Verification Code: </p> ${Saved.code} `, // plain text body
-        };
-        // Email Sending Second Step
-        transporter.sendMail(mailOptions, function (err, info) {
-          if (err) {
-            console.log(err);
-            return res
-              .json({ msg: "Email Failed!", success: false })
-              .status(400);
+        alreadyFound.code = RandomNumber;
+        alreadyFound.save().then((saved) => {
+          if (saved) {
+            const mailOptions = {
+              from: "mhanzlanaveed@gmail.com", // sender address
+              to: email, // list of receivers
+              subject: "Ace In A Hole app Email Verification Code ✔", // Subject line
+              html: `<p>Email Verification Code: </p> ${RandomNumber} `, // plain text body
+            };
+            // Email Sending Second Step
+            transporter.sendMail(mailOptions, function (err, info) {
+              if (err) {
+                console.log(err);
+                return res
+                  .json({ msg: "Email Failed!", success: false })
+                  .status(400);
+              } else {
+                console.log("Email Sent!!!!!");
+                return res
+                  .json({
+                    msg: `Email RE Sent to ${email}`,
+
+                    success: true,
+                  })
+                  .status(200);
+              }
+            }); // NODEMAILER END HERE
           } else {
-            console.log("Email Sent!!!!!");
-            return res
-              .json({
-                msg: `Email RE Sent to ${Saved.email}`,
-                Saved,
-                success: true,
-              })
-              .status(200);
+            return res.json({ msg: "Not Saved", success: false }).status(404);
           }
-        }); // NODEMAILER END HERE
+        });
       } else {
         let newEmailVerification = new EmailVerification({
           email: email,
@@ -296,7 +302,7 @@ Router.post("/send-random-code-on-email", (req, res) => {
                   return res
                     .json({
                       msg: `Email Sent to ${Saved.email}`,
-                      Saved,
+
                       success: true,
                     })
                     .status(200);
@@ -317,9 +323,7 @@ Router.post("/send-random-code-on-email", (req, res) => {
       }
     })
     .catch((err) => {
-      return res
-        .json({ msg: "Code Not Saved In DATABASE", success: false })
-        .status(400);
+      return res.json({ msg: "fAILED", success: false }).status(400);
     });
 });
 

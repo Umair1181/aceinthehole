@@ -6,7 +6,7 @@ const { upload, CreateURL } = require("../../storage")();
 Router.post("/delete-any-certificate-in-existing-service", (req, res) => {
   let { _id, removedCertificatedURLs } = req.body;
 
-  Service({ _id: _id }).then(foundService => {
+  Service({ _id: _id }).then((foundService) => {
     if (foundService) {
       if (foundService.certificatesImgsURLs.length > 0) {
         for (let x = 0; x < foundService.certificatesImgsURLs.length; x++) {
@@ -28,7 +28,7 @@ Router.post(
   "/update-service-of-seller-with-image",
   upload.fields([
     { name: "certificatesImgs", maxCount: 4 },
-    { name: "serviceImgs", maxCount: 3 }
+    { name: "serviceImgs", maxCount: 3 },
   ]),
   (req, res) => {
     let { data } = req.body;
@@ -62,7 +62,7 @@ Router.post(
     }
     if (message === false) {
       Service.findOne({ _id: service._id })
-        .then(foundService => {
+        .then((foundService) => {
           if (foundService !== null) {
             foundService.serviceName = service.serviceName;
             foundService.seller = foundService.seller;
@@ -86,13 +86,13 @@ Router.post(
 
             foundService
               .save()
-              .then(sService => {
+              .then((sService) => {
                 if (sService) {
                   return res
                     .json({
                       msg: "Service Updated!",
                       newService: sService,
-                      success: true
+                      success: true,
                     })
                     .status(200);
                 } else {
@@ -101,7 +101,7 @@ Router.post(
                     .status(400);
                 }
               })
-              .catch(err => {
+              .catch((err) => {
                 console.log(err);
                 console.log("error found");
                 return res
@@ -110,7 +110,7 @@ Router.post(
               });
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           return res
             .json({ msg: "Catch Error Email", success: false })
@@ -125,25 +125,25 @@ Router.post(
 Router.post("/delete-service", (req, res) => {
   let { _id } = req.body;
   Service.remove({ _id: _id })
-    .then(foundService => {
+    .then((foundService) => {
       if (foundService.n === 1) {
         return res
           .json({
             msg: "Service  Deleted!",
             removedService: _id,
-            success: true
+            success: true,
           })
           .status(200);
       } else {
         return res
           .json({
             msg: "Invalid!",
-            success: false
+            success: false,
           })
           .status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
@@ -151,25 +151,25 @@ Router.post("/delete-service", (req, res) => {
 
 Router.post("/show-all-services", (req, res) => {
   Service.find()
-    .then(foundServices => {
+    .then((foundServices) => {
       if (foundServices.length > 0) {
         return res
           .json({
             msg: "All Services!",
             foundServices: foundServices,
-            success: true
+            success: true,
           })
           .status(200);
       } else {
         return res
           .json({
             msg: "No Service Found!",
-            success: false
+            success: false,
           })
           .status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
@@ -178,25 +178,25 @@ Router.post("/show-all-services", (req, res) => {
 Router.post("/show-all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;
   Service.find({ seller: sellerID })
-    .then(foundService => {
+    .then((foundService) => {
       if (foundService.length > 0) {
         return res
           .json({
             msg: "all-services-of-specific-seller",
             foundService: foundService,
-            success: true
+            success: true,
           })
           .status(200);
       } else {
         return res
           .json({
             msg: "No Service Found!",
-            success: false
+            success: false,
           })
           .status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
@@ -205,25 +205,25 @@ Router.post("/show-all-services-of-specific-seller", (req, res) => {
 Router.post("/show-single-service", (req, res) => {
   let { _id } = req.body;
   Service.findOne({ _id: _id })
-    .then(foundService => {
+    .then((foundService) => {
       if (foundService) {
         return res
           .json({
             msg: "Service Found!",
             foundService: foundService,
-            success: true
+            success: true,
           })
           .status(200);
       } else {
         return res
           .json({
             msg: "No Service Found!",
-            success: false
+            success: false,
           })
           .status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
@@ -252,7 +252,7 @@ Router.post(
     }
     if (message === false) {
       Service.findOne({ _id: service._id })
-        .then(foundService => {
+        .then((foundService) => {
           // return res.json(foundService);
           // foundService.certificatesImgsURLs.push({ certificateImgArray });
           foundService.certificatesImgsURLs =
@@ -260,13 +260,13 @@ Router.post(
 
           foundService
             .save()
-            .then(savedCertificate => {
+            .then((savedCertificate) => {
               if (savedCertificate) {
                 return res
                   .json({
                     msg: "Certificate added!",
                     newCertificate: savedCertificate,
-                    success: true
+                    success: true,
                   })
                   .status(200);
               } else {
@@ -275,7 +275,7 @@ Router.post(
                   .status(400);
               }
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err);
               console.log("error found");
               return res
@@ -283,7 +283,7 @@ Router.post(
                 .status(400);
             });
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           return res
             .json({ msg: "Catch Error Email", success: false })
@@ -297,134 +297,153 @@ Router.post(
 
 ///////////Sign up with Image of seller/////////////
 Router.post(
-  "/add-new-service-of-seller-with-image",
+  "/test-api",
   upload.fields([
-    { name: "certificatesImgs", maxCount: 4 },
-    { name: "serviceImgs", maxCount: 3 }
+    // { name: "certificatesImgs", maxCount: 4 },
+    { name: "serviceImgs", maxCount: 3 },
   ]),
   (req, res) => {
-    // return res.json(req.files["serviceImgs"]);
-    let { data } = req.body;
     let serviceImgArray = [];
-    let certificateImgArray = [];
     for (let x = 0; x < req.files["serviceImgs"].length; x++) {
       serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
     }
-
-    for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
-      certificateImgArray.push(
-        CreateURL(req.files["certificatesImgs"][y].filename)
-      );
-    }
-
-    // const certificatesImgs = CreateURL(
-    //   req.files["certificatesImgs"][0].filename
-    // );
-    // const serviceImgs = CreateURL(req.files["serviceImgss"][0].filename);
-    // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+    let { data } = req.body;
     let service = JSON.parse(data);
 
-    //VALIDATIONS STARTS HERE
-    let message = false;
-    if (service.serviceName === "") {
-      message = "invalid service name";
-    } else if (service.seller === "") {
-      message = "invalid seller";
-    } else if (service.category === "") {
-      message = "invalid category";
-    } else if (service.price === "") {
-      message = "invalid price";
-    } else if (service.description === "") {
-      message = "invalid description";
-    } else if (service.serviceDaysArray === "") {
-      message = "invalid serviceDaysArray";
-    } else if (service.toTime === "") {
-      message = "invalid toTime";
-    } else if (service.fromTime === "") {
-      message = "invalid fromTime";
-    } else {
-      message = false;
-    }
-    if (message === false) {
-      Service.findOne({ serviceName: service.serviceName })
-        .then(fEmail => {
-          if (fEmail !== null) {
-            return res
-              .json({ msg: "Service Name Already Exist!", success: false })
-              .status(400);
-          } else {
-            let newService = new Service({
-              serviceName: service.serviceName,
-              seller: service.seller,
-              category: service.category,
-              price: service.price,
-              description: service.description,
-              serviceDaysArray: service.serviceDaysArray,
-              toTime: service.toTime,
-              fromTime: service.fromTime,
-              serviceImgsURLs: serviceImgArray,
-              certificatesImgsURLs: certificateImgArray
-            });
-            newService
-              .save()
-              .then(sService => {
-                if (sService) {
-                  return res
-                    .json({
-                      msg: "Service Created!",
-                      newService: sService,
-                      success: true
-                    })
-                    .status(200);
-                } else {
-                  return res
-                    .json({ msg: "Service Not Save!", success: false })
-                    .status(400);
-                }
-              })
-              .catch(err => {
-                console.log(err);
-                console.log("error found");
-                return res
-                  .json({ msg: "Service catch error", success: false })
-                  .status(400);
-              });
-          }
-        })
-        .catch(err => {
-          console.log(err);
-          return res
-            .json({ msg: "Catch Error Email", success: false })
-            .status(400);
-        });
-    } else {
-      return res.json({ msg: message, success: false }).status(400);
-    }
+    return res.json(req.files["serviceImgs"]);
   }
 );
+
+// ///////////Sign up with Image of seller/////////////
+// Router.post(
+//   "/add-new-service-of-seller-with-image",
+//   upload.fields([
+//     { name: "certificatesImgs", maxCount: 4 },
+//     { name: "serviceImgs", maxCount: 3 }
+//   ]),
+//   (req, res) => {
+//     // return res.json(req.files["serviceImgs"]);
+//     let { data } = req.body;
+//     let serviceImgArray = [];
+//     let certificateImgArray = [];
+//     for (let x = 0; x < req.files["serviceImgs"].length; x++) {
+//       serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
+//     }
+
+//     for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
+//       certificateImgArray.push(
+//         CreateURL(req.files["certificatesImgs"][y].filename)
+//       );
+//     }
+
+//     // const certificatesImgs = CreateURL(
+//     //   req.files["certificatesImgs"][0].filename
+//     // );
+//     // const serviceImgs = CreateURL(req.files["serviceImgss"][0].filename);
+//     // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+//     let service = JSON.parse(data);
+
+//     //VALIDATIONS STARTS HERE
+//     let message = false;
+//     if (service.serviceName === "") {
+//       message = "invalid service name";
+//     } else if (service.seller === "") {
+//       message = "invalid seller";
+//     } else if (service.category === "") {
+//       message = "invalid category";
+//     } else if (service.price === "") {
+//       message = "invalid price";
+//     } else if (service.description === "") {
+//       message = "invalid description";
+//     } else if (service.serviceDaysArray === "") {
+//       message = "invalid serviceDaysArray";
+//     } else if (service.toTime === "") {
+//       message = "invalid toTime";
+//     } else if (service.fromTime === "") {
+//       message = "invalid fromTime";
+//     } else {
+//       message = false;
+//     }
+//     if (message === false) {
+//       Service.findOne({ serviceName: service.serviceName })
+//         .then(fEmail => {
+//           if (fEmail !== null) {
+//             return res
+//               .json({ msg: "Service Name Already Exist!", success: false })
+//               .status(400);
+//           } else {
+//             let newService = new Service({
+//               serviceName: service.serviceName,
+//               seller: service.seller,
+//               category: service.category,
+//               price: service.price,
+//               description: service.description,
+//               serviceDaysArray: service.serviceDaysArray,
+//               toTime: service.toTime,
+//               fromTime: service.fromTime,
+//               serviceImgsURLs: serviceImgArray,
+//               certificatesImgsURLs: certificateImgArray
+//             });
+//             newService
+//               .save()
+//               .then(sService => {
+//                 if (sService) {
+//                   return res
+//                     .json({
+//                       msg: "Service Created!",
+//                       newService: sService,
+//                       success: true
+//                     })
+//                     .status(200);
+//                 } else {
+//                   return res
+//                     .json({ msg: "Service Not Save!", success: false })
+//                     .status(400);
+//                 }
+//               })
+//               .catch(err => {
+//                 console.log(err);
+//                 console.log("error found");
+//                 return res
+//                   .json({ msg: "Service catch error", success: false })
+//                   .status(400);
+//               });
+//           }
+//         })
+//         .catch(err => {
+//           console.log(err);
+//           return res
+//             .json({ msg: "Catch Error Email", success: false })
+//             .status(400);
+//         });
+//     } else {
+//       return res.json({ msg: message, success: false }).status(400);
+//     }
+//   }
+// );
 
 Router.post("/delete-service-category", (req, res) => {
   let { _id } = req.body;
   ServiceCategory.remove({ _id: _id })
-    .then(foundCategories => {
+    .then((foundCategories) => {
       if (foundCategories.n === 1) {
         return res
           .json({
             msg: "Service Category Deleted!",
             removedCategory: _id,
-            success: true
+            success: true,
           })
           .status(200);
       } else {
         return res
           .json({
             msg: "Invalid!",
-            success: false
+            success: false,
           })
           .status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
@@ -432,25 +451,25 @@ Router.post("/delete-service-category", (req, res) => {
 
 Router.post("/show-all-service-categories", (req, res) => {
   ServiceCategory.find()
-    .then(foundCategories => {
+    .then((foundCategories) => {
       if (foundCategories.length > 0) {
         return res
           .json({
             msg: "Service Category Found!",
             foundCategories: foundCategories,
-            success: true
+            success: true,
           })
           .status(200);
       } else {
         return res
           .json({
             msg: "No Category Found!",
-            success: false
+            success: false,
           })
           .status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
@@ -459,25 +478,25 @@ Router.post("/show-all-service-categories", (req, res) => {
 Router.post("/show-single-service-category", (req, res) => {
   let { _id } = req.body;
   ServiceCategory.findOne({ _id: _id })
-    .then(foundCategory => {
+    .then((foundCategory) => {
       if (foundCategory) {
         return res
           .json({
             msg: "Service Category Found!",
             foundCategory: foundCategory,
-            success: true
+            success: true,
           })
           .status(200);
       } else {
         return res
           .json({
             msg: "No Category Found!",
-            success: false
+            success: false,
           })
           .status(400);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
@@ -505,24 +524,24 @@ Router.post(
 
     let newserviceCategoryName = new ServiceCategory({
       serviceCategoryName: service.serviceCategoryName,
-      categoryImgURL: serviceCategoryIMG
+      categoryImgURL: serviceCategoryIMG,
     });
     newserviceCategoryName
       .save()
-      .then(savedCategory => {
+      .then((savedCategory) => {
         if (savedCategory) {
           return res
             .json({
               msg: "New Service Category Added",
               savedCategory: savedCategory,
-              success: true
+              success: true,
             })
             .status(200);
         } else {
           return res.json({ msg: "Not Added", success: false }).status(400);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return res.json({ msg: "Failed!", success: false }).status(505);
       });

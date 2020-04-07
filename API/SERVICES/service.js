@@ -512,7 +512,7 @@ Router.post(
     if (!req.files["serviceCategoryIMG"]) {
       return res.json({ msg: "Img is Compulsory", success: false }).status(404);
     }
-    if (service.serviceCategoryName !== null) {
+    if (service.serviceCategoryName === "") {
       return res
         .json({ msg: "Invalid serviceCategoryName", success: false })
         .status(404);

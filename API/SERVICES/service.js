@@ -314,113 +314,113 @@ Router.post(
   }
 );
 
-// ///////////Sign up with Image of seller/////////////
-// Router.post(
-//   "/add-new-service-of-seller-with-image",
-//   upload.fields([
-//     { name: "certificatesImgs", maxCount: 4 },
-//     { name: "serviceImgs", maxCount: 3 }
-//   ]),
-//   (req, res) => {
-//     // return res.json(req.files["serviceImgs"]);
-//     let { data } = req.body;
-//     let serviceImgArray = [];
-//     let certificateImgArray = [];
-//     for (let x = 0; x < req.files["serviceImgs"].length; x++) {
-//       serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
-//     }
+///////////Sign up with Image of seller/////////////
+Router.post(
+  "/add-new-service-of-seller-with-image",
+  upload.fields([
+    { name: "certificatesImgs", maxCount: 4 },
+    { name: "serviceImgs", maxCount: 3 },
+  ]),
+  (req, res) => {
+    // return res.json(req.files["serviceImgs"]);
+    let { data } = req.body;
+    let serviceImgArray = [];
+    let certificateImgArray = [];
+    for (let x = 0; x < req.files["serviceImgs"].length; x++) {
+      serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
+    }
 
-//     for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
-//       certificateImgArray.push(
-//         CreateURL(req.files["certificatesImgs"][y].filename)
-//       );
-//     }
+    for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
+      certificateImgArray.push(
+        CreateURL(req.files["certificatesImgs"][y].filename)
+      );
+    }
 
-//     // const certificatesImgs = CreateURL(
-//     //   req.files["certificatesImgs"][0].filename
-//     // );
-//     // const serviceImgs = CreateURL(req.files["serviceImgss"][0].filename);
-//     // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
-//     let service = JSON.parse(data);
+    // const certificatesImgs = CreateURL(
+    //   req.files["certificatesImgs"][0].filename
+    // );
+    // const serviceImgs = CreateURL(req.files["serviceImgss"][0].filename);
+    // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+    let service = JSON.parse(data);
 
-//     //VALIDATIONS STARTS HERE
-//     let message = false;
-//     if (service.serviceName === "") {
-//       message = "invalid service name";
-//     } else if (service.seller === "") {
-//       message = "invalid seller";
-//     } else if (service.category === "") {
-//       message = "invalid category";
-//     } else if (service.price === "") {
-//       message = "invalid price";
-//     } else if (service.description === "") {
-//       message = "invalid description";
-//     } else if (service.serviceDaysArray === "") {
-//       message = "invalid serviceDaysArray";
-//     } else if (service.toTime === "") {
-//       message = "invalid toTime";
-//     } else if (service.fromTime === "") {
-//       message = "invalid fromTime";
-//     } else {
-//       message = false;
-//     }
-//     if (message === false) {
-//       Service.findOne({ serviceName: service.serviceName })
-//         .then(fEmail => {
-//           if (fEmail !== null) {
-//             return res
-//               .json({ msg: "Service Name Already Exist!", success: false })
-//               .status(400);
-//           } else {
-//             let newService = new Service({
-//               serviceName: service.serviceName,
-//               seller: service.seller,
-//               category: service.category,
-//               price: service.price,
-//               description: service.description,
-//               serviceDaysArray: service.serviceDaysArray,
-//               toTime: service.toTime,
-//               fromTime: service.fromTime,
-//               serviceImgsURLs: serviceImgArray,
-//               certificatesImgsURLs: certificateImgArray
-//             });
-//             newService
-//               .save()
-//               .then(sService => {
-//                 if (sService) {
-//                   return res
-//                     .json({
-//                       msg: "Service Created!",
-//                       newService: sService,
-//                       success: true
-//                     })
-//                     .status(200);
-//                 } else {
-//                   return res
-//                     .json({ msg: "Service Not Save!", success: false })
-//                     .status(400);
-//                 }
-//               })
-//               .catch(err => {
-//                 console.log(err);
-//                 console.log("error found");
-//                 return res
-//                   .json({ msg: "Service catch error", success: false })
-//                   .status(400);
-//               });
-//           }
-//         })
-//         .catch(err => {
-//           console.log(err);
-//           return res
-//             .json({ msg: "Catch Error Email", success: false })
-//             .status(400);
-//         });
-//     } else {
-//       return res.json({ msg: message, success: false }).status(400);
-//     }
-//   }
-// );
+    //VALIDATIONS STARTS HERE
+    let message = false;
+    if (service.serviceName === "") {
+      message = "invalid service name";
+    } else if (service.seller === "") {
+      message = "invalid seller";
+    } else if (service.category === "") {
+      message = "invalid category";
+    } else if (service.price === "") {
+      message = "invalid price";
+    } else if (service.description === "") {
+      message = "invalid description";
+    } else if (service.serviceDaysArray === "") {
+      message = "invalid serviceDaysArray";
+    } else if (service.toTime === "") {
+      message = "invalid toTime";
+    } else if (service.fromTime === "") {
+      message = "invalid fromTime";
+    } else {
+      message = false;
+    }
+    if (message === false) {
+      Service.findOne({ serviceName: service.serviceName })
+        .then((fEmail) => {
+          if (fEmail !== null) {
+            return res
+              .json({ msg: "Service Name Already Exist!", success: false })
+              .status(400);
+          } else {
+            let newService = new Service({
+              serviceName: service.serviceName,
+              seller: service.seller,
+              category: service.category,
+              price: service.price,
+              description: service.description,
+              serviceDaysArray: service.serviceDaysArray,
+              toTime: service.toTime,
+              fromTime: service.fromTime,
+              serviceImgsURLs: serviceImgArray,
+              certificatesImgsURLs: certificateImgArray,
+            });
+            newService
+              .save()
+              .then((sService) => {
+                if (sService) {
+                  return res
+                    .json({
+                      msg: "Service Created!",
+                      newService: sService,
+                      success: true,
+                    })
+                    .status(200);
+                } else {
+                  return res
+                    .json({ msg: "Service Not Save!", success: false })
+                    .status(400);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                console.log("error found");
+                return res
+                  .json({ msg: "Service catch error", success: false })
+                  .status(400);
+              });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          return res
+            .json({ msg: "Catch Error Email", success: false })
+            .status(400);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(400);
+    }
+  }
+);
 
 Router.post("/delete-service-category", (req, res) => {
   let { _id } = req.body;

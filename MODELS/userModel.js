@@ -2,33 +2,37 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const User = new Schema({
+  userStatus: {
+    type: String,
+    default: "newUser",
+  },
   userName: {
     type: String,
-    default: "dummy"
+    default: "dummy",
   },
   email: {
     type: String,
-    required: true
+    required: true,
   },
   RandomNumber: {
     type: String,
-    default: null
+    default: null,
   },
   //   phoneNumber: {
   //     type: String,
   //     default: false
   //   },
   password: {
-    type: String
+    type: String,
   },
   gender: {
-    type: String
+    type: String,
   },
   country: {
-    type: String
+    type: String,
   },
   state: {
-    type: String
+    type: String,
   },
 
   // address: {
@@ -38,19 +42,19 @@ const User = new Schema({
   profileImgURL: [
     {
       type: String,
-      default: "/files/vendor-files/image/4ac52dd5e908961c7cb9954cb5375b15.jpg"
-    }
+      default: "/files/vendor-files/image/4ac52dd5e908961c7cb9954cb5375b15.jpg",
+    },
   ],
   isOnlineStatus: {
     type: Boolean,
-    default: true
+    default: true,
   },
   dateOfBirth: {
-    type: Date
+    type: Date,
   },
   registerDate: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 module.exports = mongoose.model("tblusers", User);

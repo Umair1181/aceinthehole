@@ -3,49 +3,57 @@ const Schema = mongoose.Schema;
 
 const Seller = new Schema({
   sellerName: {
-    type: String
+    type: String,
   },
   webSite: {
-    type: String
+    type: String,
   },
   email: {
-    type: String
+    type: String,
   },
   phoneNumber: {
     type: String,
-    default: "+0"
+    default: "+0",
   },
   password: {
-    type: String
+    type: String,
   },
   dateOfBirth: {
-    type: Date
+    type: Date,
   },
   regDate: {
     type: Date,
-    default: Date.now()
+    default: Date.now(),
   },
   address: {
-    type: String
+    type: String,
+  },
+  sellerStatus: {
+    type: String,
+    default: "NEWSELLER",
+  },
+  isBlock: {
+    type: Boolean,
+    default: false,
   },
   isOnline: {
     type: Boolean,
-    default: true
+    default: true,
   },
   description: {
-    type: String
+    type: String,
   },
   RandomNumber: {
-    type: Number
+    type: Number,
   },
   gender: {
-    type: String
+    type: String,
   },
   profileImgURL: {
-    type: String
+    type: String,
   },
   idCardImgURL: {
-    type: String
-  }
+    type: String,
+  },
 });
 module.exports = mongoose.model("tblsellers", Seller);

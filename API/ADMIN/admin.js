@@ -1,5 +1,98 @@
 const Router = require("express").Router();
-const { TermsAndCondition } = require("../../MODELS");
+const { TermsAndCondition, Seller } = require("../../MODELS");
+
+Router.post("/admin-can-block-unblock-any-seller", (req, res) => {
+  let { sellerID, isBlock } = req.body;
+
+  Seller.findOne({ _id: sellerID })
+    .then((foundSeller) => {
+      if (foundSeller !== null) {
+        foundSeller.isBlock = isBlock;
+
+        foundSeller
+          .save()
+          .then((savedSeller) => {
+            if (savedSeller) {
+              return res
+                .json({
+                  msg: `Seller is ${
+                    savedSeller.isBlock ? "Seller Blocked" : "Seller Unblocked"
+                  }`,
+                  savedSeller,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: `Seller Not Save`,
+
+                  success: false,
+                })
+                .status(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res
+              .json({ msg: "Failed save!", success: false })
+              .status(505);
+          });
+      } else {
+        return res.json({ msg: "Not Found", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/admin-can-accept-reject-newseller", (req, res) => {
+  let { sellerID, sellerstatus } = req.body;
+
+  Seller.findOne({ _id: sellerID })
+    .then((foundSeller) => {
+      if (foundSeller !== null) {
+        foundSeller.sellerStatus = sellerstatus;
+
+        foundSeller
+          .save()
+          .then((savedSeller) => {
+            if (savedSeller) {
+              return res
+                .json({
+                  msg: `Seller is ${savedSeller.sellerStatus}`,
+                  savedSeller,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: `Seller Not Save`,
+
+                  success: false,
+                })
+                .status(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res
+              .json({ msg: "Failed save!", success: false })
+              .status(505);
+          });
+      } else {
+        return res.json({ msg: "Not Found", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post(
   "/delete-specific-terms-and-condition-against-id",
   async (req, res) => {

@@ -305,12 +305,14 @@ Router.post(
   (req, res) => {
     let serviceImgArray = [];
     for (let x = 0; x < req.files["serviceImgs"].length; x++) {
+      console.log(req.files["serviceImgs"][x].filename);
       serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
     }
-    let { data } = req.body;
-    let service = JSON.parse(data);
-
-    return res.json(req.files["serviceImgs"]);
+    // let { data } = req.body;
+    // let service = JSON.parse(req.files["serviceImgs"].length);
+    console.log(serviceImgArray);
+    let abc = req.files["serviceImgs"].length;
+    return res.json({ length: abc });
   }
 );
 

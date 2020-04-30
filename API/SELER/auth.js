@@ -563,34 +563,49 @@ Router.post("/seller-login", (req, res) => {
   /////////////Email Already  Exist Or not Check////////////////
   Seller.findOne({ email: seller.email })
     .then((fndseller) => {
-      if (fndseller) {
-        ///////////// Password Compare /////////
-        bcrypt
-          .compare(seller.password, fndseller.password)
-          .then((findseller) => {
-            if (findseller) {
-              fndseller.password = "";
-              return res
-                .json({
-                  msg: "Authenticated Seller",
-                  result: fndseller,
-                  success: true,
-                })
-                .status(200);
-            } else {
-              return res
-                .json({ msg: "Invalid Password", success: false })
-                .status(400);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+      if (fndseller.isBlock === false) {
+        if (fndseller.sellerStatus === "NEWSELLER") {
+          return res
+            .json({ msg: "You Are Not Approved Yet", success: false })
+            .status(202);
+        } else {
+          if (fndseller) {
+            ///////////// Password Compare /////////
+            bcrypt
+              .compare(seller.password, fndseller.password)
+              .then((findseller) => {
+                if (findseller) {
+                  fndseller.password = "";
+                  return res
+                    .json({
+                      msg: "Authenticated Seller",
+                      result: fndseller,
+                      success: true,
+                    })
+                    .status(200);
+                } else {
+                  return res
+                    .json({ msg: "Invalid Password", success: false })
+                    .status(400);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                return res
+                  .json({
+                    msg: "catch error password comparison",
+                    success: false,
+                  })
+                  .status(400);
+              });
+          } else {
             return res
-              .json({ msg: "catch error password comparison", success: false })
+              .json({ msg: "Invalid Email", success: false })
               .status(400);
-          });
+          }
+        }
       } else {
-        return res.json({ msg: "Invalid Email", success: false }).status(400);
+        return res.json({ msg: "You Are Blocked", success: false }).status(202);
       }
     })
     .catch((err) => {

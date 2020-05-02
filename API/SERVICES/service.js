@@ -1,7 +1,101 @@
 const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const { Service, ServiceCategory } = require("../../MODELS");
+const { Service, ServiceCategory, Reviews } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
+
+Router.post(
+  "/update-service-category",
+  upload.array("serviceCategoryIMG", 9),
+  // upload.fields([{ name: "serviceCategoryIMG", maxCount: 1 }]),
+  (req, res) => {
+    let { data } = req.body;
+    let service = JSON.parse(data);
+    let imageArrays = req.files;
+    let message = false;
+    let ImageURLsArray = [];
+    imageArrays.forEach((eachFoundPic) => {
+      ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
+    });
+
+    if (imageArrays.length >= 2) {
+      message = "Add one Image only!";
+    }
+    if (message === false) {
+      ServiceCategory.findOne({ _id: service._id })
+        .then((foundCategories) => {
+          if (foundCategories !== null) {
+            foundCategories.serviceCategoryName =
+              foundCategories.serviceCategoryName;
+            foundCategories.categoryImgURL = foundCategories.categoryImgURL;
+            if (ImageURLsArray.length > 0) {
+              foundCategories.categoryImgURL = ImageURLsArray[0];
+            }
+            // if (req.files["serviceCategoryIMG"]) {
+            //   foundCategories.categoryImgURL = serviceCategoryIMG;
+            // }
+
+            if (service.serviceCategoryName !== "") {
+              foundCategories.serviceCategoryName = service.serviceCategoryName;
+            }
+
+            foundCategories
+              .save()
+              .then((saved) => {
+                if (saved) {
+                  return res
+                    .json({ msg: "Updated", saved, success: false })
+                    .status(404);
+                } else {
+                  return res
+                    .json({ msg: "Not Updated", success: false })
+                    .status(404);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                return res.json({ msg: "Failed!", success: false }).status(505);
+              });
+          } else {
+            return res.json({ msg: "Not Found", success: false }).status(505);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          return res.json({ msg: "Failed!", success: false }).status(505);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(404);
+    }
+
+    // const serviceCategoryIMG = CreateURL(
+    //   req.files["serviceCategoryIMG"][0].filename
+    // );
+
+    // let newserviceCategoryName = new ServiceCategory({
+    //   serviceCategoryName: service.serviceCategoryName,
+    //   categoryImgURL: serviceCategoryIMG,
+    // });
+    // newserviceCategoryName
+    //   .save()
+    //   .then((savedCategory) => {
+    //     if (savedCategory) {
+    //       return res
+    //         .json({
+    //           msg: "New Service Category Added",
+    //           savedCategory: savedCategory,
+    //           success: true,
+    //         })
+    //         .status(200);
+    //     } else {
+    //       return res.json({ msg: "Not Added", success: false }).status(400);
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     return res.json({ msg: "Failed!", success: false }).status(505);
+    //   });
+  }
+);
 
 Router.post("/delete-any-certificate-in-existing-service", (req, res) => {
   let { _id, removedCertificatedURLs } = req.body;
@@ -207,13 +301,40 @@ Router.post("/show-single-service", (req, res) => {
   Service.findOne({ _id: _id })
     .then((foundService) => {
       if (foundService) {
-        return res
-          .json({
-            msg: "Service Found!",
-            foundService: foundService,
-            success: true,
+        Reviews.find({ service: _id })
+          .then((foundReviews) => {
+            if (foundReviews.length > 0) {
+              let sumRating = 0;
+              let avgRating = 0;
+              for (let k = 0; k < foundReviews.length; k++) {
+                sumRating = foundReviews[k].rating + sumRating;
+              }
+              avgRating = sumRating / foundReviews.length;
+              return res
+                .json({
+                  msg: "Service Found!",
+                  foundService: foundService,
+                  foundReviews: foundReviews,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: "Service Found!",
+                  foundService: foundService,
+                  foundReviews: foundReviews,
+                  success: true,
+                })
+                .status(200);
+            }
           })
-          .status(200);
+          .catch((err) => {
+            console.log(err);
+            return res.json({ msg: "Failed!", success: false }).status(505);
+          });
+
+        ///gooto
       } else {
         return res
           .json({

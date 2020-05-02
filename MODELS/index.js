@@ -5,6 +5,8 @@ const ServiceCategory = require("./serviceCategory");
 const TermsAndCondition = require("./termsAndCondition");
 const Admin = require("./adminModel");
 const User = require("./userModel");
+const Order = require("./order");
+const Reviews = require("./reviews");
 //////////////// Modals Are Exporting ///////////////
 module.exports = {
   Seller,
@@ -13,5 +15,7 @@ module.exports = {
   ServiceCategory,
   TermsAndCondition,
   Admin,
-  User
+  User,
+  Order,
+  Reviews,
 };

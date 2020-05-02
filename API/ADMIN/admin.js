@@ -1,6 +1,96 @@
 const Router = require("express").Router();
 const { TermsAndCondition, Seller } = require("../../MODELS");
 
+Router.post("/show-blocked-sellers-list", (req, res) => {
+  Seller.find({ isBlock: true })
+    .then((foundSellers) => {
+      console.log(foundSellers);
+      if (foundSellers.length > 0) {
+        return res
+          .json({
+            msg: "blocked-sellers-list",
+            foundSellers,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "Empty", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/show-rejected-sellers-list", (req, res) => {
+  Seller.find({ sellerStatus: "REJECT" })
+    .then((foundSellers) => {
+      console.log(foundSellers);
+      if (foundSellers.length > 0) {
+        return res
+          .json({
+            msg: "rejected-sellers-list",
+            foundSellers,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "Empty", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/show-accepted-sellers-list", (req, res) => {
+  Seller.find({ sellerStatus: "ACCEPT" })
+    .then((foundSellers) => {
+      console.log(foundSellers);
+      if (foundSellers.length > 0) {
+        return res
+          .json({
+            msg: "accepted-sellers-list",
+            foundSellers,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "Empty", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/show-requested-sellers-list", (req, res) => {
+  Seller.find({ sellerStatus: "NEWSELLER" })
+    .then((foundNewSellers) => {
+      console.log(foundNewSellers);
+      if (foundNewSellers.length > 0) {
+        return res
+          .json({
+            msg: "New Requested Sellers",
+            foundNewSellers,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res
+          .json({ msg: "No Requested Sellers", success: false })
+          .status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post("/admin-can-block-unblock-any-seller", (req, res) => {
   let { sellerID, isBlock } = req.body;
 

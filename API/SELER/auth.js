@@ -6,6 +6,47 @@ const { upload, CreateURL } = require("../../storage")();
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
 
+Router.post("/seller-can-hide-live-his-service", (req, res) => {
+  let { serviceID } = req.body;
+  Service.findOne({ _id: serviceID })
+    .then((foundService) => {
+      if (foundService) {
+        foundService.isLive = !foundService.isLive;
+        foundService
+          .save()
+          .then((sellerSaved) => {
+            if (sellerSaved.isLive === true) {
+              return res
+                .json({
+                  msg: "Service Published",
+                  foundService: foundService,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: "Service UnPublished",
+                  foundService: foundService,
+                  success: true,
+                })
+                .status(200);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res.json({ msg: "Failed!", success: false }).status(505);
+          });
+      } else {
+        return res.json({ msg: "No Seller", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post("/all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;
   Service.find({ seller: sellerID })

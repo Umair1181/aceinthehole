@@ -3,44 +3,55 @@ const Schema = mongoose.Schema;
 
 const Service = new Schema({
   serviceName: {
-    type: String
+    type: String,
   },
   seller: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "tblsellers"
+    ref: "tblsellers",
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "tblservicecategorys"
+    ref: "tblservicecategorys",
   },
   price: {
-    type: String
+    type: String,
+  },
+  serviceStatus: {
+    type: String, //pending approve reject
+    default: "PENDING",
+  },
+
+  isLive: {
+    //seller can publish/unblish his service
+    type: Boolean,
+    default: true,
   },
   description: {
-    type: String
+    type: String,
   },
   serviceDaysArray: [
     {
-      type: String,
-      default: "+0"
-    }
+      day: {
+        type: String,
+      },
+      toTime: {
+        type: Date,
+      },
+      fromTime: {
+        type: Date,
+      },
+    },
   ],
-  toTime: {
-    type: String
-  },
-  fromTime: {
-    type: String
-  },
 
   serviceImgsURLs: [
     {
-      type: String
-    }
+      type: String,
+    },
   ],
   certificatesImgsURLs: [
     {
-      type: String
-    }
-  ]
+      type: String,
+    },
+  ],
 });
 module.exports = mongoose.model("tblservices", Service);

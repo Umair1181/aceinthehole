@@ -199,7 +199,7 @@ Router.post(
                 console.log(err);
                 console.log("error found");
                 return res
-                  .json({ msg: "Service catch error", success: false })
+                  .json({ msg: "Service catch error", err, success: false })
                   .status(400);
               });
           }
@@ -400,7 +400,7 @@ Router.post(
               console.log(err);
               console.log("error found");
               return res
-                .json({ msg: "Service catch error", success: false })
+                .json({ msg: "Service catch error", err, success: false })
                 .status(400);
             });
         })
@@ -449,6 +449,7 @@ Router.post(
     let { data } = req.body;
     let serviceImgArray = [];
     let certificateImgArray = [];
+
     for (let x = 0; x < req.files["serviceImgs"].length; x++) {
       serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
     }
@@ -478,11 +479,11 @@ Router.post(
       message = "invalid price";
     } else if (service.description === "") {
       message = "invalid description";
-    } else if (service.serviceDaysArray === "") {
-      message = "invalid serviceDaysArray";
-    } else if (service.toTime === "") {
+    } else if (service.serviceDaysArray.day === "") {
+      message = "invalid serviceDaysArray.day";
+    } else if (service.serviceDaysArray.toTime === "") {
       message = "invalid toTime";
-    } else if (service.fromTime === "") {
+    } else if (service.serviceDaysArray.fromTime === "") {
       message = "invalid fromTime";
     } else {
       message = false;
@@ -502,8 +503,6 @@ Router.post(
               price: service.price,
               description: service.description,
               serviceDaysArray: service.serviceDaysArray,
-              toTime: service.toTime,
-              fromTime: service.fromTime,
               serviceImgsURLs: serviceImgArray,
               certificatesImgsURLs: certificateImgArray,
             });
@@ -528,7 +527,11 @@ Router.post(
                 console.log(err);
                 console.log("error found");
                 return res
-                  .json({ msg: "Service catch error", success: false })
+                  .json({
+                    msg: "Service catch error  123",
+                    err,
+                    success: false,
+                  })
                   .status(400);
               });
           }

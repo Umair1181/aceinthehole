@@ -7,6 +7,7 @@ const Admin = require("./adminModel");
 const User = require("./userModel");
 const Order = require("./order");
 const Reviews = require("./reviews");
+const Cart = require("./cart");
 //////////////// Modals Are Exporting ///////////////
 module.exports = {
   Seller,
@@ -18,4 +19,5 @@ module.exports = {
   User,
   Order,
   Reviews,
+  Cart,
 };

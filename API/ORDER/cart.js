@@ -245,7 +245,6 @@ Router.post("/show--user-cart", (req, res) => {
     Cart.find({ user: userID })
       .populate({
         path: "service",
-        //     select: "_id isOnline sellerImgURL email shopName sellerName",
       })
       .populate({
         path: "items.service",

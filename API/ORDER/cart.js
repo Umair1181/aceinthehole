@@ -259,7 +259,9 @@ Router.post("/show--user-cart", (req, res) => {
             success: true,
           });
         } else {
-          return res.json({ msg: "Car Is Empty!", success: false }).status(500);
+          return res
+            .json({ msg: "Cart Is Empty!", success: false })
+            .status(500);
         }
       })
       .catch((err) => {

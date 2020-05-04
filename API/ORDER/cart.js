@@ -15,12 +15,10 @@ Router.post("/add-new-cart-or-update-existing-one", (req, res) => {
   }
   if (message === false) {
     Cart.findOne({ user: cart.userID })
-      //   .populate({
-      //     path: "seller",
-      //     select: "_id sellerName shopName email sellerImgURL",
-      //   })
+      .populate({
+        path: "items.service",
+      })
       .then((cartExist) => {
-        // return res.json("");
         if (cartExist !== null) {
           cartExist.items.push({ service: cart.servicesID });
           cartExist
@@ -28,6 +26,10 @@ Router.post("/add-new-cart-or-update-existing-one", (req, res) => {
             .then((savedCart) => {
               if (savedCart !== null) {
                 Service.findOne({ _id: cart.servicesID })
+                  // .populate({
+                  //   path: "items.service",
+                  //   // populate: { path: "service" },
+                  // })
                   // .populate({
                   //   path: "seller",
                   //   select:
@@ -38,10 +40,10 @@ Router.post("/add-new-cart-or-update-existing-one", (req, res) => {
                     return res
                       .json({
                         msg: "Previous Cart Updated",
-                        cartExist: cartExist,
+                        // cartExist: cartExist,
                         foundSerivce: foundSerivce,
-                        savedCart: savedCart._id,
-                        seller: savedCart.seller,
+                        savedCart: cartExist,
+                        // seller: savedCart.seller,
                         success: true,
                       })
                       .status(200);
@@ -77,17 +79,16 @@ Router.post("/add-new-cart-or-update-existing-one", (req, res) => {
               console.log(savedCart);
               if (savedCart) {
                 Cart.findOne({ _id: savedCart._id })
-                  //   .populate({
-                  //     path: "seller",
-                  //     select:
-                  //       "_id isOnline sellerImgURL email shopName sellerName",
-                  //   })
-
+                  .populate({
+                    path: "items.service",
+                  })
+                  // select:
+                  // "_id isOnline sellerImgURL email shopName sellerName",
                   .then((savedCarts) => {
                     return res
                       .json({
                         msg: "New Cart  Added",
-                        Cart: savedCarts,
+                        savedCart: savedCarts,
                         success: true,
                       })
                       .status(200);
@@ -171,7 +172,7 @@ Router.post("/remove-from-cart-and-delete-cart-if-empty", (req, res) => {
                         return res
                           .json({
                             msg: "Cart Removed",
-                            cartRemoved,
+                            // cartRemoved,
                             success: true,
                           })
                           .status(200);
@@ -245,6 +246,9 @@ Router.post("/show--user-cart", (req, res) => {
       .populate({
         path: "service",
         //     select: "_id isOnline sellerImgURL email shopName sellerName",
+      })
+      .populate({
+        path: "items.service",
       })
       //   .populate({ path: "products", populate: { path: "color" } })
       //   .populate({ path: "products", populate: { path: "size" } })

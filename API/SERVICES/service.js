@@ -100,15 +100,36 @@ Router.post(
 Router.post("/delete-any-certificate-in-existing-service", (req, res) => {
   let { _id, removedCertificatedURLs } = req.body;
 
-  Service({ _id: _id }).then((foundService) => {
-    if (foundService) {
-      if (foundService.certificatesImgsURLs.length > 0) {
-        for (let x = 0; x < foundService.certificatesImgsURLs.length; x++) {
-          if (
-            foundService.certificatesImgsURLs[x] === removedCertificatedURLs
-          ) {
-          }
-        }
+  Service.update(
+    { _id: _id },
+    { $pull: { certificatesImgsURLs: removedCertificatedURLs } }
+  ).then((removedService) => {
+    if (removedService) {
+      if (removedService) {
+        Service.findOne({ _id: _id })
+          .then((foundService) => {
+            if (foundService.certificatesImgsURLs.length > 0) {
+              return res
+                .json({
+                  msg: "Remaing Certificates",
+                  RemaingCertificates: foundService.certificatesImgsURLs,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: "No Certificate Left",
+                  success: true,
+                })
+                .status(200);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res.json({ msg: "Failed", success: false }).status(505);
+          });
+        // return res.json(removedService);
       } else {
         return res.json({ msg: "No Certificate", success: false }).status(400);
       }
@@ -245,6 +266,8 @@ Router.post("/delete-service", (req, res) => {
 
 Router.post("/show-all-services", (req, res) => {
   Service.find()
+    .populate({ path: "seller" })
+    .populate({ path: "category" })
     .then((foundServices) => {
       if (foundServices.length > 0) {
         return res
@@ -299,6 +322,7 @@ Router.post("/show-all-services-of-specific-seller", (req, res) => {
 Router.post("/show-single-service", (req, res) => {
   let { _id } = req.body;
   Service.findOne({ _id: _id })
+    .populate({ path: "category" })
     .then((foundService) => {
       if (foundService) {
         Reviews.find({ service: _id })
@@ -323,7 +347,7 @@ Router.post("/show-single-service", (req, res) => {
                 .json({
                   msg: "Service Found!",
                   foundService: foundService,
-                  foundReviews: foundReviews,
+                  // foundReviews: foundReviews,
                   success: true,
                 })
                 .status(200);
@@ -374,11 +398,12 @@ Router.post(
     if (message === false) {
       Service.findOne({ _id: service._id })
         .then((foundService) => {
-          // return res.json(foundService);
-          // foundService.certificatesImgsURLs.push({ certificateImgArray });
-          foundService.certificatesImgsURLs =
-            foundService.certificatesImgsURLs + certificateImgArray;
-
+          for (let y = 0; y < certificateImgArray.length; y++) {
+            let imgURLs = certificateImgArray[y];
+            console.log("imgURLs");
+            console.log(imgURLs);
+            foundService.certificatesImgsURLs.push(imgURLs);
+          }
           foundService
             .save()
             .then((savedCertificate) => {
@@ -508,12 +533,15 @@ Router.post(
             });
             newService
               .save()
-              .then((sService) => {
+              .then(async (sService) => {
+                let foundService = await Service.findOne({
+                  _id: sService._id,
+                }).populate({ path: "category" });
                 if (sService) {
                   return res
                     .json({
                       msg: "Service Created!",
-                      newService: sService,
+                      newService: foundService,
                       success: true,
                     })
                     .status(200);

@@ -37,6 +37,12 @@ Router.post("/show-orders-of-specific-user", (req, res) => {
   let { userID } = req.body;
 
   Order.find({ user: userID })
+    .populate({
+      path: "user",
+    })
+    .populate({
+      path: "service",
+    })
     .then((foundOrders) => {
       if (foundOrders.length > 0) {
         return res
@@ -66,10 +72,17 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
 
   newOrder
     .save()
-    .then((orderSaved) => {
+    .then(async (orderSaved) => {
       if (orderSaved) {
+        let foundOrder = await Order.findOne({ _id: orderSaved._id })
+          .populate({
+            path: "user",
+          })
+          .populate({
+            path: "service",
+          });
         return res
-          .json({ msg: "Order Created", orderSaved, success: true })
+          .json({ msg: "Order Created", orderSaved: foundOrder, success: true })
           .status(200);
       } else {
         return res

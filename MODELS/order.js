@@ -8,7 +8,7 @@ const Order = new Schema({
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "tblservices",
+    ref: "tblusers",
   },
   description: {
     type: String,

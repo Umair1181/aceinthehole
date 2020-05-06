@@ -3,6 +3,33 @@ const bcrypt = require("bcryptjs");
 const { Service, ServiceCategory, Reviews } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 
+Router.post("/show-all-services-of-specific-category", (req, res) => {
+  let { categoryID } = req.body;
+  Service.find({ category: categoryID })
+    .then((foundService) => {
+      if (foundService.length > 0) {
+        return res
+          .json({
+            msg: "all-services-of-specific-category",
+            foundService: foundService,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res
+          .json({
+            msg: "No Service Found!",
+            success: false,
+          })
+          .status(400);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post(
   "/update-service-category",
   upload.array("serviceCategoryIMG", 9),

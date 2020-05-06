@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+// const { upload, CreateURL } = require("./storage")();
 
 /////////////////////BODY-PARSER CONFIGURATION /////////////////////////
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -42,3 +43,22 @@ const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {
   console.log(`SERVER RUNNING AT PORT ${port}`);
 });
+// app.post("/upload", upload.array("image", 1), (req, res) => {
+//   let imageArrays = req.files;
+//   let ImageURLsArray = [];
+//   imageArrays.forEach((eachFoundPic) => {
+//     ImageURLsArray.push(`/files/images/${eachFoundPic.filename}`);
+//   });
+
+//   if (ImageURLsArray.length > 0) {
+//     return res
+//       .json({
+//         msg: "Imgae Uploaded!",
+//         imgurl: ImageURLsArray[0],
+//         success: true,
+//       })
+//       .status(400);
+//   } else {
+//     return res.json({ msg: "Failed!", success: false }).status(400);
+//   }
+// });

@@ -24,7 +24,7 @@ Router.post("/files/del/:filename", (req, res) => {
     // return res.json(file[0]._id);
     if (!file || file.length === 0) {
       console.log("Inside error");
-      return res.json({ msg: "no such file exist" }).status(404);
+      return res.json({ msg: "no such files" }).status(404);
     }
     gfs.delete(new mongoose.Types.ObjectId(file[0]._id), (err, data) => {
       if (err) return res.status(404).json({ err: err.message, data });

@@ -3,6 +3,209 @@ const bcrypt = require("bcryptjs");
 const { Service, ServiceCategory, Reviews } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 
+///////////Sign up with Image of seller/////////////
+Router.post(
+  "/update-service-images",
+  upload.array("IMGs", 5),
+  async (req, res) => {
+    let { data } = req.body;
+    let ImgArray = [];
+    let IMGs = req.files;
+    IMGs.forEach((eachFoundPic) => {
+      ImgArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
+    });
+    let service = JSON.parse(data);
+    let foundService = await Service.findOne({ _id: service._id });
+    let saveService = "";
+    if (service.isServiceOrCertificateImg === true) {
+      //update or delete image of service
+      if (ImgArray.length > 0) {
+        //add image in servic
+        for (let k = 0; k < ImgArray.length; k++) {
+          foundService.serviceImgsURLs.push(ImgArray[k]);
+        }
+        saveService = await foundService.save();
+        if (saveService) {
+        }
+      }
+
+      ///remove URL from table and chunks from db files
+      if (service.removeURL.length > 0) {
+        await Service.update(
+          { _id: service._id },
+          { $pullAll: { serviceImgsURLs: service.removeURL } }
+        );
+      }
+
+      let foundService1 = await Service.findOne({ _id: service._id });
+      return res
+        .json({
+          msg: "Service Update",
+          foundService: foundService1,
+          success: true,
+        })
+        .status(200);
+    } else {
+      //update or delete image of certificate
+      //update or delete image of service
+      if (ImgArray.length > 0) {
+        //add image in servic
+        for (let k = 0; k < ImgArray.length; k++) {
+          foundService.certificatesImgsURLs.push(ImgArray[k]);
+        }
+        saveService = await foundService.save();
+        if (saveService) {
+        }
+      }
+
+      ///remove URL from table and chunks from db files
+      if (service.removeURL.length > 0) {
+        await Service.update(
+          { _id: service._id },
+          { $pullAll: { certificatesImgsURLs: service.removeURL } }
+        );
+      }
+
+      let foundService1 = await Service.findOne({ _id: service._id });
+      return res
+        .json({
+          msg: "Service Update",
+          foundService: foundService1,
+          success: true,
+        })
+        .status(200);
+    }
+
+    // return res.json({ service, IMGs });
+  }
+);
+
+///////////Sign up with Image of seller/////////////
+Router.post(
+  "/add-new-service-of-seller-with-image",
+  upload.array("serviceImgs", 5),
+
+  (req, res) => {
+    let { data } = req.body;
+    let serviceImgArray = [];
+    let serviceImgs = req.files;
+    serviceImgs.forEach((eachFoundPic) => {
+      serviceImgArray.push(
+        `/files/vendor-files/image/${eachFoundPic.filename}`
+      );
+    });
+
+    // for (let x = 0; x < req.files["serviceImgs"].length; x++) {
+    //   serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
+    // }
+
+    // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+    let service = JSON.parse(data);
+
+    //VALIDATIONS STARTS HERE
+    let message = false;
+    if (service.serviceName === "") {
+      message = "invalid service name";
+    } else if (service.seller === "") {
+      message = "invalid seller";
+    } else if (service.category === "") {
+      message = "invalid category";
+    } else if (service.price === "") {
+      message = "invalid price";
+    } else if (service.description === "") {
+      message = "invalid description";
+    } else if (service.serviceDaysArray.day === "") {
+      message = "invalid serviceDaysArray.day";
+    } else if (service.serviceDaysArray.toTime === "") {
+      message = "invalid toTime";
+    } else if (service.serviceDaysArray.fromTime === "") {
+      message = "invalid fromTime";
+    } else {
+      message = false;
+    }
+    if (message === false) {
+      Service.findOne({ serviceName: service.serviceName })
+        .then((fEmail) => {
+          if (fEmail !== null) {
+            return res
+              .json({ msg: "Service Name Already Exist!", success: false })
+              .status(400);
+          } else {
+            let newService = new Service({
+              serviceName: service.serviceName,
+              seller: service.seller,
+              category: service.category,
+              price: service.price,
+              description: service.description,
+              serviceDaysArray: service.serviceDaysArray,
+              serviceImgsURLs: serviceImgArray,
+              certificatesImgsURLs: service.certificatesImgs,
+            });
+            newService
+              .save()
+              .then(async (sService) => {
+                let foundService = await Service.findOne({
+                  _id: sService._id,
+                }).populate({ path: "category" });
+                if (sService) {
+                  return res
+                    .json({
+                      msg: "Service Created!",
+                      newService: foundService,
+                      success: true,
+                    })
+                    .status(200);
+                } else {
+                  return res
+                    .json({ msg: "Service Not Save!", success: false })
+                    .status(400);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                console.log("error found");
+                return res
+                  .json({
+                    msg: "Service catch error  123",
+                    err,
+                    success: false,
+                  })
+                  .status(400);
+              });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          return res
+            .json({ msg: "Catch Error Email", success: false })
+            .status(400);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(400);
+    }
+  }
+);
+
+Router.post("/upload", upload.array("image", 1), (req, res) => {
+  let imageArrays = req.files;
+  let ImageURLsArray = [];
+  imageArrays.forEach((eachFoundPic) => {
+    ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
+  });
+
+  if (ImageURLsArray.length > 0) {
+    return res
+      .json({
+        msg: "Imgae Uploaded!",
+        imgurl: ImageURLsArray[0],
+        success: true,
+      })
+      .status(400);
+  } else {
+    return res.json({ msg: "Failed!", success: false }).status(400);
+  }
+});
+
 Router.post("/show-all-services-of-specific-category", (req, res) => {
   let { categoryID } = req.body;
   Service.find({ category: categoryID })
@@ -124,48 +327,7 @@ Router.post(
   }
 );
 
-Router.post("/delete-any-certificate-in-existing-service", (req, res) => {
-  let { _id, removedCertificatedURLs } = req.body;
-
-  Service.update(
-    { _id: _id },
-    { $pull: { certificatesImgsURLs: removedCertificatedURLs } }
-  ).then((removedService) => {
-    if (removedService) {
-      if (removedService) {
-        Service.findOne({ _id: _id })
-          .then((foundService) => {
-            if (foundService.certificatesImgsURLs.length > 0) {
-              return res
-                .json({
-                  msg: "Remaing Certificates",
-                  RemaingCertificates: foundService.certificatesImgsURLs,
-                  success: true,
-                })
-                .status(200);
-            } else {
-              return res
-                .json({
-                  msg: "No Certificate Left",
-                  success: true,
-                })
-                .status(200);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            return res.json({ msg: "Failed", success: false }).status(505);
-          });
-        // return res.json(removedService);
-      } else {
-        return res.json({ msg: "No Certificate", success: false }).status(400);
-      }
-    } else {
-      return res.json({ msg: "No Service", success: false }).status(500);
-    }
-  });
-});
-
+//goto
 Router.post(
   "/update-service-of-seller-with-image",
   upload.fields([
@@ -486,120 +648,6 @@ Router.post(
     console.log(serviceImgArray);
     let abc = req.files["serviceImgs"].length;
     return res.json({ length: abc });
-  }
-);
-
-///////////Sign up with Image of seller/////////////
-Router.post(
-  "/add-new-service-of-seller-with-image",
-  upload.fields([
-    { name: "certificatesImgs", maxCount: 4 },
-    { name: "serviceImgs", maxCount: 3 },
-  ]),
-  (req, res) => {
-    // return res.json(req.files["serviceImgs"]);
-    let { data } = req.body;
-    let serviceImgArray = [];
-    let certificateImgArray = [];
-
-    for (let x = 0; x < req.files["serviceImgs"].length; x++) {
-      serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
-    }
-
-    for (let y = 0; y < req.files["certificatesImgs"].length; y++) {
-      certificateImgArray.push(
-        CreateURL(req.files["certificatesImgs"][y].filename)
-      );
-    }
-
-    // const certificatesImgs = CreateURL(
-    //   req.files["certificatesImgs"][0].filename
-    // );
-    // const serviceImgs = CreateURL(req.files["serviceImgss"][0].filename);
-    // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
-    let service = JSON.parse(data);
-
-    //VALIDATIONS STARTS HERE
-    let message = false;
-    if (service.serviceName === "") {
-      message = "invalid service name";
-    } else if (service.seller === "") {
-      message = "invalid seller";
-    } else if (service.category === "") {
-      message = "invalid category";
-    } else if (service.price === "") {
-      message = "invalid price";
-    } else if (service.description === "") {
-      message = "invalid description";
-    } else if (service.serviceDaysArray.day === "") {
-      message = "invalid serviceDaysArray.day";
-    } else if (service.serviceDaysArray.toTime === "") {
-      message = "invalid toTime";
-    } else if (service.serviceDaysArray.fromTime === "") {
-      message = "invalid fromTime";
-    } else {
-      message = false;
-    }
-    if (message === false) {
-      Service.findOne({ serviceName: service.serviceName })
-        .then((fEmail) => {
-          if (fEmail !== null) {
-            return res
-              .json({ msg: "Service Name Already Exist!", success: false })
-              .status(400);
-          } else {
-            let newService = new Service({
-              serviceName: service.serviceName,
-              seller: service.seller,
-              category: service.category,
-              price: service.price,
-              description: service.description,
-              serviceDaysArray: service.serviceDaysArray,
-              serviceImgsURLs: serviceImgArray,
-              certificatesImgsURLs: certificateImgArray,
-            });
-            newService
-              .save()
-              .then(async (sService) => {
-                let foundService = await Service.findOne({
-                  _id: sService._id,
-                }).populate({ path: "category" });
-                if (sService) {
-                  return res
-                    .json({
-                      msg: "Service Created!",
-                      newService: foundService,
-                      success: true,
-                    })
-                    .status(200);
-                } else {
-                  return res
-                    .json({ msg: "Service Not Save!", success: false })
-                    .status(400);
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-                console.log("error found");
-                return res
-                  .json({
-                    msg: "Service catch error  123",
-                    err,
-                    success: false,
-                  })
-                  .status(400);
-              });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          return res
-            .json({ msg: "Catch Error Email", success: false })
-            .status(400);
-        });
-    } else {
-      return res.json({ msg: message, success: false }).status(400);
-    }
   }
 );
 

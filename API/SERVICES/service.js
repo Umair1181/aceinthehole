@@ -131,12 +131,13 @@ Router.post(
     let { data } = req.body;
     let serviceImgArray = [];
     let serviceImgs = req.files;
-    return res.json({ images: req.files });
+
     serviceImgs.forEach((eachFoundPic) => {
       serviceImgArray.push(
         `/files/vendor-files/image/${eachFoundPic.filename}`
       );
     });
+    return res.json({ serviceImgArray: serviceImgArray });
     console.log("serviceImgs");
     console.log(serviceImgs);
     if (serviceImgArray.length > 0) {

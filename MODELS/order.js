@@ -20,25 +20,39 @@ const Order = new Schema({
   },
   orderStatus: {
     type: String,
-    default: "NEWORDER", // DELIVERED,DISPUTE,REVEIVED,COMPLETE,ORDERCANCELED,DISPUTECANCELED
+    default: "NEWORDER", // COMPLETED,DISPUTE,ORDERCANCELED
     required: true,
+  },
+  createdBy: {
+    //dispute creator
+    type: String,
+    // default: "USER",
+    // required: true,
   },
   disputeHistory: [
     {
       seller: {
-        type: String,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "tblsellers",
       },
       user: {
-        type: String,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "tblusers",
       },
-
-      userType: {
+      //dispute creator
+      createdBy: {
         type: String,
         default: "USER",
         required: true,
       },
+      message: {
+        type: String,
+      },
+      disputeImgUrls: [
+        {
+          type: String,
+        },
+      ],
       disputeDate: {
         type: Date,
         default: Date.now(),

@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const { Service, ServiceCategory, Reviews } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 // const deleteImg = require("../FIES/imageAPI");
+const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const ServiceClass = require("../BusinessLogics/service");
 
 Router.post("/show-all-services", (req, res) => {

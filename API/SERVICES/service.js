@@ -137,10 +137,12 @@ Router.post(
         `/files/vendor-files/image/${eachFoundPic.filename}`
       );
     });
+    console.log("serviceImgs");
+    console.log(serviceImgs);
     if (serviceImgArray.length > 0) {
       console.log("serviceImgArray");
       console.log(serviceImgArray);
-      return res.json({ msg: "No image received og img" });
+      return res.json({ msg: " image received" });
     } else {
       console.log("serviceImgArray");
       console.log(serviceImgArray);

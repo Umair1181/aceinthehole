@@ -131,7 +131,7 @@ Router.post(
     let { data } = req.body;
     let serviceImgArray = [];
     let serviceImgs = req.files;
-    // return res.json({ images: req.files });
+    return res.json({ images: req.files });
     serviceImgs.forEach((eachFoundPic) => {
       serviceImgArray.push(
         `/files/vendor-files/image/${eachFoundPic.filename}`

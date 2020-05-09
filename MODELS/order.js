@@ -23,10 +23,28 @@ const Order = new Schema({
     default: "NEWORDER", // DELIVERED,DISPUTE,REVEIVED,COMPLETE,ORDERCANCELED,DISPUTECANCELED
     required: true,
   },
-  disputeHistory: {
-    type: String,
-    required: true,
-  },
+  disputeHistory: [
+    {
+      seller: {
+        type: String,
+        required: true,
+      },
+      user: {
+        type: String,
+        required: true,
+      },
+
+      userType: {
+        type: String,
+        default: "USER",
+        required: true,
+      },
+      disputeDate: {
+        type: Date,
+        default: Date.now(),
+      },
+    },
+  ],
   reqDay: {
     type: Date,
     default: Date.now(),

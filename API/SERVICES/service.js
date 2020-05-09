@@ -137,28 +137,30 @@ Router.post(
         `/files/vendor-files/image/${eachFoundPic.filename}`
       );
     });
-    return res.json({ serviceImgArray: serviceImgArray });
+    // return res.json({ serviceImgArray: serviceImgArray });
     console.log("serviceImgs");
     console.log(serviceImgs);
-    if (serviceImgArray.length > 0) {
-      console.log("serviceImgArray");
-      console.log(serviceImgArray);
-      return res.json({ msg: " image received" });
-    } else {
-      console.log("serviceImgArray");
-      console.log(serviceImgArray);
-      return res.json({ msg: "else No image received" });
-    }
-    // for (let x = 0; x < req.files["serviceImgs"].length; x++) {
+
+    //  else {
+    //   console.log("serviceImgArray");
+    //   console.log(serviceImgArray);
+    //   return res.json({ msg: "else No image received" });
+    // }
+    // // for (let x = 0; x < req.files["serviceImgs"].length; x++) {
     //   serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
     // }
 
     // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
     let service = JSON.parse(data);
-
     //VALIDATIONS STARTS HERE
     let message = false;
-    if (service.serviceName === "") {
+    if (req.files.length <= 0) {
+      message = "req.files.length invalid!";
+    } else if (serviceImgArray.length <= 0) {
+      message = "serviceImgArray.length invalid!";
+    } else if (serviceImgs.length <= 0) {
+      message = "serviceImgs.length invalid!";
+    } else if (service.serviceName === "") {
       message = "invalid service name";
     } else if (service.seller === "") {
       message = "invalid seller";

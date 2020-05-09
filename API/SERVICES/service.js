@@ -127,17 +127,23 @@ Router.post(
   upload.array("serviceImgs", 5),
 
   (req, res) => {
+    return res.json({ msg: "Return from start of api" });
     let { data } = req.body;
     let serviceImgArray = [];
     let serviceImgs = req.files;
+
     serviceImgs.forEach((eachFoundPic) => {
       serviceImgArray.push(
         `/files/vendor-files/image/${eachFoundPic.filename}`
       );
     });
     if (serviceImgArray.length > 0) {
-      return res.json({ msg: "No image received" });
+      console.log("serviceImgArray");
+      console.log(serviceImgArray);
+      return res.json({ msg: "No image received og img" });
     } else {
+      console.log("serviceImgArray");
+      console.log(serviceImgArray);
       return res.json({ msg: "else No image received" });
     }
     // for (let x = 0; x < req.files["serviceImgs"].length; x++) {

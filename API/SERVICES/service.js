@@ -135,7 +135,11 @@ Router.post(
         `/files/vendor-files/image/${eachFoundPic.filename}`
       );
     });
-
+    if (serviceImgArray.length > 0) {
+      return res.json({ msg: "No image received" });
+    } else {
+      return res.json({ msg: "else No image received" });
+    }
     // for (let x = 0; x < req.files["serviceImgs"].length; x++) {
     //   serviceImgArray.push(CreateURL(req.files["serviceImgs"][x].filename));
     // }

@@ -18,6 +18,15 @@ const Order = new Schema({
     type: String,
     required: true,
   },
+  orderStatus: {
+    type: String,
+    default: "NEWORDER", // DELIVERED,DISPUTE,REVEIVED,COMPLETE,ORDERCANCELED,DISPUTECANCELED
+    required: true,
+  },
+  disputeHistory: {
+    type: String,
+    required: true,
+  },
   reqDay: {
     type: Date,
     default: Date.now(),

@@ -15,7 +15,7 @@ const Cart = new Schema({
   items: [
     {
       service: {
-        ///////// Product Id Foreign Key///////////////
+        ///////// service Id Foreign Key///////////////
         type: mongoose.Schema.Types.ObjectId,
         ref: "tblservices",
       },

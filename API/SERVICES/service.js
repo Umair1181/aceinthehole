@@ -2,12 +2,53 @@ const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const { Service, ServiceCategory, Reviews } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
+// const deleteImg = require("../FIES/imageAPI");
+const ServiceClass = require("../BusinessLogics/service");
+
+Router.post("/show-all-services", (req, res) => {
+  let { userID } = req.body;
+  Service.find()
+    .populate({ path: "seller" })
+    .populate({ path: "category" })
+    .then((foundServices) => {
+      new ServiceClass()
+        .checkServiceInCart(foundServices, userID)
+        .then((servicesWithStatus) => {
+          if (servicesWithStatus.length > 0) {
+            return res
+              .json({
+                msg: "All Services with status of in cart!",
+                foundServices: servicesWithStatus,
+                success: true,
+              })
+              .status(200);
+          } else {
+            return res
+              .json({
+                msg: "No Service Found!",
+                success: false,
+              })
+              .status(400);
+          }
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
 
 ///////////Sign up with Image of seller/////////////
 Router.post(
   "/update-service-images",
   upload.array("IMGs", 5),
   async (req, res) => {
+    // let Deleted = await deleteImg.deleteImgFile();
+    // if (Deleted === "File Deleted") {
+    //   return res.json({ del: Deleted });
+    // }
+    // return res.json(Deleted);
+
     let { data } = req.body;
     let ImgArray = [];
     let IMGs = req.files;
@@ -65,7 +106,7 @@ Router.post(
           { $pullAll: { certificatesImgsURLs: service.removeURL } }
         );
       }
-
+      //pulllll
       let foundService1 = await Service.findOne({ _id: service._id });
       return res
         .json({
@@ -207,25 +248,29 @@ Router.post("/upload", upload.array("image", 1), (req, res) => {
 });
 
 Router.post("/show-all-services-of-specific-category", (req, res) => {
-  let { categoryID } = req.body;
+  let { categoryID, userID } = req.body;
   Service.find({ category: categoryID })
     .then((foundService) => {
-      if (foundService.length > 0) {
-        return res
-          .json({
-            msg: "all-services-of-specific-category",
-            foundService: foundService,
-            success: true,
-          })
-          .status(200);
-      } else {
-        return res
-          .json({
-            msg: "No Service Found!",
-            success: false,
-          })
-          .status(400);
-      }
+      new ServiceClass()
+        .checkServiceInCart(foundService, userID)
+        .then((servicesWithStatus) => {
+          if (servicesWithStatus.length > 0) {
+            return res
+              .json({
+                msg: "all-services-of-specific-category-with-cart-status",
+                foundService: servicesWithStatus,
+                success: true,
+              })
+              .status(200);
+          } else {
+            return res
+              .json({
+                msg: "No Service Found!",
+                success: false,
+              })
+              .status(400);
+          }
+        });
     })
     .catch((err) => {
       console.log(err);
@@ -442,34 +487,6 @@ Router.post("/delete-service", (req, res) => {
         return res
           .json({
             msg: "Invalid!",
-            success: false,
-          })
-          .status(400);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
-    });
-});
-
-Router.post("/show-all-services", (req, res) => {
-  Service.find()
-    .populate({ path: "seller" })
-    .populate({ path: "category" })
-    .then((foundServices) => {
-      if (foundServices.length > 0) {
-        return res
-          .json({
-            msg: "All Services!",
-            foundServices: foundServices,
-            success: true,
-          })
-          .status(200);
-      } else {
-        return res
-          .json({
-            msg: "No Service Found!",
             success: false,
           })
           .status(400);

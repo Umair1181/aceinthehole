@@ -42,7 +42,14 @@ const Service = new Schema({
       },
     },
   ],
-
+  inCart: {
+    type: Boolean,
+    default: false,
+  },
+  inWishList: {
+    type: Boolean,
+    default: false,
+  },
   serviceImgsURLs: [
     {
       type: String,

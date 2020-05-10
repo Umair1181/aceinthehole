@@ -2,6 +2,45 @@ const Router = require("express").Router();
 const { Order } = require("../../MODELS");
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const { upload } = require("../../storage")();
+
+////////////////////////////////////////////////////////////////
+Router.post("/cancel-dispute", upload.array("imgs", 2), (req, res) => {
+  let { orderID, canceledBY } = req.body;
+
+  Order.findOne({ _id: orderID })
+    .then((foundOrder) => {
+      if (foundOrder !== null) {
+        foundOrder.orderStatus = "NEWORDER";
+        //cancel by
+        foundOrder.disputeHistory[
+          foundOrder.disputeHistory.length - 1
+        ].canceledBy = canceledBY;
+        //cancel date
+        foundOrder.disputeHistory[
+          foundOrder.disputeHistory.length - 1
+        ].cancelDate = Date.now();
+
+        foundOrder.save().then((saved) => {
+          if (saved) {
+            return res
+              .json({ msg: "Dispute Canceled", saved, success: true })
+              .status(200);
+          } else {
+            return res
+              .json({ msg: "Dispute Not Canceled", success: false })
+              .status(404);
+          }
+        });
+      } else {
+        return res.json({ msg: "Not Found!", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 ////////////////////////////////////////////////////////////////
 Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
   //   let { dispute } = req.body;
@@ -28,13 +67,15 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
               createdBy: "SELLER",
               message: dispute.message,
               disputeImgUrls: imgsArray,
+              disputeCreatedDate: Date.now(),
             });
           } else {
             foundOrder.disputeHistory.push({
               user: dispute.sellerOrUserID,
-              //createdBy: "USER", default added
+              createdBy: "USER",
               message: dispute.message,
               disputeImgUrls: imgsArray,
+              disputeCreatedDate: Date.now(),
             });
           }
           foundOrder

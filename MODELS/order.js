@@ -42,8 +42,7 @@ const Order = new Schema({
       //dispute creator
       createdBy: {
         type: String,
-        default: "USER",
-        required: true,
+        // default: "USER",
       },
       message: {
         type: String,
@@ -53,9 +52,18 @@ const Order = new Schema({
           type: String,
         },
       ],
-      disputeDate: {
+      disputeCreatedDate: {
         type: Date,
-        default: Date.now(),
+        // default: Date.now(),
+      },
+      //below cancel info
+      cancelDate: {
+        type: Date,
+        // default: Date.now(),
+      },
+      canceledBy: {
+        type: String,
+        // default: "ADMIN", //USER, SELLER
       },
     },
   ],

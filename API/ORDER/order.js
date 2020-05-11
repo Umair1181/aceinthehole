@@ -1,5 +1,82 @@
 const Router = require("express").Router();
 const { Order, Reviews } = require("../../MODELS");
+////////////////////////////////////////////////////////////////
+Router.post("/show-all-orders-in-system", (req, res) => {
+  Order.find().then((foundOrders) => {
+    if (foundOrders.length > 0) {
+      return res
+        .json({
+          msg: `Orders`,
+          noOfOrders: foundOrders.length,
+          foundOrders,
+          success: true,
+        })
+        .status(202);
+    } else {
+      return res.json({ msg: `No Order`, success: false }).status(404);
+    }
+  });
+});
+
+////////////////////////////////////////////////////////////////
+Router.post("/show-orders-with-status", (req, res) => {
+  let { orderStatus } = req.body;
+
+  Order.find({ orderStatus: orderStatus }).then((foundOrders) => {
+    if (foundOrders.length > 0) {
+      return res
+        .json({
+          msg: `${orderStatus}ED Orders`,
+          noOfOrders: foundOrders.length,
+          foundOrders,
+          success: true,
+        })
+        .status(202);
+    } else {
+      return res.json({ msg: `No Order`, success: false }).status(404);
+    }
+  });
+});
+
+////////////////////////////////////////////////////////////////
+Router.post("/change-order-status", (req, res) => {
+  let { orderID, orderStatus } = req.body;
+  Order.findOne({ _id: orderID })
+    .then((foundOrder) => {
+      if (foundOrder !== null) {
+        foundOrder.orderStatus = orderStatus;
+        foundOrder
+          .save()
+          .then((savedOrder) => {
+            if (savedOrder) {
+              return res
+                .json({
+                  msg: `Order status=${savedOrder.orderStatus}`,
+                  savedOrder,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: `Order status=${foundOrder.orderStatus}`,
+                  success: false,
+                })
+                .status(505);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res.json({ msg: "Failed!", success: false }).status(505);
+          });
+      } else {
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
 
 ////////////////////////////////////////////////////////////////
 Router.post("/add-new-review", (req, res) => {

@@ -20,7 +20,11 @@ const Service = new Schema({
     type: String, //pending approve reject
     default: "PENDING",
   },
-
+  isBlock: {
+    //admin can block/unblock any service
+    type: Boolean,
+    default: false,
+  },
   isLive: {
     //seller can publish/unblish his service
     type: Boolean,

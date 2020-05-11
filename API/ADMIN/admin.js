@@ -1,6 +1,53 @@
 const Router = require("express").Router();
 const { TermsAndCondition, Seller, Service } = require("../../MODELS");
 
+Router.post("/admin-can-block-unblock-any-service", (req, res) => {
+  let { serviceID, isBlock } = req.body;
+
+  Service.findOne({ _id: serviceID })
+    .then((foundservice) => {
+      if (foundservice !== null) {
+        foundservice.isBlock = isBlock;
+
+        foundservice
+          .save()
+          .then((savedservice) => {
+            if (savedservice) {
+              return res
+                .json({
+                  msg: `service ${
+                    savedservice.isBlock ? "Blocked" : "NotBlock"
+                  }`,
+                  savedservice,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: `Not Save`,
+
+                  success: false,
+                })
+                .status(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res
+              .json({ msg: "Failed save!", success: false })
+              .status(505);
+          });
+      } else {
+        return res.json({ msg: "Not Found", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post("/admin-can-approve-disapprove-new-service", (req, res) => {
   let { serviceID, serviceStatus } = req.body;
 

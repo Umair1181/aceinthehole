@@ -8,7 +8,7 @@ const ServiceClass = require("../BusinessLogics/service");
 
 Router.post("/show-all-services", (req, res) => {
   let { userID } = req.body;
-  Service.find()
+  Service.find({ isBlock: false })
     .populate({ path: "seller" })
     .populate({ path: "category" })
     .then((foundServices) => {
@@ -265,7 +265,7 @@ Router.post("/upload", upload.array("image", 1), (req, res) => {
 
 Router.post("/show-all-services-of-specific-category", (req, res) => {
   let { categoryID, userID } = req.body;
-  Service.find({ category: categoryID })
+  Service.find({ category: categoryID, isBlock: false })
     .then((foundService) => {
       new ServiceClass()
         .checkServiceInCart(foundService, userID)
@@ -516,7 +516,7 @@ Router.post("/delete-service", (req, res) => {
 
 Router.post("/show-all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;
-  Service.find({ seller: sellerID })
+  Service.find({ seller: sellerID, isBlock: false })
     .then((foundService) => {
       if (foundService.length > 0) {
         return res
@@ -547,6 +547,11 @@ Router.post("/show-single-service", (req, res) => {
     .populate({ path: "category" })
     .then((foundService) => {
       if (foundService) {
+        if (foundService.isBlock === true) {
+          return res
+            .json({ msg: "Service is Blocked", success: false })
+            .status(404);
+        }
         Reviews.find({ service: _id })
           .then((foundReviews) => {
             if (foundReviews.length > 0) {

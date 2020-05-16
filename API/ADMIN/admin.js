@@ -5,7 +5,32 @@ const {
   Service,
   Order,
   ServiceCategory,
+  User,
 } = require("../../MODELS");
+
+Router.post("/admin-stats", async (req, res) => {
+  let sumOfPrice = 0;
+  let allOrders = await Order.find({});
+  let allsellers = await Seller.find();
+  let allUsers = await User.find();
+  let newSellers = await Seller.find({ sellerStatus: "NEWSELLER" });
+  for (let k = 0; k < allOrders.length; k++) {
+    sumOfPrice = sumOfPrice + allOrders[k].price;
+  }
+
+  return res
+    .json({
+      msg: "STATS",
+      totalOrders: allOrders.length,
+      totalSellers: allsellers.length,
+      totalUsers: allUsers.length,
+      totalNewSellers: newSellers.length,
+      totalSYSSales: sumOfPrice,
+
+      success: true,
+    })
+    .status(202);
+});
 
 Router.post("/show-earning-against-all-categories", (req, res) => {
   ServiceCategory.find()
@@ -114,39 +139,6 @@ Router.post("/show-earning-against-category", (req, res) => {
     });
 });
 
-Router.post("/total-sales-in-the-system", (req, res) => {
-  Order.find({})
-    .then((foundOrders) => {
-      if (foundOrders.length > 0) {
-        let sumOfPrice = 0;
-        for (let k = 0; k < foundOrders.length; k++) {
-          console.log(foundOrders[k].price);
-          sumOfPrice = sumOfPrice + foundOrders[k].price;
-        }
-        return res
-          .json({
-            msg: "total-sales-in-the-system",
-            totalOrders: foundOrders.length,
-            totalSales: sumOfPrice,
-
-            success: true,
-          })
-          .status(202);
-      } else {
-        return res
-          .json({
-            msg: "No Sale",
-            success: false,
-          })
-          .status(404);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
-    });
-});
-
 Router.post("/total-sales-in-given-duration", (req, res) => {
   let { startDate, endDate } = req.body;
   let sDate = "2020-04-30";
@@ -214,52 +206,6 @@ Router.post("/number-of-orders-in-given-duration", (req, res) => {
             msg: "No Order",
             success: false,
           })
-          .status(404);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
-    });
-});
-
-Router.post("/total-number-sellers-in-system", (req, res) => {
-  Seller.find()
-    .then((foundNewSellers) => {
-      console.log(foundNewSellers);
-      if (foundNewSellers.length > 0) {
-        return res
-          .json({
-            msg: "total-number-sellers-in-system",
-            result: foundNewSellers.length,
-            success: true,
-          })
-          .status(200);
-      } else {
-        return res.json({ msg: "No Seller", success: false }).status(404);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
-    });
-});
-
-Router.post("/number-of-new-requested-sellers", (req, res) => {
-  Seller.find({ sellerStatus: "NEWSELLER" })
-    .then((foundNewSellers) => {
-      console.log(foundNewSellers);
-      if (foundNewSellers.length > 0) {
-        return res
-          .json({
-            msg: "number-of-new-requested-sellers",
-            result: foundNewSellers.length,
-            success: true,
-          })
-          .status(200);
-      } else {
-        return res
-          .json({ msg: "No Requested Sellers", success: false })
           .status(404);
       }
     })

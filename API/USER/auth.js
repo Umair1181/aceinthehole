@@ -1,5 +1,7 @@
 const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
+// const randomize = require("randomatic");
+// const Transporter = require("../emailSend");
 // const ProductPostClass = require("../BusinessLogic/user");
 
 const { User } = require("../../MODELS");
@@ -7,6 +9,161 @@ const { upload } = require("../../storage")();
 ///email send import
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+////////////////////////////////////// update-user-bank-card-info API ///////////////////////////////////
+Router.post("/update-user-bank-card-info", (req, res) => {
+  let { userBank } = req.body;
+
+  let message = "";
+  if (userBank.userID === "") {
+    message = "Invalid user ";
+  } else if (userBank.cardNo === "") {
+    message = "Invalid cardNo";
+  } else if (userBank.CVV === "") {
+    message = "Invalid CVV";
+  } else if (userBank.expiryDate === "") {
+    message = "Invalid expiryDate";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    User.findOne({ _id: userBank.userID })
+      .then((fUser) => {
+        if (fUser) {
+          fUser.Bank = {
+            cardNo: userBank.cardNo,
+            CVV: userBank.CVV,
+            expiryDate: userBank.expiryDate,
+          };
+          fUser
+            .save()
+            .then((saveduserBank) => {
+              if (saveduserBank) {
+                return res
+                  .json({
+                    msg: " User's Bank Added Successfully In User",
+                    SaveduserBank: saveduserBank,
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({
+                    msg: " User Not Update!",
+                    success: false,
+                  })
+                  .status(400);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              console.log("err found");
+              return res.json({ msg: "failed", success: false }).status(400);
+            });
+        } else {
+          return res
+            .json({ msg: "Such User Not Exist", success: false })
+            .status(400);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log("err found");
+        return res
+          .json({ msg: "catch error user not found", success: false })
+          .status(400);
+      });
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+});
+
+////////////////////////////////////// update-user-billing-info API ///////////////////////////////////
+Router.post("/update-user-billing-info", (req, res) => {
+  let { userBilling } = req.body;
+
+  let message = "";
+  if (userBilling.userID === "") {
+    message = "Invalid user ";
+  } else if (userBilling.billingName === "") {
+    message = "Invalid billingName";
+  } else if (userBilling.billingAddress === "") {
+    message = "Invalid billingAddress";
+  } else if (userBilling.billingContact === "") {
+    message = "Invalid billingContact";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    User.findOne({ _id: userBilling.userID })
+      .then((fUser) => {
+        if (fUser) {
+          // fUser.firstName = fUser.firstName;
+          // fUser.lastName = fUser.lastName;
+          // fUser.email = fUser.email;
+          // fUser.password = fUser.password;
+          fUser.Bill = {
+            billingName: userBilling.billingName,
+            billingAddress: userBilling.billingAddress,
+            billingContact: userBilling.billingContact,
+          };
+          fUser
+            .save()
+            .then((savedUserBilling) => {
+              if (savedUserBilling) {
+                return res
+                  .json({
+                    msg: " User's Billing Added Successfully In User",
+                    SavedUserBilling: savedUserBilling,
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({
+                    msg: " User Not Update!",
+                    success: false,
+                  })
+                  .status(400);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              console.log("err found");
+              return res.json({ msg: "failed", success: false }).status(400);
+            });
+        } else {
+          return res
+            .json({ msg: "Such User Not Exist", success: false })
+            .status(400);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log("err found");
+        return res
+          .json({ msg: "catch error user not found", success: false })
+          .status(400);
+      });
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+}); //add  User billing ends here
+
+// ////////////////SHOW SINGLE user DETAILS//////
+Router.post("/update-user-billing-info", (req, res) => {
+  let { userID } = req.body;
+  User.findOne({ _id: userID })
+    .then((foundUser) => {
+      if (foundUser !== null) {
+      } else {
+        return res.json({ msg: "No User", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
 
 Router.post("/user-online-offline-toggle", (req, res) => {
   let { userID } = req.body;
@@ -719,9 +876,10 @@ Router.post(
     //  else if (store.address === "") {
     //   message = "invalid address";
     // }
-    else if (ImageURLsArray.length < 1) {
-      message = "One Image is compulsory!";
-    } else {
+    // else if (ImageURLsArray.length < 1) {
+    //   message = "One Image is compulsory!";
+    // }
+    else {
       message = false;
     }
     if (message === false) {

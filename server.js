@@ -27,6 +27,7 @@ mongoose
     app.use("/order", require("./ROUTES/orderRoutes"));
     app.use("/user", require("./ROUTES/userRoutes"));
     app.use("/service", require("./ROUTES/sellerRoutes"));
+    app.use("/notifications", require("./ROUTES/notificationsRoutes"));
     app.use("/files", require("./API/FIES/imageAPI"));
     app.get("/", (req, res) => {
       res.json({ msg: "server running..." }).status(200);

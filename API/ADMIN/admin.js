@@ -1,5 +1,273 @@
 const Router = require("express").Router();
-const { TermsAndCondition, Seller, Service } = require("../../MODELS");
+const {
+  TermsAndCondition,
+  Seller,
+  Service,
+  Order,
+  ServiceCategory,
+} = require("../../MODELS");
+
+Router.post("/show-earning-against-all-categories", (req, res) => {
+  ServiceCategory.find()
+    .then(async (foundCategories) => {
+      let details = [];
+      if (foundCategories.length > 0) {
+        for (let l = 0; l < foundCategories.length; l++) {
+          let foundServices = await Service.find({
+            category: foundCategories[l]._id,
+          });
+          // .then(async (foundServices) => {
+          if (foundServices.length > 0) {
+            for (let i = 0; i < foundServices.length; i++) {
+              console.log(foundServices[i]._id);
+              let foundOrders = await Order.find({
+                service: foundServices[i]._id,
+              });
+              // .then((foundOrders) => {
+              // return res.json({ msg: "Failed!", foundOrders }).status(505);
+              if (foundOrders.length > 0) {
+                let priceSum = 0;
+                for (let k = 0; k < foundOrders.length; k++) {
+                  priceSum = foundOrders[k].price + priceSum;
+                  console.log("priceSum");
+                  console.log(priceSum);
+                }
+                let obj = {
+                  category: foundCategories[l],
+                  earning: priceSum,
+                };
+                await details.push({
+                  category: foundCategories[l],
+                  earning: priceSum,
+                });
+              }
+              // })
+            }
+          }
+          //  else {
+          //   return res
+          //     .json({
+          //       msg: "No service against this category",
+          //       success: false,
+          //     })
+          //     .status(404);
+          // }
+          // });
+        }
+        return res
+          .json({
+            msg: "Earning against given category",
+            details,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "No Category", success: false }).status(505);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/show-earning-against-category", (req, res) => {
+  let { categoryID } = req.body;
+
+  Service.find({ category: categoryID })
+    .then(async (foundServices) => {
+      if (foundServices.length > 0) {
+        let details = [];
+        for (let i = 0; i < foundServices.length; i++) {
+          console.log(foundServices[i]._id);
+          let foundOrders = await Order.find({ service: foundServices[i]._id });
+          // .then((foundOrders) => {
+          // return res.json({ msg: "Failed!", foundOrders }).status(505);
+          if (foundOrders.length > 0) {
+            let priceSum = 0;
+            for (let k = 0; k < foundOrders.length; k++) {
+              priceSum = foundOrders[k].price + priceSum;
+              console.log("priceSum");
+              console.log(priceSum);
+            }
+            let obj = { category: categoryID, earning: priceSum };
+            await details.push(obj);
+          }
+          // })
+        }
+        return res
+          .json({
+            msg: "Earning against given category",
+            details,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res
+          .json({ msg: "No service against this category", success: false })
+          .status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/total-sales-in-the-system", (req, res) => {
+  Order.find({})
+    .then((foundOrders) => {
+      if (foundOrders.length > 0) {
+        let sumOfPrice = 0;
+        for (let k = 0; k < foundOrders.length; k++) {
+          console.log(foundOrders[k].price);
+          sumOfPrice = sumOfPrice + foundOrders[k].price;
+        }
+        return res
+          .json({
+            msg: "total-sales-in-the-system",
+            totalOrders: foundOrders.length,
+            totalSales: sumOfPrice,
+
+            success: true,
+          })
+          .status(202);
+      } else {
+        return res
+          .json({
+            msg: "No Sale",
+            success: false,
+          })
+          .status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/total-sales-in-given-duration", (req, res) => {
+  let { startDate, endDate } = req.body;
+  let sDate = "2020-04-30";
+  let eDate = "2020-05-12";
+  Order.find({
+    reqDay: {
+      $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
+      $lte: new Date(new Date(endDate).setHours(23, 59, 59)),
+    },
+  })
+    .then((foundOrders) => {
+      if (foundOrders.length > 0) {
+        let sumOfPrice = 0;
+        for (let k = 0; k < foundOrders.length; k++) {
+          console.log(foundOrders[k].price);
+          sumOfPrice = sumOfPrice + foundOrders[k].price;
+        }
+        return res
+          .json({
+            msg: "total-sales-in-given-duration",
+            result: foundOrders.length,
+            totalSales: sumOfPrice,
+
+            success: true,
+          })
+          .status(202);
+      } else {
+        return res
+          .json({
+            msg: "No Order",
+            success: false,
+          })
+          .status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/number-of-orders-in-given-duration", (req, res) => {
+  let { startDate, endDate } = req.body;
+  let sDate = "2020-04-30";
+  let eDate = "2020-05-12";
+  Order.find({
+    reqDay: {
+      $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
+      $lte: new Date(new Date(endDate).setHours(23, 59, 59)),
+    },
+  })
+    .then((foundOrders) => {
+      if (foundOrders.length > 0) {
+        return res
+          .json({
+            msg: "Total Orders in given duration",
+            result: foundOrders.length,
+
+            success: true,
+          })
+          .status(202);
+      } else {
+        return res
+          .json({
+            msg: "No Order",
+            success: false,
+          })
+          .status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/total-number-sellers-in-system", (req, res) => {
+  Seller.find()
+    .then((foundNewSellers) => {
+      console.log(foundNewSellers);
+      if (foundNewSellers.length > 0) {
+        return res
+          .json({
+            msg: "total-number-sellers-in-system",
+            result: foundNewSellers.length,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "No Seller", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/number-of-new-requested-sellers", (req, res) => {
+  Seller.find({ sellerStatus: "NEWSELLER" })
+    .then((foundNewSellers) => {
+      console.log(foundNewSellers);
+      if (foundNewSellers.length > 0) {
+        return res
+          .json({
+            msg: "number-of-new-requested-sellers",
+            result: foundNewSellers.length,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res
+          .json({ msg: "No Requested Sellers", success: false })
+          .status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
 
 Router.post("/admin-can-block-unblock-any-service", (req, res) => {
   let { serviceID, isBlock } = req.body;

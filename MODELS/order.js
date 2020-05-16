@@ -15,7 +15,7 @@ const Order = new Schema({
     required: true,
   },
   price: {
-    type: String,
+    type: Number,
     required: true,
   },
   orderStatus: {
@@ -68,6 +68,7 @@ const Order = new Schema({
     },
   ],
   reqDay: {
+    //order of service req day
     type: Date,
     default: Date.now(),
   },

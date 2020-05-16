@@ -2,6 +2,7 @@ const Router = require("express").Router();
 const { Order } = require("../../MODELS");
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const { upload } = require("../../storage")();
+const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 
 ////////////////////////////////////////////////////////////////
 Router.post("/cancel-dispute", upload.array("imgs", 2), (req, res) => {
@@ -52,7 +53,11 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
     imgsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
   });
   Order.findOne({ _id: dispute.orderID })
-    .then((foundOrder) => {
+    .populate({
+      path: "service",
+      populate: { path: "seller" },
+    })
+    .then(async (foundOrder) => {
       if (foundOrder !== null) {
         if (foundOrder.orderStatus === DISPUTE) {
           return res
@@ -61,6 +66,30 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
         } else {
           foundOrder.orderStatus = DISPUTE;
           foundOrder.createdBy = dispute.createdBy;
+          /////////////////////
+          //below token collection and payload prepration
+          let tokensArray = [];
+          let payload = {
+            notification: {
+              title: "Dispute Created!",
+              body: `Your Order has dispute`,
+            },
+            data: {
+              orderID: `${dispute.orderID}`,
+            },
+          };
+          if (foundOrder.service.seller.mobileFcToken !== null) {
+            tokensArray.push(foundOrder.service.seller.mobileFcToken);
+          }
+          if (foundOrder.service.seller.webFcToken !== null) {
+            tokensArray.push(foundOrder.service.seller.webFcToken);
+          }
+          let isSendNotification = await notificationSend(tokensArray, payload);
+          console.log(isSendNotification);
+          if (isSendNotification) {
+            console.log("Dispute Notification sent to Seller");
+          }
+          ///////////////////
           if (dispute.createdBy === "SELLER") {
             foundOrder.disputeHistory.push({
               seller: dispute.sellerOrUserID,

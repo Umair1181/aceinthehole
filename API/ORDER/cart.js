@@ -244,6 +244,9 @@ Router.post("/show--user-cart", (req, res) => {
   if (message === false) {
     Cart.find({ user: userID })
       .populate({
+        path: "user",
+      })
+      .populate({
         path: "service",
       })
       .populate({

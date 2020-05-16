@@ -38,7 +38,14 @@ const User = new Schema({
   // address: {
   //   type: String
   // },
-
+  webFcToken: {
+    type: String,
+    default: null,
+  },
+  mobileFcToken: {
+    type: String,
+    default: null,
+  },
   profileImgURL: [
     {
       type: String,
@@ -55,6 +62,41 @@ const User = new Schema({
   registerDate: {
     type: Date,
     default: Date.now(),
+  },
+  Bill: {
+    type: {
+      billingName: {
+        type: String,
+      },
+      // country: {
+      //   type: String
+      // },
+      billingAddress: {
+        type: String,
+      },
+      billingContact: {
+        type: String,
+      },
+    },
+  },
+  Bank: {
+    type: {
+      cardNumber: {
+        type: String,
+      },
+      AccountTitle: {
+        type: String,
+      },
+      ExpireDate: {
+        type: String,
+      },
+      Cvv: {
+        type: String,
+      },
+      // paypalAccountEmail: {
+      //   type: String,
+      // },
+    },
   },
 });
 module.exports = mongoose.model("tblusers", User);

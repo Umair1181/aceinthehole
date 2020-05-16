@@ -55,5 +55,13 @@ const Seller = new Schema({
   idCardImgURL: {
     type: String,
   },
+  webFcToken: {
+    type: String,
+    default: null,
+  },
+  mobileFcToken: {
+    type: String,
+    default: null,
+  },
 });
 module.exports = mongoose.model("tblsellers", Seller);

@@ -2,6 +2,29 @@ const Router = require("express").Router();
 const { Order, Reviews, Service } = require("../../MODELS");
 const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 
+////////////////////////////////////////////////////////////////
+Router.post("/show--single-order-details", (req, res) => {
+  let { orderID } = req.body;
+  Order.find({ _id: orderID })
+    .then((foundOrder) => {
+      if (foundOrder !== null > 0) {
+        return res
+          .json({
+            msg: `Order`,
+            foundOrder,
+            success: true,
+          })
+          .status(202);
+      } else {
+        return res.json({ msg: `No Order`, success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed", success: false }).status(404);
+    });
+});
+
 Router.post("/search-top-rated-services-by-name", (req, res) => {
   const { serviceName } = req.body;
 

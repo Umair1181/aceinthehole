@@ -5,12 +5,12 @@ const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 ////////////////////////////////////////////////////////////////
 Router.post("/show--single-order-details", (req, res) => {
   let { orderID } = req.body;
-  Order.find({ _id: orderID })
+  Order.findOne({ _id: orderID })
     .then((foundOrder) => {
-      if (foundOrder !== null > 0) {
+      if (foundOrder !== null) {
         return res
           .json({
-            msg: `Order`,
+            msg: `Order Details`,
             foundOrder,
             success: true,
           })

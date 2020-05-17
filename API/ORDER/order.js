@@ -384,17 +384,17 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
   let { serviceID, userID, description, price, day, time,
      extras , servicePrice, extrasPrice} = req.body;
   let errorMessage = false;
-  if ( serviceID === "" || !serviceID ) {
+  if ( serviceID === ""  ) {
     errorMessage = "Please Select Service!";
-  } else if( userID == "" || !userID ) {
+  } else if( userID == ""  ) {
     errorMessage = "User id Is Missed!";
-  }else if( description == "" || !description ) {
+  }else if( description == ""  ) {
     errorMessage = "Description id Is Missed!";
-  }else if( price == "" || !price ) {
+  }else if( price == ""  ) {
     errorMessage = "Price Is Missed!";
-  }else if( day == "" || !day ) {
+  }else if( day == ""  ) {
     errorMessage = "Please Select Day For Service!";
-  }else if( time == "" || !time ) {
+  }else if( time == ""  ) {
     errorMessage = "Please Select Time For Service!";
   }else{
     errorMessage = false;

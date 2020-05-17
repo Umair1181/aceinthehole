@@ -381,8 +381,28 @@ Router.post("/show-orders-of-specific-user", (req, res) => {
 });
 ////////////////////////////////////////////////////////////////
 Router.post("/place-order-of-service-by-user", (req, res) => {
-  let { serviceID, userID, description, price, day, time } = req.body;
+  let { serviceID, userID, description, price, day, time,
+     extras , servicePrice, extrasPrice} = req.body;
+  let errorMessage = false;
+  if ( serviceID === "" || !serviceID ) {
+    errorMessage = "Please Select Service!";
+  } else if( userID == "" || !userID ) {
+    errorMessage = "User id Is Missed!";
+  }else if( description == "" || !description ) {
+    errorMessage = "Description id Is Missed!";
+  }else if( price == "" || !price ) {
+    errorMessage = "Price Is Missed!";
+  }else if( day == "" || !day ) {
+    errorMessage = "Please Select Day For Service!";
+  }else if( time == "" || !time ) {
+    errorMessage = "Please Select Time For Service!";
+  }else{
+    errorMessage = false;
+  }
 
+  if (errorMessage === false) {
+    
+  
   let newOrder = new Order({
     service: serviceID,
     user: userID,
@@ -390,6 +410,9 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
     price: price,
     reqDay: day,
     reqTime: time,
+    extras: extras,
+    servicePrice: servicePrice, 
+    extrasPrice: extrasPrice
   });
 
   newOrder
@@ -448,6 +471,9 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
       console.log(err);
       return res.json({ msg: "Failed", success: false }).status(404);
     });
+  } else {
+    return res.json ({ msg: errorMessage, success:false }).status( 400 );
+  }
 });
 
 module.exports = Router;

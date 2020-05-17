@@ -14,14 +14,33 @@ const Order = new Schema({
     type: String,
     required: true,
   },
-  price: {
+  price: { // total price of service 
     type: Number,
     required: true,
+  },
+  servicePrice:{ // service prices except extra charges
+    type: Number
   },
   orderStatus: {
     type: String,
     default: "NEWORDER", // COMPLETED,DISPUTE,ORDERCANCELED
     required: true,
+  },
+  extras:[
+    {
+      serviceName: {
+        type: String
+      },
+      serviceDescription: {
+        type:String
+      },
+      price: {
+        type:Number
+      }
+    }
+  ],
+  extrasPrice: {
+    type: Number
   },
   createdBy: {
     //dispute creator

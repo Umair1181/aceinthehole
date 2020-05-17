@@ -52,7 +52,7 @@ const User = new Schema({
       default: "/files/vendor-files/image/4ac52dd5e908961c7cb9954cb5375b15.jpg",
     },
   ],
-  isOnlineStatus: {
+  isOnline: {
     type: Boolean,
     default: true,
   },

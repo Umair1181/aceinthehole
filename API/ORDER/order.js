@@ -383,7 +383,7 @@ Router.post("/show-orders-of-specific-user", (req, res) => {
 Router.post("/place-order-of-service-by-user", (req, res) => {
   let { serviceID, userID, description, price, day, time,
      extras , servicePrice, extrasPrice} = req.body;
-     return res.json ({ data: req.body });
+    //  return res.json ({ data: req.body });
   let errorMessage = false;
   if ( serviceID === "" || !serviceID ) {
     errorMessage = "Please Select Service!";
@@ -411,10 +411,20 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
     price: price,
     reqDay: day,
     reqTime: time,
-    extras: extras,
-    servicePrice: servicePrice, 
-    extrasPrice: extrasPrice
+    // extras: extras,
+    // servicePrice: servicePrice, 
+    // extrasPrice: extrasPrice
   });
+  if( extrasPrice ){
+    newOrder.extrasPrice = extrasPrice;
+  }
+  if( servicePrice ){
+    newOrder.servicePrice = servicePrice;
+  }
+  if( extras ){
+    newOrder.extras = extras;
+  }
+
 
   newOrder
     .save()

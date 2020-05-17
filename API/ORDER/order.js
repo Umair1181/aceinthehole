@@ -383,18 +383,19 @@ Router.post("/show-orders-of-specific-user", (req, res) => {
 Router.post("/place-order-of-service-by-user", (req, res) => {
   let { serviceID, userID, description, price, day, time,
      extras , servicePrice, extrasPrice} = req.body;
+     return res.json ({ data: req.body });
   let errorMessage = false;
-  if ( serviceID === ""  ) {
+  if ( serviceID === "" || !serviceID ) {
     errorMessage = "Please Select Service!";
-  } else if( userID == ""  ) {
+  } else if( userID == "" || !userID ) {
     errorMessage = "User id Is Missed!";
-  }else if( description == ""  ) {
+  }else if( description == "" || !description ) {
     errorMessage = "Description id Is Missed!";
-  }else if( price == ""  ) {
+  }else if( price == "" || !price ) {
     errorMessage = "Price Is Missed!";
-  }else if( day == ""  ) {
+  }else if( day == "" || !day ) {
     errorMessage = "Please Select Day For Service!";
-  }else if( time == ""  ) {
+  }else if( time == "" || !time ) {
     errorMessage = "Please Select Time For Service!";
   }else{
     errorMessage = false;

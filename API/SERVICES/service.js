@@ -6,6 +6,194 @@ const { upload, CreateURL } = require("../../storage")();
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const ServiceClass = require("../BusinessLogics/service");
 
+Router.post(
+  "/update-service-category",
+
+  (req, res) => {
+    let { service } = req.body;
+
+    let message = false;
+
+    if (message === false) {
+      ServiceCategory.findOne({ _id: service._id })
+        .then((foundCategories) => {
+          if (foundCategories !== null) {
+            foundCategories.serviceCategoryName =
+              foundCategories.serviceCategoryName;
+
+            if (service.serviceCategoryName !== "") {
+              foundCategories.serviceCategoryName = service.serviceCategoryName;
+            }
+
+            foundCategories
+              .save()
+              .then((saved) => {
+                if (saved) {
+                  return res
+                    .json({ msg: "Updated", saved, success: false })
+                    .status(404);
+                } else {
+                  return res
+                    .json({ msg: "Not Updated", success: false })
+                    .status(404);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                return res.json({ msg: "Failed!", success: false }).status(505);
+              });
+          } else {
+            return res.json({ msg: "Not Found", success: false }).status(505);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          return res.json({ msg: "Failed!", success: false }).status(505);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(404);
+    }
+  }
+);
+Router.post(
+  "/update-service-category-img",
+  upload.array("serviceCategoryIMG", 9),
+  // upload.fields([{ name: "serviceCategoryIMG", maxCount: 1 }]),
+  (req, res) => {
+    let { data } = req.body;
+    let service = JSON.parse(data);
+    let imageArrays = req.files;
+    let message = false;
+    let ImageURLsArray = [];
+    imageArrays.forEach((eachFoundPic) => {
+      ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
+    });
+
+    if (imageArrays.length >= 2) {
+      message = "Add one Image only!";
+    }
+    if (message === false) {
+      ServiceCategory.findOne({ _id: service._id })
+        .then((foundCategories) => {
+          if (foundCategories !== null) {
+            // foundCategories.serviceCategoryName =
+            //   foundCategories.serviceCategoryName;
+            foundCategories.categoryImgURL = foundCategories.categoryImgURL;
+            if (ImageURLsArray.length > 0) {
+              foundCategories.categoryImgURL = ImageURLsArray[0];
+            }
+            // if (req.files["serviceCategoryIMG"]) {
+            //   foundCategories.categoryImgURL = serviceCategoryIMG;
+            // }
+
+            // if (service.serviceCategoryName !== "") {
+            //   foundCategories.serviceCategoryName = service.serviceCategoryName;
+            // }
+
+            foundCategories
+              .save()
+              .then((saved) => {
+                if (saved) {
+                  return res
+                    .json({ msg: "Updated", saved, success: false })
+                    .status(404);
+                } else {
+                  return res
+                    .json({ msg: "Not Updated", success: false })
+                    .status(404);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                return res.json({ msg: "Failed!", success: false }).status(505);
+              });
+          } else {
+            return res.json({ msg: "Not Found", success: false }).status(505);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          return res.json({ msg: "Failed!", success: false }).status(505);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(404);
+    }
+
+    // const serviceCategoryIMG = CreateURL(
+    //   req.files["serviceCategoryIMG"][0].filename
+    // );
+
+    // let newserviceCategoryName = new ServiceCategory({
+    //   serviceCategoryName: service.serviceCategoryName,
+    //   categoryImgURL: serviceCategoryIMG,
+    // });
+    // newserviceCategoryName
+    //   .save()
+    //   .then((savedCategory) => {
+    //     if (savedCategory) {
+    //       return res
+    //         .json({
+    //           msg: "New Service Category Added",
+    //           savedCategory: savedCategory,
+    //           success: true,
+    //         })
+    //         .status(200);
+    //     } else {
+    //       return res.json({ msg: "Not Added", success: false }).status(400);
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     return res.json({ msg: "Failed!", success: false }).status(505);
+    //   });
+  }
+);
+Router.post(
+  "/add-new-service-category",
+  upload.fields([{ name: "serviceCategoryIMG", maxCount: 4 }]),
+  (req, res) => {
+    let { data } = req.body;
+    let service = JSON.parse(data);
+
+    if (!req.files["serviceCategoryIMG"]) {
+      return res.json({ msg: "Img is Compulsory", success: false }).status(404);
+    }
+    if (service.serviceCategoryName === "") {
+      return res
+        .json({ msg: "Invalid serviceCategoryName", success: false })
+        .status(404);
+    }
+
+    const serviceCategoryIMG = CreateURL(
+      req.files["serviceCategoryIMG"][0].filename
+    );
+
+    let newserviceCategoryName = new ServiceCategory({
+      serviceCategoryName: service.serviceCategoryName,
+      categoryImgURL: serviceCategoryIMG,
+    });
+    newserviceCategoryName
+      .save()
+      .then((savedCategory) => {
+        if (savedCategory) {
+          return res
+            .json({
+              msg: "New Service Category Added",
+              savedCategory: savedCategory,
+              success: true,
+            })
+            .status(200);
+        } else {
+          return res.json({ msg: "Not Added", success: false }).status(400);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.json({ msg: "Failed!", success: false }).status(505);
+      });
+  }
+);
+
 Router.post("/show-all-services", (req, res) => {
   let { userID } = req.body;
   Service.find({ isBlock: false })
@@ -293,100 +481,6 @@ Router.post("/show-all-services-of-specific-category", (req, res) => {
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
 });
-
-Router.post(
-  "/update-service-category",
-  upload.array("serviceCategoryIMG", 9),
-  // upload.fields([{ name: "serviceCategoryIMG", maxCount: 1 }]),
-  (req, res) => {
-    let { data } = req.body;
-    let service = JSON.parse(data);
-    let imageArrays = req.files;
-    let message = false;
-    let ImageURLsArray = [];
-    imageArrays.forEach((eachFoundPic) => {
-      ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
-    });
-
-    if (imageArrays.length >= 2) {
-      message = "Add one Image only!";
-    }
-    if (message === false) {
-      ServiceCategory.findOne({ _id: service._id })
-        .then((foundCategories) => {
-          if (foundCategories !== null) {
-            foundCategories.serviceCategoryName =
-              foundCategories.serviceCategoryName;
-            foundCategories.categoryImgURL = foundCategories.categoryImgURL;
-            if (ImageURLsArray.length > 0) {
-              foundCategories.categoryImgURL = ImageURLsArray[0];
-            }
-            // if (req.files["serviceCategoryIMG"]) {
-            //   foundCategories.categoryImgURL = serviceCategoryIMG;
-            // }
-
-            if (service.serviceCategoryName !== "") {
-              foundCategories.serviceCategoryName = service.serviceCategoryName;
-            }
-
-            foundCategories
-              .save()
-              .then((saved) => {
-                if (saved) {
-                  return res
-                    .json({ msg: "Updated", saved, success: false })
-                    .status(404);
-                } else {
-                  return res
-                    .json({ msg: "Not Updated", success: false })
-                    .status(404);
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-                return res.json({ msg: "Failed!", success: false }).status(505);
-              });
-          } else {
-            return res.json({ msg: "Not Found", success: false }).status(505);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          return res.json({ msg: "Failed!", success: false }).status(505);
-        });
-    } else {
-      return res.json({ msg: message, success: false }).status(404);
-    }
-
-    // const serviceCategoryIMG = CreateURL(
-    //   req.files["serviceCategoryIMG"][0].filename
-    // );
-
-    // let newserviceCategoryName = new ServiceCategory({
-    //   serviceCategoryName: service.serviceCategoryName,
-    //   categoryImgURL: serviceCategoryIMG,
-    // });
-    // newserviceCategoryName
-    //   .save()
-    //   .then((savedCategory) => {
-    //     if (savedCategory) {
-    //       return res
-    //         .json({
-    //           msg: "New Service Category Added",
-    //           savedCategory: savedCategory,
-    //           success: true,
-    //         })
-    //         .status(200);
-    //     } else {
-    //       return res.json({ msg: "Not Added", success: false }).status(400);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //     return res.json({ msg: "Failed!", success: false }).status(505);
-    //   });
-  }
-);
 
 //goto
 Router.post(

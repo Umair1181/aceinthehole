@@ -293,6 +293,9 @@ Router.post("/show-orders-with-status", (req, res) => {
     .populate({
       path: "service",
     })
+    .populate({
+      path: "seller",
+    })
     .then((foundOrders) => {
       if (foundOrders.length > 0) {
         return res

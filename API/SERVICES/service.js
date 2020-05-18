@@ -904,7 +904,7 @@ Router.post(
       })
       .catch((err) => {
         console.log(err);
-        return res.json({ msg: "Failed!", success: false }).status(505);
+        return res.json({ msg: "Failed!", err, success: false }).status(505);
       });
   }
 );

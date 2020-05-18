@@ -30,7 +30,7 @@ Router.post(
               .then((saved) => {
                 if (saved) {
                   return res
-                    .json({ msg: "Updated", saved, success: false })
+                    .json({ msg: "Updated", saved, success: true })
                     .status(404);
                 } else {
                   return res
@@ -95,7 +95,7 @@ Router.post(
               .then((saved) => {
                 if (saved) {
                   return res
-                    .json({ msg: "Updated", saved, success: false })
+                    .json({ msg: "Updated", saved, success: true })
                     .status(404);
                 } else {
                   return res

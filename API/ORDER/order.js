@@ -122,6 +122,12 @@ Router.post("/show-rating-of-specific-seller", async (req, res) => {
 Router.post("/show-all-orders-of-user-with-status", (req, res) => {
   let { userID, orderStatus } = req.body;
   Order.find({ user: userID, orderStatus: orderStatus })
+    .populate({
+      path: "user",
+    })
+    .populate({
+      path: "service",
+    })
     .then((foundOrders) => {
       if (foundOrders.length > 0) {
         return res
@@ -145,6 +151,12 @@ Router.post("/show-all-orders-of-user-with-status", (req, res) => {
 Router.post("/show-all-orders-of-seller-with-status", (req, res) => {
   let { sellerID, orderStatus } = req.body;
   Service.find({ seller: sellerID })
+    .populate({
+      path: "user",
+    })
+    .populate({
+      path: "service",
+    })
     .then((foundServices) => {
       if (foundServices.length > 0) {
         Order.find({ service: foundServices, orderStatus: orderStatus })
@@ -215,6 +227,12 @@ Router.post("/show-all-orders-of-seller", (req, res) => {
 Router.post("/show-all-orders-of-user", (req, res) => {
   let { userID } = req.body;
   Order.find({ user: userID })
+    .populate({
+      path: "user",
+    })
+    .populate({
+      path: "service",
+    })
     .then((foundOrders) => {
       if (foundOrders.length > 0) {
         return res
@@ -238,6 +256,12 @@ Router.post("/show-all-orders-of-user", (req, res) => {
 ////////////////////////////////////////////////////////////////
 Router.post("/show-all-orders-in-system", (req, res) => {
   Order.find()
+    .populate({
+      path: "user",
+    })
+    .populate({
+      path: "service",
+    })
     .then((foundOrders) => {
       if (foundOrders.length > 0) {
         return res
@@ -263,6 +287,12 @@ Router.post("/show-orders-with-status", (req, res) => {
   let { orderStatus } = req.body;
 
   Order.find({ orderStatus: orderStatus })
+    .populate({
+      path: "user",
+    })
+    .populate({
+      path: "service",
+    })
     .then((foundOrders) => {
       if (foundOrders.length > 0) {
         return res
@@ -381,109 +411,115 @@ Router.post("/show-orders-of-specific-user", (req, res) => {
 });
 ////////////////////////////////////////////////////////////////
 Router.post("/place-order-of-service-by-user", (req, res) => {
-  let { serviceID, userID, description, price, day, time,
-     extras , servicePrice, extrasPrice} = req.body;
-    //  return res.json ({ data: req.body });
+  let {
+    serviceID,
+    userID,
+    description,
+    price,
+    day,
+    time,
+    extras,
+    servicePrice,
+    extrasPrice,
+  } = req.body;
+  //  return res.json ({ data: req.body });
   let errorMessage = false;
-  if ( serviceID === "" || !serviceID ) {
+  if (serviceID === "" || !serviceID) {
     errorMessage = "Please Select Service!";
-  } else if( userID == "" || !userID ) {
+  } else if (userID == "" || !userID) {
     errorMessage = "User id Is Missed!";
-  }else if( description == "" || !description ) {
+  } else if (description == "" || !description) {
     errorMessage = "Description id Is Missed!";
-  }else if( price == "" || !price ) {
+  } else if (price == "" || !price) {
     errorMessage = "Price Is Missed!";
-  }else if( day == "" || !day ) {
+  } else if (day == "" || !day) {
     errorMessage = "Please Select Day For Service!";
-  }else if( time == "" || !time ) {
+  } else if (time == "" || !time) {
     errorMessage = "Please Select Time For Service!";
-  }else{
+  } else {
     errorMessage = false;
   }
 
   if (errorMessage === false) {
-    
-  
-  let newOrder = new Order({
-    service: serviceID,
-    user: userID,
-    description: description,
-    price: price,
-    reqDay: day,
-    reqTime: time,
-    // extras: extras,
-    // servicePrice: servicePrice, 
-    // extrasPrice: extrasPrice
-  });
-  if( extrasPrice ){
-    newOrder.extrasPrice = extrasPrice;
-  }
-  if( servicePrice ){
-    newOrder.servicePrice = servicePrice;
-  }
-  if( extras ){
-    newOrder.extras = extras;
-  }
-
-
-  newOrder
-    .save()
-    .then(async (orderSaved) => {
-      if (orderSaved) {
-        let foundOrder = await Order.findOne({ _id: orderSaved._id })
-          .populate({
-            path: "user",
-          })
-          .populate({
-            path: "service",
-          })
-          .populate({
-            path: "service",
-            populate: { path: "seller" },
-          });
-        //below token collection and payload prepration
-        let tokensArray = [];
-        let payload = {
-          notification: {
-            title: "New Order!",
-
-            body: `You Received New Order`,
-          },
-          data: {
-            orderID: `${orderSaved._id}`,
-          },
-        };
-        if (foundOrder.service.seller.mobileFcToken !== null) {
-          tokensArray.push(foundOrder.service.seller.mobileFcToken);
-        }
-        if (foundOrder.service.seller.webFcToken !== null) {
-          tokensArray.push(foundOrder.service.seller.webFcToken);
-        }
-        let isSendNotification = await notificationSend(tokensArray, payload);
-        console.log(isSendNotification);
-        if (isSendNotification) {
-          console.log("New Order Notification sent to Seller");
-        }
-        return res
-          .json({
-            msg: "Order Created",
-            orderSaved: foundOrder,
-            chk: tokensArray,
-            success: true,
-          })
-          .status(200);
-      } else {
-        return res
-          .json({ msg: "Order Not Created", success: false })
-          .status(404);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed", success: false }).status(404);
+    let newOrder = new Order({
+      service: serviceID,
+      user: userID,
+      description: description,
+      price: price,
+      reqDay: day,
+      reqTime: time,
+      // extras: extras,
+      // servicePrice: servicePrice,
+      // extrasPrice: extrasPrice
     });
+    if (extrasPrice) {
+      newOrder.extrasPrice = extrasPrice;
+    }
+    if (servicePrice) {
+      newOrder.servicePrice = servicePrice;
+    }
+    if (extras) {
+      newOrder.extras = extras;
+    }
+
+    newOrder
+      .save()
+      .then(async (orderSaved) => {
+        if (orderSaved) {
+          let foundOrder = await Order.findOne({ _id: orderSaved._id })
+            .populate({
+              path: "user",
+            })
+            .populate({
+              path: "service",
+            })
+            .populate({
+              path: "service",
+              populate: { path: "seller" },
+            });
+          //below token collection and payload prepration
+          let tokensArray = [];
+          let payload = {
+            notification: {
+              title: "New Order!",
+
+              body: `You Received New Order`,
+            },
+            data: {
+              orderID: `${orderSaved._id}`,
+            },
+          };
+          if (foundOrder.service.seller.mobileFcToken !== null) {
+            tokensArray.push(foundOrder.service.seller.mobileFcToken);
+          }
+          if (foundOrder.service.seller.webFcToken !== null) {
+            tokensArray.push(foundOrder.service.seller.webFcToken);
+          }
+          let isSendNotification = await notificationSend(tokensArray, payload);
+          console.log(isSendNotification);
+          if (isSendNotification) {
+            console.log("New Order Notification sent to Seller");
+          }
+          return res
+            .json({
+              msg: "Order Created",
+              orderSaved: foundOrder,
+              chk: tokensArray,
+              success: true,
+            })
+            .status(200);
+        } else {
+          return res
+            .json({ msg: "Order Not Created", success: false })
+            .status(404);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.json({ msg: "Failed", success: false }).status(404);
+      });
   } else {
-    return res.json ({ msg: errorMessage, success:false }).status( 400 );
+    return res.json({ msg: errorMessage, success: false }).status(400);
   }
 });
 

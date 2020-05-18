@@ -6,6 +6,16 @@ const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 Router.post("/show--single-order-details", (req, res) => {
   let { orderID } = req.body;
   Order.findOne({ _id: orderID })
+    .populate({
+      path: "user",
+    })
+    .populate({
+      path: "service",
+    })
+    .populate({
+      path: "service",
+      populate: { path: "seller" },
+    })
     .then((foundOrder) => {
       if (foundOrder !== null) {
         return res
@@ -294,7 +304,8 @@ Router.post("/show-orders-with-status", (req, res) => {
       path: "service",
     })
     .populate({
-      path: "seller",
+      path: "service",
+      populate: { path: "seller" },
     })
     .then((foundOrders) => {
       if (foundOrders.length > 0) {

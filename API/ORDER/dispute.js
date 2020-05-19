@@ -46,11 +46,12 @@ Router.post("/cancel-dispute", upload.array("imgs", 2), (req, res) => {
 Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
   //   let { dispute } = req.body;
   let imageArrays = req.files;
+  // return res.json(imageArrays[0].filename);
   let { data } = req.body;
   let dispute = JSON.parse(data);
   let imgsArray = [];
   imageArrays.forEach((eachFoundPic) => {
-    imgsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
+    imgsArray.push(`/files/vendor-files/image/${imageArrays[0].filename}`);
   });
   Order.findOne({ _id: dispute.orderID })
     .populate({
@@ -95,7 +96,7 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
               seller: dispute.sellerOrUserID,
               createdBy: "SELLER",
               message: dispute.message,
-              disputeImgUrls: imgsArray,
+              disputeImgUrls: `/files/vendor-files/image/${imageArrays[0].filename}`,
               disputeCreatedDate: Date.now(),
             });
           } else {
@@ -103,7 +104,7 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
               user: dispute.sellerOrUserID,
               createdBy: "USER",
               message: dispute.message,
-              disputeImgUrls: imgsArray,
+              disputeImgUrls: `/files/vendor-files/image/${imageArrays[0].filename}`,
               disputeCreatedDate: Date.now(),
             });
           }

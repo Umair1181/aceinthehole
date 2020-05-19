@@ -647,6 +647,7 @@ Router.post("/show-single-service", (req, res) => {
             .status(404);
         }
         Reviews.find({ service: _id })
+          .populate({ path: "user" })
           .then((foundReviews) => {
             if (foundReviews.length > 0) {
               let sumRating = 0;

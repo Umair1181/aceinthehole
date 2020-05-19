@@ -205,8 +205,8 @@ Router.post("/show-all-orders-of-seller", (req, res) => {
     .then((foundServices) => {
       if (foundServices.length > 0) {
         Order.find({ service: foundServices })
-        .populate({ path: "user" })
-        .populate({ path: "service" })
+          .populate({ path: "user" })
+          .populate({ path: "service" })
           .then((foundOrders) => {
             if (foundOrders.length > 0) {
               return res
@@ -226,7 +226,12 @@ Router.post("/show-all-orders-of-seller", (req, res) => {
             return res.json({ msg: "Failed", success: false }).status(404);
           });
       } else {
-        return res.json({ msg: "No Service Of Such seller so no order!", success:false }).status( 404 );
+        return res
+          .json({
+            msg: "No Service Of Such seller so no order!",
+            success: false,
+          })
+          .status(404);
       }
     })
     .catch((err) => {
@@ -244,6 +249,10 @@ Router.post("/show-all-orders-of-user", (req, res) => {
     })
     .populate({
       path: "service",
+    })
+    .populate({
+      path: "service",
+      populate: { path: "seller" },
     })
     .then((foundOrders) => {
       if (foundOrders.length > 0) {
@@ -273,9 +282,9 @@ Router.post("/show-all-orders-in-system", (req, res) => {
     })
     .populate({
       path: "service",
-      populate:{
-        path: "seller"
-      }
+      populate: {
+        path: "seller",
+      },
     })
     .then((foundOrders) => {
       if (foundOrders.length > 0) {

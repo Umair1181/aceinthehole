@@ -655,6 +655,11 @@ Router.post("/show-single-service", (req, res) => {
                 sumRating = foundReviews[k].rating + sumRating;
               }
               avgRating = sumRating / foundReviews.length;
+              // let result = foundReviews;
+
+              // if (foundReviews.length < 1) {
+              //   result = null;
+              // }
               return res
                 .json({
                   msg: "Service Found!",
@@ -668,7 +673,7 @@ Router.post("/show-single-service", (req, res) => {
                 .json({
                   msg: "Service Found!",
                   foundService: foundService,
-                  // foundReviews: foundReviews,
+                  foundReviews: foundReviews,
                   success: true,
                 })
                 .status(200);

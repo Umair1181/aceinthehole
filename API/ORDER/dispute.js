@@ -49,10 +49,10 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
   // return res.json(imageArrays[0].filename);
   let { data } = req.body;
   let dispute = JSON.parse(data);
-  let imgsArray = [];
-  imageArrays.forEach((eachFoundPic) => {
-    imgsArray.push(`/files/vendor-files/image/${imageArrays[0].filename}`);
-  });
+  // let imgsArray = [];
+  // imageArrays.forEach((eachFoundPic) => {
+  //   imgsArray.push(`/files/vendor-files/image/${imageArrays[0].filename}`);
+  // });
   Order.findOne({ _id: dispute.orderID })
     .populate({
       path: "service",

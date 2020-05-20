@@ -9,6 +9,29 @@ const { upload } = require("../../storage")();
 ///email send import
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+
+////////////////////////////////////// user-availabilty-check-by-email API ///////////////////////////////////
+Router.post("/user-availabilty-check-by-email", (req, res) => {
+  let { userEmail } = req.body;
+  User.findOne({ email: userEmail })
+    .then((fUser) => {
+      if (fUser) {
+        return res
+          .json({ msg: "User Authenticated", success: true })
+          .status(200);
+      } else {
+        return res.json({ msg: "No User Exist", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      console.log("err found");
+      return res
+        .json({ msg: "catch error user not found", success: false })
+        .status(400);
+    });
+});
+
 ////////////////////////////////////// update-user-paypal-email API ///////////////////////////////////
 Router.post("/update-user-paypal-email", (req, res) => {
   let { paypalEmail, userID } = req.body;

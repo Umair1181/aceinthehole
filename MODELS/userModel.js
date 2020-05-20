@@ -93,10 +93,10 @@ const User = new Schema({
       Cvv: {
         type: String,
       },
-      // paypalAccountEmail: {
-      //   type: String,
-      // },
     },
+  },
+  paypalAccountEmail: {
+    type: String,
   },
 });
 module.exports = mongoose.model("tblusers", User);

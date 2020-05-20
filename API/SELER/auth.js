@@ -5,6 +5,207 @@ const { upload, CreateURL } = require("../../storage")();
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+////////////////////////////////////// update-seller-paypal-email API ///////////////////////////////////
+Router.post("/update-seller-paypal-email", (req, res) => {
+  let { paypalEmail, sellerID } = req.body;
+
+  let message = "";
+  if (paypalEmail === "") {
+    message = "Invalid paypalEmail ";
+  } else if (sellerID === "") {
+    message = "Invalid sellerID ";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    Seller.findOne({ _id: sellerID })
+      .then((fseller) => {
+        if (fseller) {
+          console.log(fseller);
+          fseller.paypalAccountEmail = paypalEmail;
+          console.log(fseller.paypalAccountEmail);
+          fseller
+            .save()
+            .then((savedsellerBank) => {
+              if (savedsellerBank) {
+                return res
+                  .json({
+                    msg: " seller's paypalEmail Added Successfully!",
+                    SavedsellerBank: savedsellerBank,
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({
+                    msg: " seller Not Update!",
+                    success: false,
+                  })
+                  .status(400);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              console.log("err found");
+              return res.json({ msg: "failed", success: false }).status(400);
+            });
+        } else {
+          return res
+            .json({ msg: "Such seller Not Exist", success: false })
+            .status(400);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log("err found");
+        return res
+          .json({ msg: "catch error seller not found", success: false })
+          .status(400);
+      });
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+});
+
+////////////////////////////////////// update-seller-bank-card-info API ///////////////////////////////////
+Router.post("/update-seller-bank-card-info", (req, res) => {
+  let { sellerBank } = req.body;
+
+  let message = "";
+  if (sellerBank.sellerID === "") {
+    message = "Invalid seller ";
+  } else if (sellerBank.cardNo === "") {
+    message = "Invalid cardNo";
+  } else if (sellerBank.CVV === "") {
+    message = "Invalid CVV";
+  } else if (sellerBank.expiryDate === "") {
+    message = "Invalid expiryDate";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    Seller.findOne({ _id: sellerBank.sellerID })
+      .then((fseller) => {
+        if (fseller) {
+          fseller.Bank = {
+            cardNo: sellerBank.cardNo,
+            CVV: sellerBank.CVV,
+            expiryDate: sellerBank.expiryDate,
+          };
+          fseller
+            .save()
+            .then((savedsellerBank) => {
+              if (savedsellerBank) {
+                return res
+                  .json({
+                    msg: " seller's Bank Added Successfully In seller",
+                    SavedsellerBank: savedsellerBank,
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({
+                    msg: " seller Not Update!",
+                    success: false,
+                  })
+                  .status(400);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              console.log("err found");
+              return res.json({ msg: "failed", success: false }).status(400);
+            });
+        } else {
+          return res
+            .json({ msg: "Such seller Not Exist", success: false })
+            .status(400);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log("err found");
+        return res
+          .json({ msg: "catch error seller not found", success: false })
+          .status(400);
+      });
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+});
+
+////////////////////////////////////// update-seller-billing-info API ///////////////////////////////////
+Router.post("/update-seller-billing-info", (req, res) => {
+  let { sellerBilling } = req.body;
+
+  let message = "";
+  if (sellerBilling.sellerID === "") {
+    message = "Invalid seller ";
+  } else if (sellerBilling.billingName === "") {
+    message = "Invalid billingName";
+  } else if (sellerBilling.billingAddress === "") {
+    message = "Invalid billingAddress";
+  } else if (sellerBilling.billingContact === "") {
+    message = "Invalid billingContact";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    Seller.findOne({ _id: sellerBilling.sellerID })
+      .then((fseller) => {
+        if (fseller) {
+          // fseller.firstName = fseller.firstName;
+          // fseller.lastName = fseller.lastName;
+          // fseller.email = fseller.email;
+          // fseller.password = fseller.password;
+          fseller.Bill = {
+            billingName: sellerBilling.billingName,
+            billingAddress: sellerBilling.billingAddress,
+            billingContact: sellerBilling.billingContact,
+          };
+          fseller
+            .save()
+            .then((savedsellerBilling) => {
+              if (savedsellerBilling) {
+                return res
+                  .json({
+                    msg: " seller's Billing Added Successfully In seller",
+                    SavedsellerBilling: savedsellerBilling,
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({
+                    msg: " seller Not Update!",
+                    success: false,
+                  })
+                  .status(400);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              console.log("err found");
+              return res.json({ msg: "failed", success: false }).status(400);
+            });
+        } else {
+          return res
+            .json({ msg: "Such seller Not Exist", success: false })
+            .status(400);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log("err found");
+        return res
+          .json({ msg: "catch error seller not found", success: false })
+          .status(400);
+      });
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+}); //add  seller billing ends here
 
 Router.post("/seller-can-hide-live-his-service", (req, res) => {
   let { serviceID } = req.body;

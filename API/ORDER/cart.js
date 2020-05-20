@@ -14,112 +14,125 @@ Router.post("/add-new-cart-or-update-existing-one", (req, res) => {
     message = false;
   }
   if (message === false) {
-    Cart.findOne({ user: cart.userID })
+    Cart.findOne({
+      user: cart.userID,
+      "items.service": cart.servicesID,
+    })
       .populate({
         path: "items.service",
       })
-      .then((cartExist) => {
+      .then(async (cartExist) => {
         if (cartExist !== null) {
-          cartExist.items.push({ service: cart.servicesID });
-          cartExist
-            .save()
-            .then((savedCart) => {
-              if (savedCart !== null) {
-                Service.findOne({ _id: cart.servicesID })
-                  // .populate({
-                  //   path: "items.service",
-                  //   // populate: { path: "service" },
-                  // })
-                  // .populate({
-                  //   path: "seller",
-                  //   select:
-                  //     "_id isOnline sellerImgURL email shopName sellerName",
-                  // })
-
-                  .then((foundSerivce) => {
-                    return res
-                      .json({
-                        msg: "Previous Cart Updated",
-                        // cartExist: cartExist,
-                        foundSerivce: foundSerivce,
-                        savedCart: cartExist,
-                        // seller: savedCart.seller,
-                        success: true,
-                      })
-                      .status(200);
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                    console.log("product load catch error");
-                  });
-              } else {
-                return res
-                  .json({ msg: "Not Saved", success: false })
-                  .status(400);
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-              return res
-                .json({
-                  msg: "catch error : Product Not Saved",
-                  success: false,
-                })
-                .status(400);
-            });
+          return res
+            .json({ msg: "Service Already in Cart", cartExist, success: false })
+            .status(404);
         } else {
-          let newCart = new Cart({
-            user: cart.userID,
-            items: { service: cart.servicesID },
-            // service: cart.servicesID,
-          });
-          newCart
-            .save()
-            .then((savedCart) => {
-              console.log(savedCart);
-              if (savedCart) {
-                Cart.findOne({ _id: savedCart._id })
-                  .populate({
-                    path: "items.service",
-                  })
-                  // select:
-                  // "_id isOnline sellerImgURL email shopName sellerName",
-                  .then((savedCarts) => {
-                    return res
-                      .json({
-                        msg: "New Cart  Added",
-                        savedCart: savedCarts,
-                        success: true,
-                      })
-                      .status(200);
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                    return res
-                      .json({
-                        msg: "Catch error, Failed",
-                        success: false,
-                      })
-                      .status(500);
-                  });
-              } else {
+          let foundCart = await Cart.findOne({ user: cart.userID });
+
+          if (foundCart !== null) {
+            foundCart.items.push({ service: cart.servicesID });
+            foundCart
+              .save()
+              .then((savedCart) => {
+                if (savedCart !== null) {
+                  Service.findOne({ _id: cart.servicesID })
+                    // .populate({
+                    //   path: "items.service",
+                    //   // populate: { path: "service" },
+                    // })
+                    // .populate({
+                    //   path: "seller",
+                    //   select:
+                    //     "_id isOnline sellerImgURL email shopName sellerName",
+                    // })
+
+                    .then((foundSerivce) => {
+                      return res
+                        .json({
+                          msg: "Previous Cart Updated",
+                          // foundCart: foundCart,
+                          foundSerivce: foundSerivce,
+                          savedCart: foundCart,
+                          // seller: savedCart.seller,
+                          success: true,
+                        })
+                        .status(200);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                      console.log("product load catch error");
+                    });
+                } else {
+                  return res
+                    .json({ msg: "Not Saved", success: false })
+                    .status(400);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
                 return res
                   .json({
-                    msg: "Cart not Saved",
+                    msg: "catch error : Product Not Saved",
                     success: false,
                   })
                   .status(400);
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-              return res
-                .json({
-                  msg: "catch error : cart not saved!!!!  ",
-                  success: false,
-                })
-                .status(400);
+              });
+          } else {
+            // return res.json({ m: "not exist", foundCart });
+
+            let newCart = new Cart({
+              user: cart.userID,
+              items: { service: cart.servicesID },
+              // service: cart.servicesID,
             });
+            newCart
+              .save()
+              .then((savedCart) => {
+                console.log(savedCart);
+                if (savedCart) {
+                  Cart.findOne({ _id: savedCart._id })
+                    .populate({
+                      path: "items.service",
+                    })
+                    // select:
+                    // "_id isOnline sellerImgURL email shopName sellerName",
+                    .then((savedCarts) => {
+                      return res
+                        .json({
+                          msg: "New Cart  Added",
+                          savedCart: savedCarts,
+                          success: true,
+                        })
+                        .status(200);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                      return res
+                        .json({
+                          msg: "Catch error, Failed",
+                          success: false,
+                        })
+                        .status(500);
+                    });
+                } else {
+                  return res
+                    .json({
+                      msg: "Cart not Saved",
+                      success: false,
+                    })
+                    .status(400);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                return res
+                  .json({
+                    msg: "catch error : cart not saved!!!!  ",
+                    success: false,
+                  })
+                  .status(400);
+              });
+          }
         }
       })
       .catch((err) => {

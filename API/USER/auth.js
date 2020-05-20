@@ -9,6 +9,68 @@ const { upload } = require("../../storage")();
 ///email send import
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+////////////////////////////////////// update-user-paypal-email API ///////////////////////////////////
+Router.post("/update-user-paypal-email", (req, res) => {
+  let { paypalEmail, userID } = req.body;
+
+  let message = "";
+  if (paypalEmail === "") {
+    message = "Invalid paypalEmail ";
+  } else if (userID === "") {
+    message = "Invalid userID ";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    User.findOne({ _id: userID })
+      .then((fUser) => {
+        if (fUser) {
+          console.log(fUser);
+          fUser.paypalAccountEmail = paypalEmail;
+          console.log(fUser.paypalAccountEmail);
+          fUser
+            .save()
+            .then((saveduserBank) => {
+              if (saveduserBank) {
+                return res
+                  .json({
+                    msg: " User's paypalEmail Added Successfully!",
+                    SaveduserBank: saveduserBank,
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({
+                    msg: " User Not Update!",
+                    success: false,
+                  })
+                  .status(400);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              console.log("err found");
+              return res.json({ msg: "failed", success: false }).status(400);
+            });
+        } else {
+          return res
+            .json({ msg: "Such User Not Exist", success: false })
+            .status(400);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log("err found");
+        return res
+          .json({ msg: "catch error user not found", success: false })
+          .status(400);
+      });
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+});
+
 ////////////////////////////////////// update-user-bank-card-info API ///////////////////////////////////
 Router.post("/update-user-bank-card-info", (req, res) => {
   let { userBank } = req.body;
@@ -862,26 +924,27 @@ Router.post(
     //VALIDATIONS STARTS HERE
     let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     let message = false;
-    if (user.userName === "") {
-      message = "invalid userName";
-    }
-    // else if (store.phoneNumber === "" && store.phoneNumber.length < 6) {
-    //   message = "invalid phoneNumber";
+    // if (user.userName === "") {
+    //   message = "invalid userName";
     // }
-    else if (user.password === "" && user.password.length < 6) {
-      message = "invalid password";
-    } else if (!RegularExpression.test(String(user.email).toLowerCase())) {
-      message = "invalid email";
-    }
+    // // else if (store.phoneNumber === "" && store.phoneNumber.length < 6) {
+    // //   message = "invalid phoneNumber";
+    // // }
+    // else
+    // if (user.password === "" && user.password.length < 6) {
+    //   message = "invalid password";
+    // } else if (!RegularExpression.test(String(user.email).toLowerCase())) {
+    //   message = "invalid email";
+    // }
     //  else if (store.address === "") {
     //   message = "invalid address";
     // }
     // else if (ImageURLsArray.length < 1) {
     //   message = "One Image is compulsory!";
     // }
-    else {
-      message = false;
-    }
+    // else {
+    //   message = false;
+    // }
     if (message === false) {
       User.findOne({
         $or: [{ email: user.email }, { userName: user.storeName }],

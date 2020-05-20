@@ -8,6 +8,53 @@ const {
   User,
 } = require("../../MODELS");
 
+Router.post("/show-earning-of-seller-in-given-duration", (req, res) => {
+  let { sellerID, startDate, endDate } = req.body;
+  let priceSum = 0;
+  Service.find({ seller: sellerID })
+    .then(async (foundServices) => {
+      if (foundServices.length > 0) {
+        let details = [];
+        for (let i = 0; i < foundServices.length; i++) {
+          // console.log(foundServices[i]._id);
+          let sDate = "2020-04-30";
+          let eDate = "2020-05-12";
+          let foundOrders = await Order.find({
+            service: foundServices[i]._id,
+            orderRcvDate: {
+              // orderStatus: "COMPLETED",
+              $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
+              $lt: new Date(new Date(endDate).setHours(23, 59, 59)),
+            },
+          });
+          console.log("**********foundOrders");
+          console.log(foundOrders);
+          if (foundOrders.length > 0) {
+            for (let k = 0; k < foundOrders.length; k++) {
+              priceSum = foundOrders[k].price + priceSum;
+            }
+            // let obj = { category: categoryID, earning: priceSum };
+            // await details.push(obj);
+          }
+          // })
+        }
+        return res
+          .json({
+            msg: "show-earning-of-seller-in-given-duration",
+            earning: priceSum,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "No service", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 Router.post("/admin-stats", async (req, res) => {
   let sumOfPrice = 0;
   let allOrders = await Order.find({});
@@ -159,7 +206,7 @@ Router.post("/total-sales-in-given-duration", (req, res) => {
         return res
           .json({
             msg: "total-sales-in-given-duration",
-            result: foundOrders.length,
+            totalOrders: foundOrders.length,
             totalSales: sumOfPrice,
 
             success: true,

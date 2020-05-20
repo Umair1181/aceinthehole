@@ -14,33 +14,35 @@ const Order = new Schema({
     type: String,
     required: true,
   },
-  price: { // total price of service 
+  price: {
+    // total price of service
     type: Number,
     required: true,
   },
-  servicePrice:{ // service prices except extra charges
-    type: Number
+  servicePrice: {
+    // service prices except extra charges
+    type: Number,
   },
   orderStatus: {
     type: String,
     default: "NEWORDER", // COMPLETED,DISPUTE,ORDERCANCELED
     required: true,
   },
-  extras:[
+  extras: [
     {
       serviceName: {
-        type: String
+        type: String,
       },
       serviceDescription: {
-        type:String
+        type: String,
       },
       price: {
-        type:Number
-      }
-    }
+        type: Number,
+      },
+    },
   ],
   extrasPrice: {
-    type: Number
+    type: Number,
   },
   createdBy: {
     //dispute creator
@@ -86,6 +88,11 @@ const Order = new Schema({
       },
     },
   ],
+  orderRcvDate: {
+    //when order recieved
+    type: Date,
+    default: Date.now(),
+  },
   reqDay: {
     //order of service req day
     type: Date,

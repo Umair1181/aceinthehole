@@ -63,5 +63,40 @@ const Seller = new Schema({
     type: String,
     default: null,
   },
+  Bill: {
+    type: {
+      billingName: {
+        type: String,
+      },
+      // country: {
+      //   type: String
+      // },
+      billingAddress: {
+        type: String,
+      },
+      billingContact: {
+        type: String,
+      },
+    },
+  },
+  Bank: {
+    type: {
+      cardNumber: {
+        type: String,
+      },
+      AccountTitle: {
+        type: String,
+      },
+      ExpireDate: {
+        type: String,
+      },
+      Cvv: {
+        type: String,
+      },
+    },
+  },
+  paypalAccountEmail: {
+    type: String,
+  },
 });
 module.exports = mongoose.model("tblsellers", Seller);

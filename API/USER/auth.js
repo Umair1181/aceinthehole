@@ -933,9 +933,10 @@ Router.post(
     // else
     // if (user.password === "" && user.password.length < 6) {
     //   message = "invalid password";
-    // } else if (!RegularExpression.test(String(user.email).toLowerCase())) {
-    //   message = "invalid email";
-    // }
+    // } else
+    if (!RegularExpression.test(String(user.email).toLowerCase())) {
+      message = "invalid email";
+    }
     //  else if (store.address === "") {
     //   message = "invalid address";
     // }

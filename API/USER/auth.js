@@ -17,7 +17,7 @@ Router.post("/user-availabilty-check-by-email", (req, res) => {
     .then((fUser) => {
       if (fUser) {
         return res
-          .json({ msg: "User Authenticated", success: true })
+          .json({ msg: "User Authenticated", foundUser: fUser, success: true })
           .status(200);
       } else {
         return res.json({ msg: "No User Exist", success: false }).status(404);

@@ -2,9 +2,34 @@ const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const { Seller, EmailVerification, Service } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
+const SellerRating = require("../BusinessLogics/rating");
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+
+Router.post("/all-sellers-details", (req, res) => {
+  new SellerRating()
+    .calculateSellerRat()
+    // Seller.find()
+    .then((foundSeller) => {
+      if (foundSeller.length > 0) {
+        foundSeller.password = "";
+        return res
+          .json({
+            msg: "All Sellers Details!",
+            foundSellers: foundSeller,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "No Seller", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
 
 ////////////////////////////////////// seller-availabilty-check-by-email API ///////////////////////////////////
 Router.post("/seller-availabilty-check-by-email", (req, res) => {
@@ -762,28 +787,6 @@ Router.post("/forget-pass-send-email", (req, res) => {
     .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed!!!", success: false }).status(500);
-    });
-});
-
-Router.post("/all-sellers-details", (req, res) => {
-  Seller.find()
-    .then((foundSeller) => {
-      if (foundSeller.length > 0) {
-        foundSeller.password = "";
-        return res
-          .json({
-            msg: "All Sellers Details!",
-            foundSellers: foundSeller,
-            success: true,
-          })
-          .status(200);
-      } else {
-        return res.json({ msg: "No Seller", success: false }).status(404);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
     });
 });
 

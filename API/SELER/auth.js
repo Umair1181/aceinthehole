@@ -5,6 +5,29 @@ const { upload, CreateURL } = require("../../storage")();
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+
+////////////////////////////////////// seller-availabilty-check-by-email API ///////////////////////////////////
+Router.post("/seller-availabilty-check-by-email", (req, res) => {
+  let { sellerEmail } = req.body;
+  Seller.findOne({ email: sellerEmail })
+    .then((fseller) => {
+      if (fseller) {
+        return res
+          .json({ msg: "seller Authenticated", result: fseller, success: true })
+          .status(200);
+      } else {
+        return res.json({ msg: "No seller Exist", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      console.log("err found");
+      return res
+        .json({ msg: "catch error seller not found", success: false })
+        .status(400);
+    });
+});
+
 ////////////////////////////////////// update-seller-paypal-email API ///////////////////////////////////
 Router.post("/update-seller-paypal-email", (req, res) => {
   let { paypalEmail, sellerID } = req.body;

@@ -5,6 +5,9 @@ const Service = new Schema({
   serviceName: {
     type: String,
   },
+  avgRating: {
+    type: Number,
+  },
   seller: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "tblsellers",

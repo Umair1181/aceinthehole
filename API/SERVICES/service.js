@@ -611,6 +611,7 @@ Router.post("/delete-service", (req, res) => {
 Router.post("/show-all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;
   Service.find({ seller: sellerID, isBlock: false })
+    .populate({ path: "seller" })
     .then((foundService) => {
       if (foundService.length > 0) {
         return res

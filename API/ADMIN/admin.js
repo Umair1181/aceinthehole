@@ -79,68 +79,49 @@ Router.post("/admin-stats", async (req, res) => {
     .status(202);
 });
 
-Router.post("/show-earning-against-all-categories", (req, res) => {
-  ServiceCategory.find()
-    .then(async (foundCategories) => {
-      let details = [];
-      if (foundCategories.length > 0) {
-        for (let l = 0; l < foundCategories.length; l++) {
-          let foundServices = await Service.find({
-            category: foundCategories[l]._id,
+Router.post("/show-earning-against-all-categories", async (req, res) => {
+  let foundCategories = await ServiceCategory.find();
+  let details = [];
+  let priceSum = 0;
+  if (foundCategories.length > 0) {
+    for (let l = 0; l < foundCategories.length; l++) {
+      let foundServices = await Service.find({
+        category: foundCategories[l]._id,
+      });
+      if (foundServices.length > 0) {
+        for (let i = 0; i < foundServices.length; i++) {
+          let foundOrders = await Order.find({
+            service: foundServices[i]._id,
           });
-          // .then(async (foundServices) => {
-          if (foundServices.length > 0) {
-            for (let i = 0; i < foundServices.length; i++) {
-              console.log(foundServices[i]._id);
-              let foundOrders = await Order.find({
-                service: foundServices[i]._id,
-              });
-              // .then((foundOrders) => {
-              // return res.json({ msg: "Failed!", foundOrders }).status(505);
-              if (foundOrders.length > 0) {
-                let priceSum = 0;
-                for (let k = 0; k < foundOrders.length; k++) {
-                  priceSum = foundOrders[k].price + priceSum;
-                  console.log("priceSum");
-                  console.log(priceSum);
-                }
-                let obj = {
-                  category: foundCategories[l],
-                  earning: priceSum,
-                };
-                await details.push({
-                  category: foundCategories[l],
-                  earning: priceSum,
-                });
-              }
-              // })
+          if (foundOrders.length > 0) {
+            for (let k = 0; k < foundOrders.length; k++) {
+              priceSum = foundOrders[k].price + priceSum;
             }
           }
-          //  else {
-          //   return res
-          //     .json({
-          //       msg: "No service against this category",
-          //       success: false,
-          //     })
-          //     .status(404);
-          // }
-          // });
         }
-        return res
-          .json({
-            msg: "Earning against given category",
-            details,
-            success: true,
-          })
-          .status(200);
-      } else {
-        return res.json({ msg: "No Category", success: false }).status(505);
       }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
-    });
+      await details.push({
+        category: foundCategories[l],
+        earning: priceSum,
+      });
+    }
+    return res
+      .json({
+        msg: "Earning against given category",
+        totalCategories: foundCategories.length,
+
+        details,
+        success: true,
+      })
+      .status(200);
+  } else {
+    return res.json({ msg: "No service Category", success: false }).status(505);
+  }
+  // })
+  // .catch((err) => {
+  //   console.log(err);
+  //   return res.json({ msg: "Failed!", success: false }).status(505);
+  // });
 });
 
 Router.post("/show-earning-against-category", (req, res) => {

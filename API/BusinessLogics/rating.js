@@ -56,24 +56,20 @@ class reviews {
       path: "seller",
     });
     for (let i = 0; i < foundServices.length; i++) {
-      await Reviews.find({ service: foundServices[i]._id })
-        .then((foundReviews) => {
-          if (foundReviews.length > 0) {
-            for (let k = 0; k < foundReviews.length; k++) {
-              sumation = sumation + foundReviews[k].rating;
-            }
-            let avg = sumation / foundReviews.length;
-            // this.avgRating.push(avg);
-            foundServices[i].avgRating = avg;
-          } else {
-            console.log("no rating of this service");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          console.log("Catch error of finding service form cart");
-          //   this.inCart = false;
-        });
+      let foundReviews = await Reviews.find({ service: foundServices[i]._id });
+      let avg = 0;
+      // .then((foundReviews) => {
+      if (foundReviews.length > 0) {
+        for (let k = 0; k < foundReviews.length; k++) {
+          sumation = sumation + foundReviews[k].rating;
+        }
+        avg = sumation / foundReviews.length;
+        // this.avgRating.push(avg);
+      } else {
+        console.log("no rating of this service");
+      }
+      foundServices[i].avgRating = avg;
+      // })
     }
     return foundServices;
   }

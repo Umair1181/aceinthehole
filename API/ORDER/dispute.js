@@ -1,5 +1,5 @@
 const Router = require("express").Router();
-const { Order } = require("../../MODELS");
+const { Order, Notifications } = require("../../MODELS");
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const { upload } = require("../../storage")();
 const notificationSend = require("../NOTIFICATIONS/notifyConfig");
@@ -79,6 +79,19 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
               orderID: `${dispute.orderID}`,
             },
           };
+          let newNotification = await new Notifications({
+            title: payload.notification.title,
+            body: payload.notification.body,
+            seller: foundOrder.service.seller._id,
+            user: foundOrder.user,
+            notificationFor: "USER",
+          });
+          let saveNotification = newNotification.save();
+          if (saveNotification) {
+            console.log("Notification Saved");
+          } else {
+            console.log("Notification Not Saved");
+          }
           if (foundOrder.service.seller.mobileFcToken !== null) {
             tokensArray.push(foundOrder.service.seller.mobileFcToken);
           }

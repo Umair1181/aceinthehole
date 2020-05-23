@@ -14,7 +14,7 @@ const {
   setOnlineStatusSeller,
   saveToDbChat,
   saveOfferToDbChat,
-  acceptOffer
+  acceptOffer,
 } = require("./API/CHAT/userChat");
 ///////////////FRONT END ERROR RESOLVED CODE /////////////////////
 app.use(function (req, res, next) {
@@ -30,7 +30,7 @@ mongoose
   .then((m) => {
     global.mongodbconndbs = m.connection;
     ///////////////// API ROUTES ////////////////
-    app.use("/chat", require("./ROUTES/chatRoutes") );
+    app.use("/chat", require("./ROUTES/chatRoutes"));
     app.use("/admin", require("./ROUTES/adminRoutes"));
     app.use("/seller", require("./ROUTES/sellerRoutes"));
     app.use("/order", require("./ROUTES/orderRoutes"));
@@ -57,7 +57,7 @@ const server = app.listen(port, () => {
 ///// chat with socket
 
 const io = socket(server);
-io.on("connection", async socket => {
+io.on("connection", async (socket) => {
   global.gSocket = socket;
   const query = socket.handshake.query;
   let isSeller = query.isSeller;
@@ -67,15 +67,15 @@ io.on("connection", async socket => {
     await socket.leave(query.uid);
     await socket.join(query.uid);
   } else {
-    console.log( "---- join" );
+    console.log("---- join");
     await socket.join(query.uid);
   }
 
   // status online to query.uid;
-  if(isSeller == true){
-     setOnlineStatusSeller(query.uid, true)
-  }else{
-     setOnlineStatusUser(query.uid, true);
+  if (isSeller == true) {
+    setOnlineStatusSeller(query.uid, true);
+  } else {
+    setOnlineStatusUser(query.uid, true);
   }
 
   // // responce to user for accepting
@@ -95,39 +95,34 @@ io.on("connection", async socket => {
   //   socket.in(query.from).emit("offerResponseToUser", { query: query });
   // });
 
-  socket.on("onSend",async res => {
+  socket.on("onSend", async (res) => {
     const query = res.query;
-    console.log( "onSend" );
+    console.log("onSend");
     if (query.type == "OFFER") {
-      console.log( ' went for offer offer' );
+      console.log(" went for offer offer");
       await saveOfferToDbChat(query, socket);
       // socket.in(query.to).emit("onRecieve", { query: query });
-      
     } else {
       console.log("Message");
-      console.log( query );
+      console.log(query);
       await saveToDbChat(query);
       socket.in(query.to).emit("onRecieve", { query: query });
-
     }
   });
 
-  socket.on("disconnect", res => {
+  socket.on("disconnect", (res) => {
     console.log(`user with id:${query.uid} is Disconnected`);
     /// update status offline to query.uid;
     console.log(`${query.isSeller ? "seller" : "user"}` + " is Dis-Connected");
     let isSeller = query.isSeller;
-    if(isSeller == true){
+    if (isSeller == true) {
       setOnlineStatusSeller(query.uid, false);
-   }else{
+    } else {
       setOnlineStatusUser(query.uid, false);
-   }
+    }
     socket.leave(query.uid);
   });
 });
-
-
-
 
 // app.post("/upload", upload.array("image", 1), (req, res) => {
 //   let imageArrays = req.files;

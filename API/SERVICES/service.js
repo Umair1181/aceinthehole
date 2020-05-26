@@ -9,7 +9,6 @@ const ServiceRating = require("../BusinessLogics/rating");
 
 Router.post("/show-all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;
-
   new ServiceRating()
     .calculateServiceRat(sellerID)
     .then((foundServices) => {
@@ -249,7 +248,7 @@ Router.post(
 
 Router.post("/show-all-services", (req, res) => {
   let { userID } = req.body;
-  Service.find({ isBlock: false })
+  Service.find({ isBlock: false, isLive: true })
     .populate({ path: "seller" })
     .populate({ path: "category" })
     .then((foundServices) => {
@@ -506,7 +505,7 @@ Router.post("/upload", upload.array("image", 1), (req, res) => {
 
 Router.post("/show-all-services-of-specific-category", (req, res) => {
   let { categoryID, userID } = req.body;
-  Service.find({ category: categoryID, isBlock: false })
+  Service.find({ category: categoryID, isBlock: false, isLive: true })
     .then((foundService) => {
       new ServiceClass()
         .checkServiceInCart(foundService, userID)

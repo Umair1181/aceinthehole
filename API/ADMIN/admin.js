@@ -26,6 +26,7 @@ Router.post("/show-earning-of-seller-in-given-duration", (req, res) => {
               $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
               $lt: new Date(new Date(endDate).setHours(23, 59, 59)),
             },
+            orderStatus: "COMPLETED",
           });
           console.log("**********foundOrders");
           console.log(foundOrders);
@@ -92,6 +93,8 @@ Router.post("/show-earning-against-all-categories", async (req, res) => {
         for (let i = 0; i < foundServices.length; i++) {
           let foundOrders = await Order.find({
             service: foundServices[i]._id,
+
+            orderStatus: "COMPLETED",
           });
           if (foundOrders.length > 0) {
             for (let k = 0; k < foundOrders.length; k++) {
@@ -133,7 +136,10 @@ Router.post("/show-earning-against-category", (req, res) => {
         let details = [];
         for (let i = 0; i < foundServices.length; i++) {
           console.log(foundServices[i]._id);
-          let foundOrders = await Order.find({ service: foundServices[i]._id });
+          let foundOrders = await Order.find({
+            service: foundServices[i]._id,
+            orderStatus: "COMPLETED",
+          });
           // .then((foundOrders) => {
           // return res.json({ msg: "Failed!", foundOrders }).status(505);
           if (foundOrders.length > 0) {

@@ -52,9 +52,13 @@ class reviews {
 
   async calculateServiceRat(sellerID) {
     let sumation = 0;
-    let foundServices = await Service.find({ seller: sellerID }).populate({
-      path: "seller",
-    });
+    let foundServices = await Service.find({ seller: sellerID })
+      .populate({
+        path: "seller",
+      })
+      .populate({
+        path: "category",
+      });
     for (let i = 0; i < foundServices.length; i++) {
       let foundReviews = await Reviews.find({ service: foundServices[i]._id });
       let avg = 0;

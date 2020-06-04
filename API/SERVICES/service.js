@@ -1,11 +1,55 @@
 const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const { Service, ServiceCategory, Reviews } = require("../../MODELS");
+const { Service, ServiceCategory, Reviews, Order } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 // const deleteImg = require("../FIES/imageAPI");
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const ServiceClass = require("../BusinessLogics/service");
 const ServiceRating = require("../BusinessLogics/rating");
+
+Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
+  let { userID } = req.body;
+  Service.find({ isBlock: false, isLive: true })
+    .then((foundService) => {
+      new ServiceClass()
+        .checkServiceInCart(foundService, userID)
+        .then(async (servicesWithStatus) => {
+          if (servicesWithStatus.length > 0) {
+            let toalOrders = await Order.find();
+            let topServices = await Order.aggregate([
+              {
+                $group: {
+                  _id: "$service",
+                  count: { $sum: 1 },
+                },
+              },
+            ]).limit(10);
+
+            return res
+              .json({
+                msg: "Top Ten Most Hired Services",
+                topServices,
+                // toalOrders,
+                // total: toalOrders.length,
+                // foundService: servicesWithStatus,
+                success: true,
+              })
+              .status(200);
+          } else {
+            return res
+              .json({
+                msg: "No Service Found!",
+                success: false,
+              })
+              .status(400);
+          }
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
 
 Router.post("/show-all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;

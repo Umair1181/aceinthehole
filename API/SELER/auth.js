@@ -1,11 +1,77 @@
 const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const { Seller, EmailVerification, Service } = require("../../MODELS");
+const {
+  Seller,
+  EmailVerification,
+  Service,
+  Order,
+  Reviews,
+} = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 const SellerRating = require("../BusinessLogics/rating");
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+
+////////////////////////////////////////////////////////////////
+Router.post("/client-satisfaction-rate", async (req, res) => {
+  let { sellerID } = req.body;
+  let sellerRating = 0;
+  let avgRatingService = 0;
+  let ratingSum = 0;
+  let reviewsLength = 0;
+  let avgRatingAllServices = 0;
+  let totalServices = 0;
+  let foundServices = await Service.find({ seller: sellerID });
+  totalServices = foundServices.length;
+  if (foundServices.length > 0) {
+    for (let k = 0; k < foundServices.length; k++) {
+      let foundReviews = await Reviews.find({ service: foundServices[k]._id });
+
+      if (foundReviews.length > 0) {
+        reviewsLength = foundReviews.length;
+        for (let l = 0; l < foundReviews.length; l++) {
+          ratingSum = ratingSum + foundReviews[l].rating;
+        }
+        avgRatingService = ratingSum / foundReviews.length;
+        avgRatingAllServices = avgRatingService + avgRatingAllServices;
+      }
+    }
+    sellerRating = avgRatingAllServices / totalServices;
+    return res
+      .json({
+        msg: "client-satisfaction-rate",
+        sellerRating: sellerRating / reviewsLength,
+        success: true,
+      })
+      .status(200);
+  } else {
+    return res
+      .json({
+        msg: "No Service",
+        success: false,
+      })
+      .status(404);
+  }
+});
+
+Router.post("/seller-order-completion-rate", async (req, res) => {
+  let { sellerID } = req.body;
+
+  let allServices = await Service.find({ seller: sellerID });
+  let allOrders = await Order.find({ service: allServices });
+  let allCompleteOrders = await Order.find({
+    service: allServices,
+    orderStatus: "COMPLETE",
+  });
+  return res.json({
+    msg: "seller-order-completion-rate",
+    totalOrders: allOrders.length,
+    totalCompletedOrders: allCompleteOrders.length,
+    orderCompletionRate: allCompleteOrders.length / allOrders.length,
+    // allOrders,
+  });
+});
 
 Router.post("/all-sellers-details", (req, res) => {
   new SellerRating()

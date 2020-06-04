@@ -125,6 +125,13 @@ Router.post("/show-rating-of-specific-seller", async (req, res) => {
         success: true,
       })
       .status(200);
+  } else {
+    return res
+      .json({
+        msg: "No Service",
+        success: false,
+      })
+      .status(404);
   }
 });
 

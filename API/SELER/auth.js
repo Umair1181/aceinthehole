@@ -60,15 +60,16 @@ Router.post("/seller-order-completion-rate", async (req, res) => {
 
   let allServices = await Service.find({ seller: sellerID });
   let allOrders = await Order.find({ service: allServices });
-  let allCompleteOrders = await Order.find({
+  let allORDERCANCELED = await Order.find({
     service: allServices,
-    orderStatus: "COMPLETE",
+    orderStatus: "ORDERCANCELED",
   });
+  let calculate = 100 - allORDERCANCELED.length / allOrders.length;
   return res.json({
     msg: "seller-order-completion-rate",
     totalOrders: allOrders.length,
-    totalCompletedOrders: allCompleteOrders.length,
-    orderCompletionRate: allCompleteOrders.length / allOrders.length,
+    totalCanceledOrders: allORDERCANCELED.length,
+    orderCompletionRate: calculate,
     // allOrders,
   });
 });

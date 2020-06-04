@@ -83,6 +83,7 @@ Router.post("/admin-stats", async (req, res) => {
 Router.post("/show-earning-against-all-categories", async (req, res) => {
   let foundCategories = await ServiceCategory.find();
   let details = [];
+
   let priceSum = 0;
   if (foundCategories.length > 0) {
     for (let l = 0; l < foundCategories.length; l++) {

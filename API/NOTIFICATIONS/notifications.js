@@ -5,6 +5,8 @@ const { Notifications } = require("../../MODELS");
 Router.post("/show-all-notifications-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;
   Notifications.find({ seller: sellerID })
+    .populate({ path: "user" })
+    .populate({ path: "seller" })
     .then((foundNotifications) => {
       if (foundNotifications.length > 0) {
         return res
@@ -32,6 +34,8 @@ Router.post("/show-all-notifications-of-specific-seller", (req, res) => {
 Router.post("/show-all-notifications-of-specific-user", (req, res) => {
   let { userID } = req.body;
   Notifications.find({ user: userID })
+    .populate({ path: "user" })
+    .populate({ path: "seller" })
     .then((foundNotifications) => {
       if (foundNotifications.length > 0) {
         return res
@@ -57,8 +61,11 @@ Router.post("/show-all-notifications-of-specific-user", (req, res) => {
 });
 
 Router.post("/show-all-notifications-of-system", (req, res) => {
-  // return res.json("t");
+  // return res.json("t"); seller
+
   Notifications.find()
+    .populate({ path: "user" })
+    .populate({ path: "seller" })
     .then((foundNotifications) => {
       if (foundNotifications.length > 0) {
         return res

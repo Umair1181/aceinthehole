@@ -15,7 +15,6 @@ Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
         .checkServiceInCart(foundService, userID)
         .then(async (servicesWithStatus) => {
           if (servicesWithStatus.length > 0) {
-            let toalOrders = await Order.find();
             let topServices = await Order.aggregate([
               {
                 $group: {
@@ -24,17 +23,33 @@ Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
                 },
               },
             ]).limit(10);
-
-            return res
-              .json({
-                msg: "Top Ten Most Hired Services",
-                topServices,
-                // toalOrders,
-                // total: toalOrders.length,
-                // foundService: servicesWithStatus,
-                success: true,
-              })
-              .status(200);
+            Service.populate(topServices, { path: "_id" }).then(
+              (topServices) => {
+                if (topServices.length < 1) {
+                  return res
+                    .json({ msg: "No Service!", success: false })
+                    .status(200);
+                } else {
+                  return res
+                    .json({
+                      msg: "Top Ten Most Hired Services!",
+                      topServices,
+                      success: true,
+                    })
+                    .status(200);
+                }
+              }
+            );
+            // return res
+            //   .json({
+            //     msg: "Top Ten Most Hired Services",
+            //     topServices,
+            //     // toalOrders,
+            //     // total: toalOrders.length,
+            //     // foundService: servicesWithStatus,
+            //     success: true,
+            //   })
+            //   .status(200);
           } else {
             return res
               .json({

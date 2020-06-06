@@ -1,5 +1,5 @@
 const Router = require("express").Router();
-const { Order, Reviews, Service } = require("../../MODELS");
+const { Order, Reviews, Service, Notifications } = require("../../MODELS");
 const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 
 ////////////////////////////////////////////////////////////////
@@ -524,6 +524,21 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
               orderID: `${orderSaved._id}`,
             },
           };
+          //working on save notifications
+          let newNotification = await new Notifications({
+            title: payload.notification.title,
+            body: payload.notification.body,
+            seller: foundOrder.service.seller._id,
+            user: foundOrder.user,
+            notificationFor: "USER",
+          });
+          let saveNotification = newNotification.save();
+          if (saveNotification) {
+            console.log("Notification Saved");
+          } else {
+            console.log("Notification Not Saved");
+          }
+
           if (foundOrder.service.seller.mobileFcToken !== null) {
             tokensArray.push(foundOrder.service.seller.mobileFcToken);
           }

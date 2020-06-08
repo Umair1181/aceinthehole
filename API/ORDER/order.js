@@ -5,6 +5,9 @@ const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 Router.post("/show-completed-paid-nonpaid-orders-list", (req, res) => {
   let { isPaid } = req.body;
   Order.find({ orderStatus: "COMPLETE", isPaid: isPaid })
+    .populate({ path: "user" })
+    .populate({ path: "service" })
+    .populate({ path: "service", populate: { path: "seller" } })
     .then((foundOrder) => {
       if (foundOrder.length > 0) {
         return res

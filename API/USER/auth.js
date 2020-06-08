@@ -569,7 +569,7 @@ Router.post("/forget-pass-send-email", (req, res) => {
                 if (err) {
                   console.log(err);
                   return res
-                    .json({ msg: "Email Failed!", success: false })
+                    .json({ msg: "Email Failed!", err, success: false })
                     .status(400);
                 } else {
                   console.log(`Email Sent at ${email} `);

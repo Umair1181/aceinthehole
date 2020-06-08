@@ -23,6 +23,9 @@ const Order = new Schema({
     // service prices except extra charges
     type: Number,
   },
+  isPaid: {
+    type: Boolean,
+  },
   orderStatus: {
     type: String,
     default: "NEWORDER", // COMPLETED,DISPUTE,ORDERCANCELED

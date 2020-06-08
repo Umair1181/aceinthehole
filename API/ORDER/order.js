@@ -2,6 +2,73 @@ const Router = require("express").Router();
 const { Order, Reviews, Service, Notifications } = require("../../MODELS");
 const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 
+Router.post("/show-completed-paid-nonpaid-orders-list", (req, res) => {
+  let { isPaid } = req.body;
+  Order.find({ orderStatus: "COMPLETE", isPaid: isPaid })
+    .then((foundOrder) => {
+      if (foundOrder.length > 0) {
+        return res
+          .json({
+            msg: `Completed ${isPaid ? "Paid" : "NonPaid"} Orders List`,
+            totalOrders: foundOrder.length,
+            foundOrder,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "No Order", success: false }).status(505);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
+Router.post("/change-payment-status", (req, res) => {
+  let { orderID, isPaid } = req.body;
+
+  Order.findOne({ _id: orderID })
+    .then((foundOrder) => {
+      if (foundOrder !== null) {
+        foundOrder.isPaid = isPaid;
+        foundOrder
+          .save()
+          .then((savedOrder) => {
+            if (savedOrder) {
+              return res
+                .json({
+                  msg: `Payment isPaid:${savedOrder.isPaid}`,
+                  savedOrder,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: `Not Update`,
+
+                  success: false,
+                })
+                .status(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res
+              .json({ msg: "Failed save!", success: false })
+              .status(505);
+          });
+      } else {
+        return res.json({ msg: "Not Found", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 ////////////////////////////////////////////////////////////////
 Router.post("/show--single-order-details", (req, res) => {
   let { orderID } = req.body;

@@ -25,6 +25,7 @@ const Order = new Schema({
   },
   isPaid: {
     type: Boolean,
+    default: false,
   },
   orderStatus: {
     type: String,

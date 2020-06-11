@@ -12,12 +12,12 @@ const Order = new Schema({
   },
   description: {
     type: String,
-    required: true,
+    // required: true,
   },
   price: {
     // total price of service
     type: Number,
-    required: true,
+    // required: true,
   },
   servicePrice: {
     // service prices except extra charges
@@ -30,7 +30,7 @@ const Order = new Schema({
   orderStatus: {
     type: String,
     default: "NEWORDER", // COMPLETED,DISPUTE,ORDERCANCELED
-    required: true,
+    // required: true,
   },
   extras: [
     {

@@ -10,6 +10,67 @@ const { upload } = require("../../storage")();
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
 
+////////////////////validate-email-or-send-code///////////////////////
+Router.post("/validate-email-or-send-code", (req, res) => {
+  let RandomNumber = randomize("0", 6);
+  let { email } = req.body;
+  console.log(RandomNumber);
+  User.findOne({ email: email })
+    .then((foundUser) => {
+      if (foundUser !== null) {
+        return res
+          .json({ msg: "Email Already Exist", success: true })
+          .status(200);
+      } else {
+        console.log(RandomNumber);
+        // foundUser.RandomNumber = RandomNumber;
+        // foundUser
+        //   .save()
+        // .then((SavedRandomNumber) => {
+        // if (SavedRandomNumber) {
+        const mailOptions = {
+          from: "aceintheholeapp@gmail.com", // sender address
+          to: email, // list of receivers
+          subject: "Code ✔", // Subject line
+          html: `<p>Code: </p> ${RandomNumber} `, // plain text body
+        };
+        // Email Sending Second Step
+        transporter.sendMail(mailOptions, function (err, info) {
+          if (err) {
+            console.log(err);
+            return res
+              .json({ msg: "Email Failed!", err, success: false })
+              .status(400);
+          } else {
+            console.log(`Email Sent at ${email} `);
+            return res
+              .json({
+                msg: `Email Sent to ${email}`,
+
+                success: true,
+              })
+              .status(200);
+          }
+        }); // NODEMAILER END HERE
+        // } else {
+        //   return res
+        //     .json({ msg: "Random Code Not Saved", success: false })
+        //     .status(400);
+        // }
+        // Email Sending First Step Email Content
+        // })
+        // .catch((err) => {
+        //   return res
+        //     .json({ msg: "Code Not Saved In DATABASE", success: false })
+        //     .status(400);
+        // });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!!!", success: false }).status(500);
+    });
+});
 ////////////////////////////////////// user-availabilty-check-by-email API ///////////////////////////////////
 Router.post("/user-availabilty-check-by-email", (req, res) => {
   let { userEmail } = req.body;

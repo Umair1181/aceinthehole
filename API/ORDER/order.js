@@ -150,6 +150,7 @@ Router.post("/search-top-rated-services-by-name", (req, res) => {
 Router.post("/show-specific-service-reviews", async (req, res) => {
   let { serviceID } = req.body;
   Reviews.find({ service: serviceID })
+    .populate({ path: "user" })
     .then((foundReviews) => {
       if (foundReviews.length > 0) {
         return res

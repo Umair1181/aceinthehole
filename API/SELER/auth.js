@@ -6,6 +6,7 @@ const {
   Service,
   Order,
   Reviews,
+  User,
 } = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 const SellerRating = require("../BusinessLogics/rating");
@@ -596,94 +597,215 @@ Router.post("/verify-code-of-email", (req, res) => {
 });
 
 ////////////////////Password Reset By Email////////step 1///////////////////////
-Router.post("/send-random-code-on-email", (req, res) => {
-  let { email } = req.body;
+Router.post("/send-random-code-on-email", async (req, res) => {
+  let { email, isSellerorUser } = req.body;
   const RandomNumber = randomize("0", 6);
-  EmailVerification.findOne({ email: email })
-    .then((alreadyFound) => {
-      if (alreadyFound !== null) {
-        alreadyFound.code = RandomNumber;
-        alreadyFound.save().then((saved) => {
-          if (saved) {
-            const mailOptions = {
-              from: "mhanzlanaveed@gmail.com", // sender address
-              to: email, // list of receivers
-              subject: "Ace In A Hole app Email Verification Code ✔", // Subject line
-              html: `<p>Email Verification Code: </p> ${RandomNumber} `, // plain text body
-            };
-            // Email Sending Second Step
-            transporter.sendMail(mailOptions, function (err, info) {
-              if (err) {
-                console.log(err);
-                return res
-                  .json({ msg: "Email Failed!", success: false })
-                  .status(400);
-              } else {
-                console.log("Email Sent!!!!!");
-                return res
-                  .json({
-                    msg: `Email RE Sent to ${email}`,
 
-                    success: true,
-                  })
-                  .status(200);
-              }
-            }); // NODEMAILER END HERE
-          } else {
-            return res.json({ msg: "Not Saved", success: false }).status(404);
-          }
-        });
-      } else {
-        let newEmailVerification = new EmailVerification({
-          email: email,
-          code: RandomNumber,
-        });
+  if (isSellerorUser == true) {
+    let foundSeller = await Seller.findOne({ email: email });
+    if (foundSeller !== null) {
+      return res
+        .json({ msg: "This Seller's Email Already Registerd", success: false })
+        .status(404);
+    } else {
+      EmailVerification.findOne({ email: email })
+        .then((alreadyFound) => {
+          if (alreadyFound !== null) {
+            alreadyFound.code = RandomNumber;
+            alreadyFound
+              .save()
+              .then((saved) => {
+                if (saved) {
+                  const mailOptions = {
+                    from: "aceintheholeapp@gmail.com", // sender address
+                    to: email, // list of receivers
+                    subject: "Seller Code ✔", // Subject line
+                    html: `<p>Email Verification Code: </p> ${RandomNumber} `, // plain text body
+                  };
+                  // Email Sending Second Step
+                  transporter.sendMail(mailOptions, function (err, info) {
+                    if (err) {
+                      console.log(err);
+                      return res
+                        .json({ msg: "Email Failed!", success: false })
+                        .status(400);
+                    } else {
+                      console.log("Email Sent!!!!!");
+                      return res
+                        .json({
+                          msg: `Email RE Sent to ${email}`,
 
-        newEmailVerification
-          .save()
-          .then((Saved) => {
-            if (Saved) {
-              const mailOptions = {
-                from: "mhanzlanaveed@gmail.com", // sender address
-                to: email, // list of receivers
-                subject: "Ace In A Hole app Email Verification Code ✔", // Subject line
-                html: `<p>Email Verification Code: </p> ${Saved.code} `, // plain text body
-              };
-              // Email Sending Second Step
-              transporter.sendMail(mailOptions, function (err, info) {
-                if (err) {
-                  console.log(err);
-                  return res
-                    .json({ msg: "Email Failed!", success: false })
-                    .status(400);
+                          success: true,
+                        })
+                        .status(200);
+                    }
+                  }); // NODEMAILER END HERE
                 } else {
-                  console.log("Email Sent!!!!!");
                   return res
-                    .json({
-                      msg: `Email Sent to ${Saved.email}`,
-
-                      success: true,
-                    })
-                    .status(200);
+                    .json({ msg: "Not Saved", success: false })
+                    .status(404);
                 }
-              }); // NODEMAILER END HERE
-            } else {
-              return res
-                .json({ msg: "Random Code Not Saved", success: false })
-                .status(400);
-            }
-            // Email Sending First Step Email Content
-          })
-          .catch((err) => {
-            return res
-              .json({ msg: "Code Not Saved In DATABASE", success: false })
-              .status(400);
-          });
-      }
-    })
-    .catch((err) => {
-      return res.json({ msg: "fAILED", success: false }).status(400);
-    });
+              })
+              .catch((err) => {
+                return res
+                  .json({ msg: "Code Not Saved In DATABASE", success: false })
+                  .status(400);
+              });
+          } else {
+            let newEmailVerification = new EmailVerification({
+              email: email,
+              code: RandomNumber,
+            });
+
+            newEmailVerification
+              .save()
+              .then((Saved) => {
+                if (Saved) {
+                  const mailOptions = {
+                    from: "mhanzlanaveed@gmail.com", // sender address
+                    to: email, // list of receivers
+                    subject: "Ace In A Hole app Email Verification Code ✔", // Subject line
+                    html: `<p>Email Verification Code: </p> ${Saved.code} `, // plain text body
+                  };
+                  // Email Sending Second Step
+                  transporter.sendMail(mailOptions, function (err, info) {
+                    if (err) {
+                      console.log(err);
+                      return res
+                        .json({ msg: "Email Failed!", success: false })
+                        .status(400);
+                    } else {
+                      console.log("Email Sent!!!!!");
+                      return res
+                        .json({
+                          msg: `Email Sent to ${Saved.email}`,
+
+                          success: true,
+                        })
+                        .status(200);
+                    }
+                  }); // NODEMAILER END HERE
+                } else {
+                  return res
+                    .json({ msg: "Random Code Not Saved", success: false })
+                    .status(400);
+                }
+                // Email Sending First Step Email Content
+              })
+              .catch((err) => {
+                return res
+                  .json({ msg: "Code Not Saved In DATABASE", success: false })
+                  .status(400);
+              });
+          }
+        })
+        .catch((err) => {
+          return res.json({ msg: "fAILED", success: false }).status(400);
+        });
+    }
+  } else {
+    let foundUser = await User.findOne({ email: email });
+    if (foundUser !== null) {
+      return res
+        .json({ msg: "This User's Email Already Registerd", success: false })
+        .status(404);
+    } else {
+      EmailVerification.findOne({ email: email })
+        .then((alreadyFound) => {
+          if (alreadyFound !== null) {
+            alreadyFound.code = RandomNumber;
+            alreadyFound
+              .save()
+              .then((saved) => {
+                if (saved) {
+                  const mailOptions = {
+                    from: "aceintheholeapp@gmail.com", // sender address
+                    to: email, // list of receivers
+                    subject: "User Code ✔", // Subject line
+                    html: `<p>Email Verification Code: </p> ${RandomNumber} `, // plain text body
+                  };
+                  // Email Sending Second Step
+                  transporter.sendMail(mailOptions, function (err, info) {
+                    if (err) {
+                      console.log(err);
+                      return res
+                        .json({ msg: "Email Failed!", success: false })
+                        .status(400);
+                    } else {
+                      console.log("Email Sent!!!!!");
+                      return res
+                        .json({
+                          msg: `Email RE Sent to ${email}`,
+
+                          success: true,
+                        })
+                        .status(200);
+                    }
+                  }); // NODEMAILER END HERE
+                } else {
+                  return res
+                    .json({ msg: "Not Saved", success: false })
+                    .status(404);
+                }
+              })
+              .catch((err) => {
+                return res
+                  .json({ msg: "Code Not Saved In DATABASE", success: false })
+                  .status(400);
+              });
+          } else {
+            let newEmailVerification = new EmailVerification({
+              email: email,
+              code: RandomNumber,
+            });
+
+            newEmailVerification
+              .save()
+              .then((Saved) => {
+                if (Saved) {
+                  const mailOptions = {
+                    from: "mhanzlanaveed@gmail.com", // sender address
+                    to: email, // list of receivers
+                    subject: "Ace In A Hole app Email Verification Code ✔", // Subject line
+                    html: `<p>Email Verification Code: </p> ${Saved.code} `, // plain text body
+                  };
+                  // Email Sending Second Step
+                  transporter.sendMail(mailOptions, function (err, info) {
+                    if (err) {
+                      console.log(err);
+                      return res
+                        .json({ msg: "Email Failed!", success: false })
+                        .status(400);
+                    } else {
+                      console.log("Email Sent!!!!!");
+                      return res
+                        .json({
+                          msg: `Email Sent to ${Saved.email}`,
+
+                          success: true,
+                        })
+                        .status(200);
+                    }
+                  }); // NODEMAILER END HERE
+                } else {
+                  return res
+                    .json({ msg: "Random Code Not Saved", success: false })
+                    .status(400);
+                }
+                // Email Sending First Step Email Content
+              })
+              .catch((err) => {
+                return res
+                  .json({ msg: "Code Not Saved In DATABASE", success: false })
+                  .status(400);
+              });
+          }
+        })
+        .catch((err) => {
+          return res.json({ msg: "fAILED", success: false }).status(400);
+        });
+    }
+  }
 });
 
 //////////////////// Emailed Code Matched,Check and Change///////////////////////////////

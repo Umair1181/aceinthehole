@@ -10,7 +10,7 @@ const ServiceRating = require("../BusinessLogics/rating");
 Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
   let { userID } = req.body;
   Service.find({ isBlock: false, isLive: true })
-    .populate({ path: "seller" })
+
     .then((foundService) => {
       new ServiceClass()
         .checkServiceInCart(foundService, userID)
@@ -24,8 +24,12 @@ Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
                 },
               },
             ]).limit(10);
-            Service.populate(topServices, { path: "_id" }).then(
-              (topServices) => {
+            Service.populate(topServices, {
+              path: "_id",
+              populate: { path: "seller" },
+            })
+              // .populate({ path: "seller" })
+              .then((topServices) => {
                 if (topServices.length < 1) {
                   return res
                     .json({ msg: "No Service!", success: false })
@@ -34,13 +38,12 @@ Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
                   return res
                     .json({
                       msg: "Top Ten Most Hired Services!",
-                      topServices,
+                      topServices: topServices,
                       success: true,
                     })
                     .status(200);
                 }
-              }
-            );
+              });
             // return res
             //   .json({
             //     msg: "Top Ten Most Hired Services",

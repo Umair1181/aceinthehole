@@ -28,22 +28,21 @@ Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
               path: "_id",
               populate: { path: "seller" },
             })
-              // .populate({ path: "seller" })
-              .then((topServices) => {
-                if (topServices.length < 1) {
-                  return res
-                    .json({ msg: "No Service!", success: false })
-                    .status(200);
-                } else {
-                  return res
-                    .json({
-                      msg: "Top Ten Most Hired Services!",
-                      topServices: topServices,
-                      success: true,
-                    })
-                    .status(200);
-                }
-              });
+            .then((topServices) => {
+              if (topServices.length < 1) {
+                return res
+                  .json({ msg: "No Service!", success: false })
+                  .status(200);
+              } else {
+                return res
+                  .json({
+                    msg: "Top Ten Most Hired Services!",
+                    topServices: topServices,
+                    success: true,
+                  })
+                  .status(200);
+              }
+            });
             // return res
             //   .json({
             //     msg: "Top Ten Most Hired Services",

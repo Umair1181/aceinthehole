@@ -10,6 +10,198 @@ const { upload } = require("../../storage")();
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
 
+///////////login-or-register-user-with-image-by-social-media/////////////
+Router.post(
+  "/login-or-register-user-with-image-by-social-media",
+
+  (req, res) => {
+    let { userName, profileImgURL, email } = req.body;
+    let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    let message = false;
+    // if (userName === "") {
+    //   message = "invalid userName";
+    // }
+    if (!RegularExpression.test(String(email).toLowerCase())) {
+      message = "invalid email";
+    } else {
+      message = false;
+    }
+    if (message === false) {
+      User.findOne({ email: email })
+        .then((founduser) => {
+          if (founduser !== null) {
+            if (founduser.email === email) {
+              return res
+                .json({ msg: "User Authenticated!", success: true })
+                .status(400);
+            }
+          } else {
+            let newUser = new User({
+              userName: userName,
+              email: email,
+              password: null,
+              profileImgURL: profileImgURL,
+            });
+            newUser
+              .save()
+              .then((savedUser) => {
+                if (savedUser) {
+                  return res
+                    .json({
+                      msg: "New User Registered!",
+                      savedUser: savedUser,
+                      success: true,
+                    })
+                    .status(200);
+                } else {
+                  return res
+                    .json({ msg: "User Not Save!", success: false })
+                    .status(400);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                console.log("error found");
+                return res
+                  .json({
+                    msg: "Failed: Save Catch Error!",
+                    success: false,
+                  })
+                  .status(400);
+              });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          return res
+            .json({ msg: "Catch Error: Found Email", success: false })
+            .status(400);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(400);
+    }
+  }
+);
+
+// ///////////login-or-register-user-with-image-by-social-media/////////////
+// Router.post(
+//   "/login-or-register-user-with-image-by-social-media",
+//   upload.array("userImages", 2),
+//   (req, res) => {
+//     let imageArrays = req.files;
+//     let { data } = req.body;
+//     // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
+//     let user = JSON.parse(data);
+//     // IMAGE URLS WILL BE CREATE BELOW
+//     let ImageURLsArray = [];
+//     imageArrays.forEach((eachFoundPic) => {
+//       ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
+//     });
+//     //VALIDATIONS STARTS HERE
+//     let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+//     let message = false;
+//     // if (user.userName === "") {
+//     //   message = "invalid userName";
+//     // }
+//     // // else if (store.phoneNumber === "" && store.phoneNumber.length < 6) {
+//     // //   message = "invalid phoneNumber";
+//     // // }
+//     // else
+//     // if (user.password === "" && user.password.length < 6) {
+//     //   message = "invalid password";
+//     // } else
+//     if (!RegularExpression.test(String(user.email).toLowerCase())) {
+//       message = "invalid email";
+//     }
+//     //  else if (store.address === "") {
+//     //   message = "invalid address";
+//     // }
+//     // else if (ImageURLsArray.length < 1) {
+//     //   message = "One Image is compulsory!";
+//     // }
+//     // else {
+//     //   message = false;
+//     // }
+//     if (message === false) {
+//       User.findOne({
+//         $or: [{ email: user.email }, { userName: user.storeName }],
+//       })
+//         .then((founduser) => {
+//           if (founduser !== null) {
+//             if (founduser.email === user.email) {
+//               return res
+//                 .json({ msg: "User Authenticated!", success: true })
+//                 .status(400);
+//             }
+//           } else {
+//             let newUser = new User({
+//               userName: user.userName,
+//               dateOfBirth: user.dateOfBirth,
+//               state: user.state,
+//               email: user.email,
+//               gender: user.gender,
+//               country: user.country,
+//               //   phoneNumber: user.phoneNumber,
+//               password: null,
+//               // address: user.address,
+//               profileImgURL: ImageURLsArray,
+//             });
+//             newUser
+//               .save()
+//               .then((savedUser) => {
+//                 if (savedUser) {
+//                   return res
+//                     .json({
+//                       msg: "New User Registered!",
+//                       savedUser: savedUser,
+//                       success: true,
+//                     })
+//                     .status(200);
+//                   // savedUser.password = "";
+//                   // let newUserStats = new UserStats({
+//                   //   user: savedUser._id
+//                   // });
+//                   // newUserStats.save().then(UserStatsSaved => {
+//                   //   if (UserStatsSaved) {
+
+//                   //   } else {
+//                   //     return res
+//                   //       .json({
+//                   //         msg: "User Stats Not Created!",
+//                   //         success: false
+//                   //       })
+//                   //       .status(400);
+//                   //   }
+//                   // });
+//                 } else {
+//                   return res
+//                     .json({ msg: "User Not Save!", success: false })
+//                     .status(400);
+//                 }
+//               })
+//               .catch((err) => {
+//                 console.log(err);
+//                 console.log("error found");
+//                 return res
+//                   .json({
+//                     msg: "Failed: Save Catch Error!",
+//                     success: false,
+//                   })
+//                   .status(400);
+//               });
+//           }
+//         })
+//         .catch((err) => {
+//           console.log(err);
+//           return res
+//             .json({ msg: "Catch Error: Found Email", success: false })
+//             .status(400);
+//         });
+//     } else {
+//       return res.json({ msg: message, success: false }).status(400);
+//     }
+//   }
+// );
 ////////////////////validate-email-or-send-code///////////////////////
 Router.post("/validate-email-or-send-code", (req, res) => {
   let RandomNumber = randomize("0", 6);
@@ -991,125 +1183,7 @@ Router.post(
     }
   }
 );
-///////////register-user-with-image/////////////
-Router.post(
-  "/login-or-register-user-with-image-by-social-media",
-  upload.array("userImages", 2),
-  (req, res) => {
-    let imageArrays = req.files;
-    let { data } = req.body;
-    // GET DATE AS STRING AND PARSE THAT DATA INTO JSON
-    let user = JSON.parse(data);
-    // IMAGE URLS WILL BE CREATE BELOW
-    let ImageURLsArray = [];
-    imageArrays.forEach((eachFoundPic) => {
-      ImageURLsArray.push(`/files/vendor-files/image/${eachFoundPic.filename}`);
-    });
-    //VALIDATIONS STARTS HERE
-    let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    let message = false;
-    // if (user.userName === "") {
-    //   message = "invalid userName";
-    // }
-    // // else if (store.phoneNumber === "" && store.phoneNumber.length < 6) {
-    // //   message = "invalid phoneNumber";
-    // // }
-    // else
-    // if (user.password === "" && user.password.length < 6) {
-    //   message = "invalid password";
-    // } else
-    if (!RegularExpression.test(String(user.email).toLowerCase())) {
-      message = "invalid email";
-    }
-    //  else if (store.address === "") {
-    //   message = "invalid address";
-    // }
-    // else if (ImageURLsArray.length < 1) {
-    //   message = "One Image is compulsory!";
-    // }
-    // else {
-    //   message = false;
-    // }
-    if (message === false) {
-      User.findOne({
-        $or: [{ email: user.email }, { userName: user.storeName }],
-      })
-        .then((founduser) => {
-          if (founduser !== null) {
-            if (founduser.email === user.email) {
-              return res
-                .json({ msg: "User Authenticated!", success: true })
-                .status(400);
-            }
-          } else {
-            let newUser = new User({
-              userName: user.userName,
-              dateOfBirth: user.dateOfBirth,
-              state: user.state,
-              email: user.email,
-              gender: user.gender,
-              country: user.country,
-              //   phoneNumber: user.phoneNumber,
-              password: null,
-              // address: user.address,
-              profileImgURL: ImageURLsArray,
-            });
-            newUser
-              .save()
-              .then((savedUser) => {
-                if (savedUser) {
-                  return res
-                    .json({
-                      msg: "New User Registered!",
-                      savedUser: savedUser,
-                      success: true,
-                    })
-                    .status(200);
-                  // savedUser.password = "";
-                  // let newUserStats = new UserStats({
-                  //   user: savedUser._id
-                  // });
-                  // newUserStats.save().then(UserStatsSaved => {
-                  //   if (UserStatsSaved) {
 
-                  //   } else {
-                  //     return res
-                  //       .json({
-                  //         msg: "User Stats Not Created!",
-                  //         success: false
-                  //       })
-                  //       .status(400);
-                  //   }
-                  // });
-                } else {
-                  return res
-                    .json({ msg: "User Not Save!", success: false })
-                    .status(400);
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-                console.log("error found");
-                return res
-                  .json({
-                    msg: "Failed: Save Catch Error!",
-                    success: false,
-                  })
-                  .status(400);
-              });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          return res
-            .json({ msg: "Catch Error: Found Email", success: false })
-            .status(400);
-        });
-    } else {
-      return res.json({ msg: message, success: false }).status(400);
-    }
-  }
-);
 ///////////register-user-with-image/////////////
 Router.post(
   "/register-user-with-image",

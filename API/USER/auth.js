@@ -32,7 +32,11 @@ Router.post(
           if (founduser !== null) {
             if (founduser.email === email) {
               return res
-                .json({ msg: "User Authenticated!", success: true })
+                .json({
+                  msg: "User Authenticated!",
+                  founduser: founduser,
+                  success: true,
+                })
                 .status(400);
             }
           } else {
@@ -49,7 +53,7 @@ Router.post(
                   return res
                     .json({
                       msg: "New User Registered!",
-                      savedUser: savedUser,
+                      founduser: savedUser,
                       success: true,
                     })
                     .status(200);

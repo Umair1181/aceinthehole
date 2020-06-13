@@ -18,6 +18,7 @@ const User = new Schema({
     type: String,
     default: null,
   },
+
   //   phoneNumber: {
   //     type: String,
   //     default: false
@@ -56,6 +57,7 @@ const User = new Schema({
     type: Boolean,
     default: true,
   },
+
   dateOfBirth: {
     type: Date,
   },

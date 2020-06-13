@@ -69,6 +69,10 @@ const Seller = new Schema({
     type: String,
     default: null,
   },
+  isProfileCompleted: {
+    type: Boolean,
+    default: false,
+  },
   Bill: {
     type: {
       billingName: {

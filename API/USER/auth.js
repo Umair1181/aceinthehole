@@ -34,7 +34,7 @@ Router.post(
               return res
                 .json({
                   msg: "User Authenticated!",
-                  founduser: founduser,
+                  user: founduser,
                   success: true,
                 })
                 .status(400);
@@ -53,7 +53,7 @@ Router.post(
                   return res
                     .json({
                       msg: "New User Registered!",
-                      founduser: savedUser,
+                      user: savedUser,
                       success: true,
                     })
                     .status(200);

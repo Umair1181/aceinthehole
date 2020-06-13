@@ -213,6 +213,7 @@ Router.post("/update-seller-paypal-email", (req, res) => {
       .then((fseller) => {
         if (fseller) {
           console.log(fseller);
+          fseller.isProfileCompleted = true;
           fseller.paypalAccountEmail = paypalEmail;
           console.log(fseller.paypalAccountEmail);
           fseller
@@ -278,6 +279,7 @@ Router.post("/update-seller-bank-card-info", (req, res) => {
     Seller.findOne({ _id: sellerBank.sellerID })
       .then((fseller) => {
         if (fseller) {
+          fseller.isProfileCompleted = true;
           fseller.Bank = {
             cardNo: sellerBank.cardNo,
             CVV: sellerBank.CVV,

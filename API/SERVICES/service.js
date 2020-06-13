@@ -1,6 +1,12 @@
 const Router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const { Service, ServiceCategory, Reviews, Order } = require("../../MODELS");
+const {
+  Service,
+  ServiceCategory,
+  Reviews,
+  Order,
+  Seller,
+} = require("../../MODELS");
 const { upload, CreateURL } = require("../../storage")();
 // const deleteImg = require("../FIES/imageAPI");
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
@@ -27,8 +33,7 @@ Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
             Service.populate(topServices, {
               path: "_id",
               populate: { path: "seller" },
-            })
-            .then((topServices) => {
+            }).then((topServices) => {
               if (topServices.length < 1) {
                 return res
                   .json({ msg: "No Service!", success: false })
@@ -429,7 +434,7 @@ Router.post(
   "/add-new-service-of-seller-with-image",
   upload.array("serviceImgs", 5),
 
-  (req, res) => {
+  async (req, res) => {
     // return res.json({ msg: "Return from start of api" });
     let { data } = req.body;
     let serviceImgArray = [];
@@ -483,62 +488,69 @@ Router.post(
       message = false;
     }
     if (message === false) {
-      Service.findOne({ serviceName: service.serviceName })
-        .then((fEmail) => {
-          if (fEmail !== null) {
-            return res
-              .json({ msg: "Service Name Already Exist!", success: false })
-              .status(400);
-          } else {
-            let newService = new Service({
-              serviceName: service.serviceName,
-              seller: service.seller,
-              category: service.category,
-              price: service.price,
-              description: service.description,
-              serviceDaysArray: service.serviceDaysArray,
-              serviceImgsURLs: serviceImgArray,
-              certificatesImgsURLs: service.certificatesImgs,
-            });
-            newService
-              .save()
-              .then(async (sService) => {
-                let foundService = await Service.findOne({
-                  _id: sService._id,
-                }).populate({ path: "category" });
-                if (sService) {
+      let foundSeller = await Seller.findOne({ _id: service.seller });
+      if (foundSeller.isProfileCompleted === false) {
+        return res
+          .json({ msg: "Your Profile Is not completed Yet", success: false })
+          .status(404);
+      } else {
+        Service.findOne({ serviceName: service.serviceName })
+          .then((fEmail) => {
+            if (fEmail !== null) {
+              return res
+                .json({ msg: "Service Name Already Exist!", success: false })
+                .status(400);
+            } else {
+              let newService = new Service({
+                serviceName: service.serviceName,
+                seller: service.seller,
+                category: service.category,
+                price: service.price,
+                description: service.description,
+                serviceDaysArray: service.serviceDaysArray,
+                serviceImgsURLs: serviceImgArray,
+                certificatesImgsURLs: service.certificatesImgs,
+              });
+              newService
+                .save()
+                .then(async (sService) => {
+                  let foundService = await Service.findOne({
+                    _id: sService._id,
+                  }).populate({ path: "category" });
+                  if (sService) {
+                    return res
+                      .json({
+                        msg: "Service Created!",
+                        newService: foundService,
+                        success: true,
+                      })
+                      .status(200);
+                  } else {
+                    return res
+                      .json({ msg: "Service Not Save!", success: false })
+                      .status(400);
+                  }
+                })
+                .catch((err) => {
+                  console.log(err);
+                  console.log("error found");
                   return res
                     .json({
-                      msg: "Service Created!",
-                      newService: foundService,
-                      success: true,
+                      msg: "Service catch error  123",
+                      err,
+                      success: false,
                     })
-                    .status(200);
-                } else {
-                  return res
-                    .json({ msg: "Service Not Save!", success: false })
                     .status(400);
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-                console.log("error found");
-                return res
-                  .json({
-                    msg: "Service catch error  123",
-                    err,
-                    success: false,
-                  })
-                  .status(400);
-              });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          return res
-            .json({ msg: "Catch Error Email", success: false })
-            .status(400);
-        });
+                });
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res
+              .json({ msg: "Catch Error Email", success: false })
+              .status(400);
+          });
+      }
     } else {
       return res.json({ msg: message, success: false }).status(400);
     }

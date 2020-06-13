@@ -1052,7 +1052,7 @@ Router.post("/seller-login", (req, res) => {
                 console.log(err);
                 return res
                   .json({
-                    msg: "catch error password comparison",
+                    msg: "Invalid Password",
                     success: false,
                   })
                   .status(400);

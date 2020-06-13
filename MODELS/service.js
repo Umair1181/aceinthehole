@@ -7,6 +7,7 @@ const Service = new Schema({
   },
   avgRating: {
     type: Number,
+    default: null,
   },
   seller: {
     type: mongoose.Schema.Types.ObjectId,

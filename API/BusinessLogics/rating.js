@@ -61,6 +61,8 @@ class reviews {
       });
     for (let i = 0; i < foundServices.length; i++) {
       let foundReviews = await Reviews.find({ service: foundServices[i]._id });
+      console.log("************************************");
+      console.log(foundReviews);
       let avg = 0;
       // .then((foundReviews) => {
       if (foundReviews.length > 0) {
@@ -73,8 +75,12 @@ class reviews {
         console.log("no rating of this service");
       }
       foundServices[i].avgRating = avg;
+      let savedRating = await foundServices[i].save();
+      console.log("savedRating");
+      console.log(savedRating);
       // })
     }
+
     return foundServices;
   }
 }

@@ -22,6 +22,7 @@ const Reviews = new Schema({
   rating: {
     type: Number,
     required: true,
+    default: null,
   },
   reviewDateTime: {
     type: Date,

@@ -10,6 +10,7 @@ const ServiceRating = require("../BusinessLogics/rating");
 Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
   let { userID } = req.body;
   Service.find({ isBlock: false, isLive: true })
+    .populate({ path: "seller" })
     .then((foundService) => {
       new ServiceClass()
         .checkServiceInCart(foundService, userID)

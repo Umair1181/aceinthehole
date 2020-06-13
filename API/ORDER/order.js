@@ -174,27 +174,31 @@ Router.post("/show-rating-of-specific-seller", async (req, res) => {
   let ratingSum = 0;
   let reviewsLength = 0;
   let avgRatingAllServices = 0;
+
+  let sumRating = 0;
+  let avgSellerRating = 0;
+  let count = 0;
   let foundServices = await Service.find({ seller: sellerID });
   if (foundServices.length > 0) {
     for (let k = 0; k < foundServices.length; k++) {
-      let foundReviews = await Reviews.find({ service: foundServices[k]._id });
-
-      if (foundReviews.length > 0) {
-        reviewsLength = foundReviews.length;
-        for (let l = 0; l < foundReviews.length; l++) {
-          console.log("foundReviews.rating");
-          console.log(foundReviews[l].rating);
-          ratingSum = ratingSum + foundReviews[l].rating;
-        }
-        avgRatingService = ratingSum / foundReviews.length;
-        avgRatingAllServices = avgRatingService + avgRatingAllServices;
+      if (foundServices[k].avgRating !== 0) {
+        count++;
+        console.log("services avgRating");
+        console.log(foundServices[k].avgRating);
+        sumRating = foundServices[k].avgRating + sumRating;
+        console.log(count);
       }
+      avgSellerRating = sumRating / count;
     }
+    // console.log(avgRatingAllServices);
     sellerRating = avgRatingAllServices / reviewsLength;
+    // console.log("sellerRating");
+    // console.log(sellerRating);
+
     return res
       .json({
         msg: "Seller's Average Rating on all feedbacks given by users",
-        sellerRating,
+        avgSellerRating,
         success: true,
       })
       .status(200);

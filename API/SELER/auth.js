@@ -13,7 +13,82 @@ const SellerRating = require("../BusinessLogics/rating");
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+///////////login-or-register-seller-with-image-by-social-media/////////////
+Router.post(
+  "/login-or-register-seller-with-image-by-social-media",
 
+  (req, res) => {
+    let { sellerName, profileImgURL, email } = req.body;
+    let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    let message = false;
+    // if (sellerName === "") {
+    //   message = "invalid sellerName";
+    // }
+    if (!RegularExpression.test(String(email).toLowerCase())) {
+      message = "invalid email";
+    } else {
+      message = false;
+    }
+    if (message === false) {
+      Seller.findOne({ email: email })
+        .then((foundseller) => {
+          if (foundseller !== null) {
+            if (foundseller.email === email) {
+              return res
+                .json({
+                  msg: "seller Authenticated!",
+                  result: foundseller,
+                  success: true,
+                })
+                .status(400);
+            }
+          } else {
+            let newseller = new Seller({
+              sellerName: sellerName,
+              email: email,
+              password: null,
+              profileImgURL: profileImgURL,
+            });
+            newseller
+              .save()
+              .then((savedseller) => {
+                if (savedseller) {
+                  return res
+                    .json({
+                      msg: "New seller Registered!",
+                      result: savedseller,
+                      success: true,
+                    })
+                    .status(200);
+                } else {
+                  return res
+                    .json({ msg: "seller Not Save!", success: false })
+                    .status(400);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                console.log("error found");
+                return res
+                  .json({
+                    msg: "Failed: Save Catch Error!",
+                    success: false,
+                  })
+                  .status(400);
+              });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          return res
+            .json({ msg: "Catch Error: Found Email", success: false })
+            .status(400);
+        });
+    } else {
+      return res.json({ msg: message, success: false }).status(400);
+    }
+  }
+);
 ////////////////////////////////////////////////////////////////
 Router.post("/client-satisfaction-rate", async (req, res) => {
   let { sellerID } = req.body;

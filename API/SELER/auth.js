@@ -423,7 +423,7 @@ Router.post("/seller-online-offline-toggle", (req, res) => {
             if (sellerSaved.isOnline === true) {
               return res
                 .json({
-                  msg: "Online",
+                  msg: "You Are Online",
                   foundSeller: foundSeller,
                   success: true,
                 })
@@ -431,7 +431,7 @@ Router.post("/seller-online-offline-toggle", (req, res) => {
             } else {
               return res
                 .json({
-                  msg: "Ofline",
+                  msg: "You Are Ofline",
                   foundSeller: foundSeller,
                   success: true,
                 })

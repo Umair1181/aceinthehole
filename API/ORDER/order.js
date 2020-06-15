@@ -608,6 +608,7 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
             seller: foundOrder.service.seller._id,
             user: foundOrder.user,
             notificationFor: "USER",
+            notificationType: "NEW_ORDER",
           });
           let saveNotification = newNotification.save();
           if (saveNotification) {

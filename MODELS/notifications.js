@@ -25,6 +25,10 @@ const Notifications = new Schema({
     type: String,
     default: "USER",
   },
+  notificationType: {
+    type: String,
+    default: "LATEST",
+  },
   //   NotificationsImgURL: [
   //     {
   //       type: String,

@@ -7,6 +7,7 @@ Router.post("/show-all-notifications-of-specific-seller", (req, res) => {
   Notifications.find({ seller: sellerID })
     .populate({ path: "user" })
     .populate({ path: "seller" })
+    .populate({ path: "order" })
     .then((foundNotifications) => {
       if (foundNotifications.length > 0) {
         return res
@@ -36,6 +37,7 @@ Router.post("/show-all-notifications-of-specific-user", (req, res) => {
   Notifications.find({ user: userID })
     .populate({ path: "user" })
     .populate({ path: "seller" })
+    .populate({ path: "order" })
     .then((foundNotifications) => {
       if (foundNotifications.length > 0) {
         return res

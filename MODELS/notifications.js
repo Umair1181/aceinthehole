@@ -13,6 +13,10 @@ const Notifications = new Schema({
   //   price: {
   //     type: Number,
   //   },
+  order: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "tblorders",
+  },
   seller: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "tblsellers",

@@ -85,6 +85,7 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
             seller: foundOrder.service.seller._id,
             user: foundOrder.user,
             notificationFor: "USER",
+            notificationType: "DISPUTE",
           });
           let saveNotification = newNotification.save();
           if (saveNotification) {

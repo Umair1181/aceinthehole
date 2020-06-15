@@ -66,6 +66,7 @@ Router.post("/show-all-notifications-of-system", (req, res) => {
   Notifications.find()
     .populate({ path: "user" })
     .populate({ path: "seller" })
+    .populate({ path: "order" })
     .then((foundNotifications) => {
       if (foundNotifications.length > 0) {
         return res

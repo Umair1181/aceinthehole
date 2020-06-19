@@ -1146,7 +1146,7 @@ Router.post("/seller-login", (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      return res.json({ msg: "catch error ", success: false }).status(500);
+      return res.json({ msg: "catch error ", err, success: false }).status(500);
     });
 }); //LOGIN API ENDS
 

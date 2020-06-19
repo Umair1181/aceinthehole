@@ -1093,61 +1093,65 @@ Router.post("/seller-login", (req, res) => {
     message = false;
   }
   if (message === false) {
+    /////////////Email Already  Exist Or not Check////////////////
+    Seller.findOne({ email: seller.email })
+      .then((fndseller) => {
+        if (fndseller.isBlock === false) {
+          if (fndseller.sellerStatus === "NEWSELLER") {
+            return res
+              .json({ msg: "You Are Not Approved Yet", success: false })
+              .status(202);
+          } else {
+            if (fndseller) {
+              ///////////// Password Compare /////////
+              bcrypt
+                .compare(seller.password, fndseller.password)
+                .then((findseller) => {
+                  if (findseller) {
+                    fndseller.password = "";
+                    return res
+                      .json({
+                        msg: "Authenticated Seller",
+                        result: fndseller,
+                        success: true,
+                      })
+                      .status(200);
+                  } else {
+                    return res
+                      .json({ msg: "Invalid Password", success: false })
+                      .status(400);
+                  }
+                })
+                .catch((err) => {
+                  console.log(err);
+                  return res
+                    .json({
+                      msg: "Invalid Password",
+                      success: false,
+                    })
+                    .status(400);
+                });
+            } else {
+              return res
+                .json({ msg: "Invalid Email", success: false })
+                .status(400);
+            }
+          }
+        } else {
+          return res
+            .json({ msg: "You Are Blocked", success: false })
+            .status(202);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return res
+          .json({ msg: "catch error ", err, success: false })
+          .status(500);
+      });
   } else {
     return res.json({ msg: message, success: false }).status(400);
   }
-  /////////////Email Already  Exist Or not Check////////////////
-  Seller.findOne({ email: seller.email })
-    .then((fndseller) => {
-      if (fndseller.isBlock === false) {
-        if (fndseller.sellerStatus === "NEWSELLER") {
-          return res
-            .json({ msg: "You Are Not Approved Yet", success: false })
-            .status(202);
-        } else {
-          if (fndseller) {
-            ///////////// Password Compare /////////
-            bcrypt
-              .compare(seller.password, fndseller.password)
-              .then((findseller) => {
-                if (findseller) {
-                  fndseller.password = "";
-                  return res
-                    .json({
-                      msg: "Authenticated Seller",
-                      result: fndseller,
-                      success: true,
-                    })
-                    .status(200);
-                } else {
-                  return res
-                    .json({ msg: "Invalid Password", success: false })
-                    .status(400);
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-                return res
-                  .json({
-                    msg: "Invalid Password",
-                    success: false,
-                  })
-                  .status(400);
-              });
-          } else {
-            return res
-              .json({ msg: "Invalid Email", success: false })
-              .status(400);
-          }
-        }
-      } else {
-        return res.json({ msg: "You Are Blocked", success: false }).status(202);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "catch error ", err, success: false }).status(500);
-    });
 }); //LOGIN API ENDS
 
 ///////////Sign up with Image of seller/////////////

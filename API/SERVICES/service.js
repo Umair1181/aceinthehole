@@ -608,7 +608,6 @@ Router.post("/show-all-services-of-specific-category", (req, res) => {
     });
 });
 
-//goto
 Router.post(
   "/update-service-of-seller-with-image",
   upload.fields([

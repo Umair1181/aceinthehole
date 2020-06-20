@@ -74,7 +74,11 @@ class reviews {
       } else {
         console.log("no rating of this service");
       }
-      foundServices[i].avgRating = avg;
+      console.log("Befor Round Off");
+      console.log(avg);
+      console.log("After Round Off");
+      console.log(Math.round(avg));
+      foundServices[i].avgRating = Math.round(avg);
       let savedRating = await foundServices[i].save();
       console.log("savedRating");
       console.log(savedRating);

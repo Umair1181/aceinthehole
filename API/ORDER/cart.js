@@ -261,6 +261,7 @@ Router.post("/show--user-cart", (req, res) => {
       })
       .populate({
         path: "service",
+        populate: { path: "seller" },
       })
       .populate({
         path: "items.service",

@@ -578,6 +578,7 @@ Router.post("/upload", upload.array("image", 1), (req, res) => {
 Router.post("/show-all-services-of-specific-category", (req, res) => {
   let { categoryID, userID } = req.body;
   Service.find({ category: categoryID, isBlock: false, isLive: true })
+    .populate({ path: "seller" })
     .then((foundService) => {
       new ServiceClass()
         .checkServiceInCart(foundService, userID)

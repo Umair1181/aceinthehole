@@ -12,7 +12,38 @@ const { upload, CreateURL } = require("../../storage")();
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const ServiceClass = require("../BusinessLogics/service");
 const ServiceRating = require("../BusinessLogics/rating");
-
+Router.post("/show-all-services", (req, res) => {
+  let { userID } = req.body;
+  Service.find({ isBlock: false, isLive: true })
+    .populate({ path: "seller" })
+    .populate({ path: "category" })
+    .then((foundServices) => {
+      new ServiceClass()
+        .checkServiceInCart(foundServices, userID)
+        .then((servicesWithStatus) => {
+          if (servicesWithStatus.length > 0) {
+            return res
+              .json({
+                msg: "All Services with status of in cart!",
+                foundServices: servicesWithStatus,
+                success: true,
+              })
+              .status(200);
+          } else {
+            return res
+              .json({
+                msg: "No Service Found!",
+                success: false,
+              })
+              .status(400);
+          }
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
 Router.post("/show-most-hired-services-top-fifteen", (req, res) => {
   let { userID } = req.body;
   Service.find({ isBlock: false, isLive: true })
@@ -312,39 +343,6 @@ Router.post(
       });
   }
 );
-
-Router.post("/show-all-services", (req, res) => {
-  let { userID } = req.body;
-  Service.find({ isBlock: false, isLive: true })
-    .populate({ path: "seller" })
-    .populate({ path: "category" })
-    .then((foundServices) => {
-      new ServiceClass()
-        .checkServiceInCart(foundServices, userID)
-        .then((servicesWithStatus) => {
-          if (servicesWithStatus.length > 0) {
-            return res
-              .json({
-                msg: "All Services with status of in cart!",
-                foundServices: servicesWithStatus,
-                success: true,
-              })
-              .status(200);
-          } else {
-            return res
-              .json({
-                msg: "No Service Found!",
-                success: false,
-              })
-              .status(400);
-          }
-        });
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
-    });
-});
 
 ///////////Sign up with Image of seller/////////////
 Router.post(

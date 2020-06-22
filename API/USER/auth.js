@@ -1138,7 +1138,7 @@ Router.post(
                   return res
                     .json({
                       msg: "User Updated!",
-                      userUpdated: userUpdated,
+                      user: userUpdated,
                       success: true,
                     })
                     .status(200);

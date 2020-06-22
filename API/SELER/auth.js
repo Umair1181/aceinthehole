@@ -599,7 +599,7 @@ Router.post(
                   return res
                     .json({
                       msg: "Seller Updated!",
-                      newSeller: sSeller,
+                      result: sSeller,
                       success: true,
                     })
                     .status(200);

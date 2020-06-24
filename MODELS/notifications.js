@@ -42,5 +42,9 @@ const Notifications = new Schema({
     type: Boolean,
     default: false,
   },
+  notificationDateTime: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 module.exports = mongoose.model("tblNotificationss", Notifications);

@@ -12,6 +12,7 @@ const { upload, CreateURL } = require("../../storage")();
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const ServiceClass = require("../BusinessLogics/service");
 const ServiceRating = require("../BusinessLogics/rating");
+
 Router.post("/show-all-services", (req, res) => {
   let { userID } = req.body;
   Service.find({ isBlock: false, isLive: true })
@@ -709,6 +710,42 @@ Router.post(
     }
   }
 );
+
+Router.post("/live-or-hide-service-by-seller", (req, res) => {
+  let { serviceID, isLive } = req.body;
+
+  Service.findOne({ _id: serviceID })
+    .then((foundService) => {
+      if (foundService !== null) {
+        foundService.isLive = isLive;
+        foundService
+          .save()
+          .then((updateService) => {
+            if (updateService !== null) {
+              return res
+                .json({ msg: "Service Updated", updateService, success: true })
+                .status(500);
+            } else {
+              return res
+                .json({ msg: "Service Not Updated", success: false })
+                .status(500);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res.json({ msg: "Failed", success: false }).status(500);
+          });
+      } else {
+        return res
+          .json({ msg: "Service Not Found", success: false })
+          .status(500);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", err, success: false }).status(500);
+    });
+});
 
 Router.post("/delete-service", (req, res) => {
   let { _id } = req.body;

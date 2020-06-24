@@ -13,6 +13,39 @@ const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const ServiceClass = require("../BusinessLogics/service");
 const ServiceRating = require("../BusinessLogics/rating");
 
+Router.post("/update-service-or-certificate-images-in-json", (req, res) => {
+  let { _id, images, isServiceOrCertificateImg } = req.body;
+  Service.findOne({ _id: _id })
+    .then(async (foundService) => {
+      if (foundService !== null) {
+        if (isServiceOrCertificateImg === true) {
+          foundService.serviceImgsURLs = images;
+        } else {
+          foundService.certificatesImgsURLs = images;
+        }
+
+        let savedService = await foundService.save();
+        if (savedService) {
+          return res
+            .json({ msg: "Images Updated", savedService, success: true })
+            .status(200);
+        } else {
+          return res
+            .json({ msg: "Images Not Updated", success: false })
+            .status(500);
+        }
+      } else {
+        return res
+          .json({ msg: "Service Not Found", success: false })
+          .status(400);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed", err, success: false }).status(500);
+    });
+});
+
 Router.post("/show-all-services", (req, res) => {
   let { userID } = req.body;
   Service.find({ isBlock: false, isLive: true })

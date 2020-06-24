@@ -610,6 +610,7 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
             notificationFor: "USER",
             notificationType: "NEW_ORDER",
             order: orderSaved._id,
+            notificationDateTime: Date.now(),
           });
           let saveNotification = newNotification.save();
           if (saveNotification) {

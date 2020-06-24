@@ -11,8 +11,16 @@ Router.post("/send-offer", (req, res) => {
   console.log(data);
 
   console.log("check 1");
-  let seller = data.from;
-  let user = data.to;
+  let seller = "";
+  let user = "";
+  if (data.isSeller === true) {
+    seller = data.from;
+    user = data.to;
+  } else {
+    seller = data.to;
+    user = data.from;
+  }
+
   Chat.findOne({ user: user, seller: seller })
     .then((foundPreviousChat) => {
       if (foundPreviousChat != null) {

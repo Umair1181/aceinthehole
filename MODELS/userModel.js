@@ -6,6 +6,10 @@ const User = new Schema({
     type: String,
     default: "newUser",
   },
+  accountType: {
+    type: String,
+    default: "LOCAL",
+  },
   userName: {
     type: String,
     default: "dummy",

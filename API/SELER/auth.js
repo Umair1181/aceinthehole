@@ -48,6 +48,7 @@ Router.post(
               email: email,
               password: null,
               profileImgURL: profileImgURL,
+              accountType: "SOCIAL",
             });
             newseller
               .save()

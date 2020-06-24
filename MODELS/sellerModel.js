@@ -52,6 +52,10 @@ const Seller = new Schema({
   RandomNumber: {
     type: Number,
   },
+  accountType: {
+    type: String,
+    default: "LOCAL",
+  },
   gender: {
     type: String,
   },

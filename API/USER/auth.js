@@ -45,6 +45,7 @@ Router.post(
               email: email,
               password: null,
               profileImgURL: profileImgURL,
+              accountType: "SOCIAL",
             });
             newUser
               .save()
@@ -619,6 +620,7 @@ Router.post(
               email: user.email,
               password: null,
               profileImgURL: ImageURLsArray,
+              accountType: "SOCIAL",
             });
             newUser
               .save()

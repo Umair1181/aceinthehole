@@ -7,13 +7,35 @@ const {
   ServiceCategory,
   User,
 } = require("../../MODELS");
-Router.post("/sales-report", (req, res) => {
-  let { userID } = req.body;
-  let foundOrder = Order.aggregate([
-    { $month: { orderRcvDate: "$orderRcvDate" } },
-  ]);
+Router.post("/sales-report", async (req, res) => {
+  let anualReport = [];
+  let totalOrder = 0;
+  for (let month = 1; month <= 12; month++) {
+    let startDate = new Date().setMonth(month - 1);
+    let endDate = new Date().setMonth(month);
+    let foundOrders = await Order.find({
+      orderStatus: "COMPLETED",
+      orderRcvDate: { $gte: startDate, $lt: endDate },
+    });
+    let calculate = 0;
+    for (let i = 0; i < foundOrders.length; i++) {
+      console.log(foundOrders[i].orderRcvDate);
+      calculate = foundOrders[i].price + calculate;
+    }
+    anualReport.push({
+      monthNo: month,
+      totalOrders: foundOrders.length,
+      totalSale: calculate,
+    });
+    // totalOrder = foundOrders.length;
+  }
   return res
-    .json({ msg: "Graph Report", foundOrder, success: true })
+    .json({
+      msg: "Anuual Month wise Revenue Report ",
+      anualReport,
+      ordersInMonth: totalOrder,
+      success: true,
+    })
     .status(200);
 });
 

@@ -7,7 +7,108 @@ const {
   ServiceCategory,
   User,
 } = require("../../MODELS");
-Router.post("/sales-report", async (req, res) => {
+const getweeklyDates = (month, startDays, endDays, res) => {
+  let startDate = new Date().setMonth(month - 1);
+  if (endDays === "addMonth") {
+    month = month;
+  } else {
+    month = month - 1;
+  }
+  let endDate = new Date().setMonth(month);
+
+  let startDateHours = new Date(startDate).setUTCHours(0, 0, 0, 0, 0);
+  let endDateHours = new Date(endDate).setUTCHours(0, 0, 0, 0, 0);
+
+  let startDateDay = new Date(startDateHours).setDate(startDays);
+  if (endDays === "addMonth") {
+    endDays = 1;
+  }
+  let endDateDay = new Date(endDateHours).setDate(endDays);
+
+  let finalStartDateDay = new Date(startDateDay);
+  let finalEndDateDay = new Date(endDateDay);
+
+  let IsoStartDate = finalStartDateDay.toISOString();
+  let IsoEndDate = finalEndDateDay.toISOString();
+
+  return { IsoStartDate, IsoEndDate };
+};
+
+Router.post("/weekly-sales-report", async (req, res) => {
+  const { month, weekStart, weekEnd } = req.body;
+  let ordersList = [];
+  for (let index = weekStart; index <= weekEnd; index++) {
+    let startDays = 1;
+    let endDays = 8;
+    if (index === 1) {
+      startDays = 1;
+      endDays = 8;
+    } else if (index === 2) {
+      startDays = 8;
+      endDays = 15;
+    } else if (index === 3) {
+      startDays = 15;
+      endDays = 22;
+    } else if (index === 4) {
+      startDays = 22;
+      endDays = "addMonth";
+    }
+
+    let dates = await getweeklyDates(month, startDays, endDays, res);
+    let foundMonthOrders = await Order.find({
+      orderRcvDate: { $gte: dates.IsoStartDate },
+      orderRcvDate: { $lt: dates.IsoEndDate },
+    });
+    await ordersList.push({ week: index, orders: foundMonthOrders });
+
+    if (index === weekEnd) {
+      return res
+        .json({ msg: "weekly sale", ordersList, success: true })
+        .success(200);
+    }
+  }
+});
+const getDates = (month) => {
+  let startDate = new Date().setMonth(month - 1);
+  let endDate = new Date().setMonth(month);
+
+  let startDateHours = new Date(startDate).setUTCHours(0, 0, 0, 0, 0);
+  let endDateHours = new Date(endDate).setUTCHours(0, 0, 0, 0, 0);
+
+  let startDateDay = new Date(startDateHours).setDate(1);
+  let endDateDay = new Date(endDateHours).setDate(1);
+
+  let finalStartDateDay = new Date(startDateDay);
+  let finalEndDateDay = new Date(endDateDay);
+
+  let IsoStartDate = finalStartDateDay.toISOString();
+  let IsoEndDate = finalEndDateDay.toISOString();
+
+  return { IsoStartDate, IsoEndDate };
+};
+
+Router.post("/monthly-sales-report", async (req, res) => {
+  //   //////////by umair bhi////////////////
+
+  //   const { startMonth, endMonth } = req.body;
+  //   let ordersList = [];
+  // for (let index = startMonth; index <= endMonth ; index++) {
+  //   let dates = await getDates( index );
+  //   let foundMonthOrders = await Order.find({
+  //     orderRcvDate: { $gte : dates.IsoStartDate },
+  //     orderRcvDate: { $lt : dates.IsoEndDate  }
+  //   });
+
+  //   await ordersList.push({
+  //     month: index,
+  //     orders: foundMonthOrders
+  //   });
+  //   if( index === endMonth ){
+  //     return res.json ({ msg: "orders List", ordersList }).status( 200 );
+  //   }
+  // }
+
+  //////////////////////
   let anualReport = [];
   let totalOrder = 0;
   for (let month = 1; month <= 12; month++) {

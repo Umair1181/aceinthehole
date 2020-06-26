@@ -24,7 +24,7 @@ Router.post("/add-new-cart-or-update-existing-one", (req, res) => {
       .then(async (cartExist) => {
         if (cartExist !== null) {
           return res
-            .json({ msg: "Service Already in Cart", cartExist, success: false })
+            .json({ msg: "Service Already Saved", cartExist, success: false })
             .status(404);
         } else {
           let foundCart = await Cart.findOne({ user: cart.userID });
@@ -49,7 +49,7 @@ Router.post("/add-new-cart-or-update-existing-one", (req, res) => {
                     .then((foundSerivce) => {
                       return res
                         .json({
-                          msg: "Previous Cart Updated",
+                          msg: "Service Saved",
                           // foundCart: foundCart,
                           foundSerivce: foundSerivce,
                           savedCart: foundCart,

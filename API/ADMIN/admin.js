@@ -7,6 +7,15 @@ const {
   ServiceCategory,
   User,
 } = require("../../MODELS");
+Router.post("/sales-report", (req, res) => {
+  let { userID } = req.body;
+  let foundOrder = Order.aggregate([
+    { $month: { orderRcvDate: "$orderRcvDate" } },
+  ]);
+  return res
+    .json({ msg: "Graph Report", foundOrder, success: true })
+    .status(200);
+});
 
 Router.post("/show-earning-of-seller-in-given-duration", (req, res) => {
   let { sellerID, startDate, endDate } = req.body;
@@ -31,6 +40,8 @@ Router.post("/show-earning-of-seller-in-given-duration", (req, res) => {
           console.log("**********foundOrders");
           console.log(foundOrders);
           if (foundOrders.length > 0) {
+            console.log("**********length");
+
             for (let k = 0; k < foundOrders.length; k++) {
               priceSum = foundOrders[k].price + priceSum;
             }
@@ -39,13 +50,22 @@ Router.post("/show-earning-of-seller-in-given-duration", (req, res) => {
           }
           // })
         }
-        return res
-          .json({
-            msg: "show-earning-of-seller-in-given-duration",
-            earning: priceSum,
-            success: true,
-          })
-          .status(200);
+        if (priceSum === 0) {
+          return res
+            .json({
+              msg: "No Order of seller on his any service",
+              success: false,
+            })
+            .status(200);
+        } else {
+          return res
+            .json({
+              msg: "show-earning-of-seller-in-given-duration",
+              earning: priceSum,
+              success: true,
+            })
+            .status(200);
+        }
       } else {
         return res.json({ msg: "No service", success: false }).status(404);
       }

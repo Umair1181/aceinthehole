@@ -224,7 +224,7 @@ Router.post("/update-seller-paypal-email", (req, res) => {
                 return res
                   .json({
                     msg: " seller's paypalEmail Added Successfully!",
-                    SavedsellerBank: savedsellerBank,
+                    result: savedsellerBank,
                     success: true,
                   })
                   .status(200);

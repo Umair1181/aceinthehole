@@ -1189,8 +1189,6 @@ Router.post(
       message = "invalid address";
     } else if (seller.dateOfBirth === "") {
       message = "invalid dateOfBirth";
-    } else if (seller.webSite === "") {
-      message = "invalid webSite";
     } else if (seller.description === "") {
       message = "invalid description";
     } else if (seller.gender === "") {

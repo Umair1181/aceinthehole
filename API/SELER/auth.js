@@ -293,7 +293,7 @@ Router.post("/update-seller-bank-card-info", (req, res) => {
                 return res
                   .json({
                     msg: " seller's Bank Added Successfully In seller",
-                    SavedsellerBank: savedsellerBank,
+                    result: savedsellerBank,
                     success: true,
                   })
                   .status(200);

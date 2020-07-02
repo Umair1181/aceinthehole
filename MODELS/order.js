@@ -29,8 +29,12 @@ const Order = new Schema({
   },
   orderStatus: {
     type: String,
-    default: "NEWORDER", // COMPLETED,DISPUTE,ORDERCANCELED
+    default: "NEWORDER", // COMPLETED,DISPUTE,ORDERCANCELED,DELIVERED
     // required: true,
+  },
+  sattusUpdateDate: {
+    //when status update from new to complete , delivered
+    type: Date,
   },
   extras: [
     {

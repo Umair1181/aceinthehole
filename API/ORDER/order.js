@@ -2,6 +2,53 @@ const Router = require("express").Router();
 const { Order, Reviews, Service, Notifications } = require("../../MODELS");
 const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 
+Router.post(
+  "/auto-order-completion-after-delivery-of-three-days",
+  (req, res) => {
+    let date_ob = new Date();
+    let dateToday = date_ob.getDate();
+
+    Order.find({ orderStatus: "DELIVERED" })
+      .then(async (foundDeliveredOrders) => {
+        if (foundDeliveredOrders.length > 0) {
+          // return res.json({
+          //   date: dateToday,
+          //   dateOfOrder,
+          // });
+          for (let index = 0; index < foundDeliveredOrders.length; index++) {
+            const element = foundDeliveredOrders[index];
+
+            let orderfullDate = element.sattusUpdateDate;
+            let dateOfOrder = orderfullDate.getDate();
+            let subResult = dateToday - dateOfOrder;
+            console.log(subResult);
+            if (subResult === 0) {
+              element.orderStatus = "COMPLETED";
+              let saveOrder = await element.save();
+              if (saveOrder) {
+                console.log(`Updated`);
+                console.log(`${saveOrder}`);
+              }
+            }
+            if (foundDeliveredOrders.length === index + 1) {
+              return res
+                .json({ msg: "All Orders Status Updated", success: true })
+                .status(200);
+            }
+          }
+        } else {
+          return res
+            .json({ msg: "Order Not FOund", success: false })
+            .status(500);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.json({ msg: "Failed", success: false }).status(500);
+      });
+  }
+);
+
 Router.post("/show-completed-paid-nonpaid-orders-list", (req, res) => {
   let { isPaid } = req.body;
   console.log(isPaid);
@@ -431,6 +478,7 @@ Router.post("/change-order-status", (req, res) => {
     .then((foundOrder) => {
       if (foundOrder !== null) {
         foundOrder.orderStatus = orderStatus;
+        foundOrder.sattusUpdateDate = Date.now();
         foundOrder
           .save()
           .then((savedOrder) => {

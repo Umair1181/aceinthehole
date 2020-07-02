@@ -28,7 +28,10 @@ Router.post(
             }
             if (foundDeliveredOrders.length === index + 1) {
               return res
-                .json({ msg: "All Orders Status Updated", success: true })
+                .json({
+                  msg: "All Orders Status Updated",
+                  success: true,
+                })
                 .status(200);
             }
           }

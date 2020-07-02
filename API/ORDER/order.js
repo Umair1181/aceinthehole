@@ -1,6 +1,105 @@
 const Router = require("express").Router();
 const { Order, Reviews, Service, Notifications } = require("../../MODELS");
 const notificationSend = require("../NOTIFICATIONS/notifyConfig");
+////////////////////////////////////////////////////////////////
+Router.post("/change-order-status", (req, res) => {
+  let { orderID, orderStatus } = req.body;
+  Order.findOne({ _id: orderID })
+    .then((foundOrder) => {
+      if (foundOrder !== null) {
+        foundOrder.orderStatus = orderStatus;
+        foundOrder.sattusUpdateDate = Date.now();
+        foundOrder
+          .save()
+          .then(async (savedOrder) => {
+            if (savedOrder) {
+              ///////////////////////////////////////////
+              let foundOrder = await Order.findOne({ _id: savedOrder._id })
+                .populate({
+                  path: "user",
+                })
+                .populate({
+                  path: "service",
+                })
+                .populate({
+                  path: "service",
+                  populate: { path: "seller" },
+                });
+
+              //below token collection and payload prepration
+              let tokensArray = [];
+              let payload = {
+                notification: {
+                  title: `Order ${orderStatus}`,
+
+                  body: `Order ${orderStatus}`,
+                },
+                data: {
+                  orderID: `${savedOrder._id}`,
+                },
+              };
+              //working on save notifications
+              let newNotification = await new Notifications({
+                title: payload.notification.title,
+                body: payload.notification.body,
+                seller: foundOrder.service.seller._id,
+                user: foundOrder.user,
+                notificationFor: "USER",
+                notificationType: `${orderStatus}`,
+                order: savedOrder._id,
+                notificationDateTime: Date.now(),
+              });
+              let saveNotification = newNotification.save();
+              if (saveNotification) {
+                console.log("Notification Saved");
+              } else {
+                console.log("Notification Not Saved");
+              }
+
+              if (foundOrder.user.mobileFcToken !== null) {
+                tokensArray.push(foundOrder.user.mobileFcToken);
+              }
+              if (foundOrder.user.webFcToken !== null) {
+                tokensArray.push(foundOrder.user.webFcToken);
+              }
+              let isSendNotification = await notificationSend(
+                tokensArray,
+                payload
+              );
+              console.log(isSendNotification);
+              if (isSendNotification) {
+                console.log("New Order Notification sent to Seller");
+              }
+
+              ////////////////////////////
+              return res
+                .json({
+                  msg: `Order status=${savedOrder.orderStatus}`,
+                  savedOrder,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: `Order status=${foundOrder.orderStatus}`,
+                  success: false,
+                })
+                .status(505);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res.json({ msg: "Failed!", success: false }).status(505);
+          });
+      } else {
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
 
 Router.post(
   "/auto-order-completion-after-delivery-of-three-days",
@@ -467,47 +566,6 @@ Router.post("/show-orders-with-status", (req, res) => {
     .catch((err) => {
       console.log(err);
       return res.json({ msg: "Failed", success: false }).status(404);
-    });
-});
-
-////////////////////////////////////////////////////////////////
-Router.post("/change-order-status", (req, res) => {
-  let { orderID, orderStatus } = req.body;
-  Order.findOne({ _id: orderID })
-    .then((foundOrder) => {
-      if (foundOrder !== null) {
-        foundOrder.orderStatus = orderStatus;
-        foundOrder.sattusUpdateDate = Date.now();
-        foundOrder
-          .save()
-          .then((savedOrder) => {
-            if (savedOrder) {
-              return res
-                .json({
-                  msg: `Order status=${savedOrder.orderStatus}`,
-                  savedOrder,
-                  success: true,
-                })
-                .status(200);
-            } else {
-              return res
-                .json({
-                  msg: `Order status=${foundOrder.orderStatus}`,
-                  success: false,
-                })
-                .status(505);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            return res.json({ msg: "Failed!", success: false }).status(505);
-          });
-      } else {
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
     });
 });
 

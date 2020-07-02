@@ -11,10 +11,6 @@ Router.post(
     Order.find({ orderStatus: "DELIVERED" })
       .then(async (foundDeliveredOrders) => {
         if (foundDeliveredOrders.length > 0) {
-          // return res.json({
-          //   date: dateToday,
-          //   dateOfOrder,
-          // });
           for (let index = 0; index < foundDeliveredOrders.length; index++) {
             const element = foundDeliveredOrders[index];
 
@@ -22,7 +18,7 @@ Router.post(
             let dateOfOrder = orderfullDate.getDate();
             let subResult = dateToday - dateOfOrder;
             console.log(subResult);
-            if (subResult === 0) {
+            if (subResult > 2) {
               element.orderStatus = "COMPLETED";
               let saveOrder = await element.save();
               if (saveOrder) {

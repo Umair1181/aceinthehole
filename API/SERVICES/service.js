@@ -811,6 +811,7 @@ Router.post("/show-single-service", (req, res) => {
   let { _id } = req.body;
   Service.findOne({ _id: _id })
     .populate({ path: "category" })
+    .populate({ path: "seller" })
     .then((foundService) => {
       if (foundService) {
         if (foundService.isBlock === true) {

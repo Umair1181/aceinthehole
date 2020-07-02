@@ -117,7 +117,7 @@ Router.post(
             let dateOfOrder = orderfullDate.getDate();
             let subResult = dateToday - dateOfOrder;
             console.log(subResult);
-            if (subResult > 2) {
+            if (subResult >= 0) {
               element.orderStatus = "COMPLETED";
               let saveOrder = await element.save();
               if (saveOrder) {

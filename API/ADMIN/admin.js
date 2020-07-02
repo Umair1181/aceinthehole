@@ -34,11 +34,10 @@ const getweeklyDates = (month, startDays, endDays, res) => {
   return { IsoStartDate, IsoEndDate };
 };
 Router.post("/services-of-specific-conditions", (req, res) => {
-  let { isBlock, isLive, serviceStatus } = req.body;
+  let { isBlock, isLive } = req.body;
   Service.find({
     isBlock: isBlock,
     isLive: isLive,
-    serviceStatus: serviceStatus,
   })
     .populate({ path: "seller" })
     .then((foundService) => {

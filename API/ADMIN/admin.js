@@ -33,6 +33,65 @@ const getweeklyDates = (month, startDays, endDays, res) => {
 
   return { IsoStartDate, IsoEndDate };
 };
+Router.post("/services-of-specific-conditions", (req, res) => {
+  let { isBlock, isLive, serviceStatus } = req.body;
+  Service.find({
+    isBlock: isBlock,
+    isLive: isLive,
+    serviceStatus: serviceStatus,
+  })
+    .populate({ path: "seller" })
+    .then((foundService) => {
+      if (foundService.length > 0) {
+        return res
+          .json({
+            msg: "all-services-of-specific-category-admin",
+            foundService: foundService,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res
+          .json({
+            msg: "No Service Found!",
+            success: false,
+          })
+          .status(400);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+Router.post("/show-all-services-of-specific-category-admin", (req, res) => {
+  let { categoryID } = req.body;
+  // Service.find({ category: categoryID, isBlock: false, isLive: true })
+  Service.find({ category: categoryID })
+    .populate({ path: "seller" })
+    .then((foundService) => {
+      if (foundService.length > 0) {
+        return res
+          .json({
+            msg: "all-services-of-specific-category-admin",
+            foundService: foundService,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res
+          .json({
+            msg: "No Service Found!",
+            success: false,
+          })
+          .status(400);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
 
 Router.post("/weekly-sales-report", async (req, res) => {
   const { month, weekStart, weekEnd } = req.body;

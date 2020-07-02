@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const Seller = new Schema({
+  location: {
+    longitude: { type: Number },
+    latitude: { type: Number },
+  },
   sellerAvgRating: {
     type: Number,
     default: 0,

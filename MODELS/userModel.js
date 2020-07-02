@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const User = new Schema({
+  location: {
+    longitude: { type: Number },
+    latitude: { type: Number },
+  },
   userStatus: {
     type: String,
     default: "newUser",

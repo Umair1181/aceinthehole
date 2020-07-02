@@ -18,7 +18,7 @@ Router.post(
   "/login-or-register-seller-with-image-by-social-media",
 
   (req, res) => {
-    let { sellerName, profileImgURL, email } = req.body;
+    let { sellerName, profileImgURL, email, location } = req.body;
     let RegularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     let message = false;
     // if (sellerName === "") {
@@ -26,6 +26,8 @@ Router.post(
     // }
     if (!RegularExpression.test(String(email).toLowerCase())) {
       message = "invalid email";
+    } else if (location === "") {
+      message = "invalid location";
     } else {
       message = false;
     }
@@ -49,6 +51,10 @@ Router.post(
               password: null,
               profileImgURL: profileImgURL,
               accountType: "SOCIAL",
+              location: {
+                longitude: location.longitude,
+                latitude: location.latitude,
+              },
             });
             newseller
               .save()
@@ -1191,6 +1197,8 @@ Router.post(
       message = "invalid dateOfBirth";
     } else if (seller.description === "") {
       message = "invalid description";
+    } else if (seller.location === "") {
+      message = "invalid location";
     } else if (seller.gender === "") {
       message = "invalid gender";
     } else if (!RegularExpression.test(String(seller.email).toLowerCase())) {
@@ -1232,6 +1240,10 @@ Router.post(
                   password: hash,
                   profileImgURL: sellerProfileImage,
                   idCardImgURL: IdCardImage,
+                  location: {
+                    longitude: seller.location.longitude,
+                    latitude: seller.location.latitude,
+                  },
                 });
                 newSeller
                   .save()

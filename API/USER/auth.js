@@ -4,12 +4,13 @@ const bcrypt = require("bcryptjs");
 // const Transporter = require("../emailSend");
 // const ProductPostClass = require("../BusinessLogic/user");
 
-const { User } = require("../../MODELS");
+const { User, Seller, Service } = require("../../MODELS");
 const { upload } = require("../../storage")();
 ///email send import
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
 
+//////////////////////////////////////
 ///////////login-or-register-user-with-image-by-social-media/////////////
 Router.post(
   "/login-or-register-user-with-image-by-social-media",

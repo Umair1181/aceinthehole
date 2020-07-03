@@ -317,14 +317,27 @@ Router.post("/show-all-services", async (req, res) => {
         console.log("allServices");
         console.log(allServices);
         if (allServices.length > 0) {
-          new ServiceClass()
+          await new ServiceClass()
             .checkServiceInCart(allServices, userID)
-            .then((servicesWithStatus) => {
+            .then(async (servicesWithStatus) => {
               if (servicesWithStatus.length > 0) {
+                console.log("**************waooo********************");
+                console.log("servicesWithStatus.length");
+                console.log(servicesWithStatus.length);
+                let allServicesArray = [];
+                for (let k = 0; k < servicesWithStatus.length; k++) {
+                  for (let j = 0; j < servicesWithStatus[k].length; j++) {
+                    // const element = array[j];
+                    console.log(servicesWithStatus[k][j]);
+                    await allServicesArray.push(servicesWithStatus[k][j]);
+                  }
+                }
+
+                console.log("*************kaoo*********************");
                 return res
                   .json({
                     msg: "All Nearest Seller Services with status of in cart!",
-                    foundServices: servicesWithStatus,
+                    foundServices: allServicesArray,
                     success: true,
                   })
                   .status(200);

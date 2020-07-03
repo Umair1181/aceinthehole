@@ -12,6 +12,95 @@ const { upload, CreateURL } = require("../../storage")();
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const ServiceClass = require("../BusinessLogics/service");
 const ServiceRating = require("../BusinessLogics/rating");
+
+Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
+  let { location } = req.body;
+  let allTopServices = [];
+  if (location === "") {
+    message = "Invalid location!";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    let topServices = await Order.aggregate([
+      {
+        $group: {
+          _id: "$service",
+          count: { $sum: 1 },
+        },
+      },
+    ]).limit(10);
+
+    Service.populate(topServices, {
+      path: "_id",
+      populate: { path: "seller" },
+    }).then(async (topServices) => {
+      if (topServices.length < 1) {
+        return res
+          .json({ msg: "No Service Ordered Yet!", success: false })
+          .status(200);
+      } else {
+        console.log(topServices.length);
+        for (let index = 0; index < topServices.length; index++) {
+          console.log("Lopp");
+          // const sellerLongitude =
+          //   topServices[index]._id.seller.location.longitude;
+          // const sellerLatitude =
+          //   topServices[index]._id.seller.location.latitude;
+          // console.log(`location latitude ${location.latitude}`);
+          // console.log(`location longitude ${location.longitude}`);
+          // console.log(`sellerLongitude ${sellerLongitude}`);
+          // console.log(`sellerLatitude ${sellerLatitude}`);
+          //current location coordinates
+          let latitude2 = location.latitude;
+          let longitude2 = location.longitude;
+          //each seller coordinates
+          let latitude1 = topServices[index]._id.seller.location.latitude;
+          let longitude1 = topServices[index]._id.seller.location.longitude;
+          var p = 0.017453292519943295; //This is  Math.PI / 180
+          var c = Math.cos;
+
+          var a =
+            0.5 -
+            c((latitude2 - latitude1) * p) / 2 +
+            (c(latitude1 * p) *
+              c(latitude2 * p) *
+              (1 - c((longitude2 - longitude1) * p))) /
+              2;
+          var R = 6371; //  Earth distance in km so it will return the distance in km
+          var distance = 2 * R * Math.asin(Math.sqrt(a));
+
+          console.log("step 1");
+          console.log(distance);
+          if (distance <= 100) {
+            console.log("step 2");
+            await allTopServices.push(topServices[index]._id);
+          }
+          if (topServices.length === index + 1) {
+            return res
+              .json({
+                msg: "Top Ten Most Hired Services in Your Area!",
+                // demo: topServices[0]._id.seller.location,
+                topServices: allTopServices,
+                success: true,
+              })
+              .status(200);
+          }
+        }
+        // return res
+        //   .json({
+        //     msg: "Top Ten Most Hired Services!",
+        //     // demo: topServices[0]._id.seller.location,
+        //     topServices: allTopServices,
+        //     success: true,
+        //   })
+        //   .status(200);
+      }
+    });
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+});
 const getServicesOfNearesSellersSpecificCategory = async (
   SellersList,
   categoryID,

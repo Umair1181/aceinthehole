@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 
 const Seller = new Schema({
   location: {
-    longitude: { type: Number },
-    latitude: { type: Number },
+    longitude: { type: Number, default: 0 },
+    latitude: { type: Number, default: 0 },
   },
   sellerAvgRating: {
     type: Number,

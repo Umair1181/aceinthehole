@@ -77,14 +77,20 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
             await allTopServices.push(topServices[index]._id);
           }
           if (topServices.length === index + 1) {
-            return res
-              .json({
-                msg: "Top Ten Most Hired Services in Your Area!",
-                // demo: topServices[0]._id.seller.location,
-                topServices: allTopServices,
-                success: true,
-              })
-              .status(200);
+            if (allTopServices.length > 0) {
+              return res
+                .json({
+                  msg: "Top Ten Most Hired Services in Your Area!",
+                  // demo: topServices[0]._id.seller.location,
+                  topServices: allTopServices,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({ msg: "No Nearest Service", success: false })
+                .status(500);
+            }
           }
         }
         // return res

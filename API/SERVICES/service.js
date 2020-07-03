@@ -12,6 +12,154 @@ const { upload, CreateURL } = require("../../storage")();
 const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const ServiceClass = require("../BusinessLogics/service");
 const ServiceRating = require("../BusinessLogics/rating");
+const getServicesOfNearesSellersSpecificCategory = async (
+  SellersList,
+  categoryID,
+  latitude2,
+  longitude2
+) => {
+  // let allSellersIDs = [];
+  let allServices = [];
+  for (let x = 0; x < SellersList.length; x++) {
+    // 31.472472, 73.131969
+    //31.433812, 73.111198
+    let latitude1 = SellersList[x].location.latitude;
+    let longitude1 = SellersList[x].location.longitude;
+    var p = 0.017453292519943295; //This is  Math.PI / 180
+    var c = Math.cos;
+
+    var a =
+      0.5 -
+      c((latitude2 - latitude1) * p) / 2 +
+      (c(latitude1 * p) *
+        c(latitude2 * p) *
+        (1 - c((longitude2 - longitude1) * p))) /
+        2;
+    var R = 6371; //  Earth distance in km so it will return the distance in km
+    var distance = 2 * R * Math.asin(Math.sqrt(a));
+    // console.log("distance of one buyer to its all nearest sellers");
+    // console.log(distance);
+    // let findCoustomValue = await coustomAdmin.find();
+    // if (distance <= findCoustomValue[0].locationRadius) {
+    if (distance <= 100) {
+      console.log(SellersList[x]._id);
+      let founServices = await Service.find({
+        seller: SellersList[x]._id,
+        category: categoryID,
+        isBlock: false,
+        isLive: true,
+      });
+      // let obj = {
+      //   dist: distance,
+      //   sellerID: SellersList[x]._id,
+      // };
+      console.log("*****************************");
+      console.log(founServices);
+      console.log("*****************************");
+      if (founServices.length > 0) {
+        allServices.push(founServices);
+      }
+      if (x + 1 === SellersList.length) {
+        return allServices;
+        // let SortedSellers = await sortBulkStageDforList(allSellersDists);
+        // for (let k = 0; k < SortedSellers.length; k++) {
+        //   allSellersIDs.push(SortedSellers[k].sellerID);
+        //   if (SortedSellers.length == k + 1) {
+        //     // let foundBuyer = await Buyer.findOne({ _id: buyerID });
+        //     // console.log("foundBuyer");
+        //     // console.log(foundBuyer);
+        //     // foundBuyer.nearesTenSellers = allSellersIDs;
+        //     // let updateBuyer = await foundBuyer.save();
+        //     // if (updateBuyer !== null) {
+        //     let ssSeller = await Seller.find({ _id: allSellersIDs });
+        //     return ssSeller;
+        //     // } else {
+        //     //   return false;
+        //     // }
+        //   }
+        // }
+      }
+    }
+  }
+};
+Router.post("/show-all-services-of-specific-category", async (req, res) => {
+  let { location, userID, categoryID } = req.body;
+  let message = false;
+  if (location.longitude === "") {
+    message = "Invalid Longitude!";
+  } else if (location.latitude === "") {
+    message = "Invalid latitude!";
+  } else if (userID === "") {
+    message = "Invalid userID!";
+  } else if (categoryID === "") {
+    message = "Invalid categoryID!";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    let SellersList = await Seller.find();
+    if (SellersList.length > 0) {
+      let bLo = location.longitude;
+      let bLa = location.latitude;
+      let allServices = await getServicesOfNearesSellersSpecificCategory(
+        SellersList,
+        categoryID,
+        bLa,
+        bLo
+      );
+      if (allServices !== false) {
+        console.log("allServices");
+        console.log(allServices);
+        if (allServices.length > 0) {
+          new ServiceClass()
+            .checkServiceInCart(allServices, userID)
+            .then((servicesWithStatus) => {
+              if (servicesWithStatus.length > 0) {
+                return res
+                  .json({
+                    msg: "all-services-of-specific-category-with-cart-status",
+                    foundService: servicesWithStatus,
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({
+                    msg: "No Service Found!",
+                    success: false,
+                  })
+                  .status(400);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              return res.json({ msg: "Failed!", success: false }).status(505);
+            });
+
+          // return res
+          //   .json({
+          //     msg: "Services Of Nearest  Sellers",
+          //     services: allServices,
+          //     success: true,
+          //   })
+          //   .status(200);
+        } else {
+          return res
+            .json({ msg: "No Nearest Seller", success: false })
+            .status(505);
+        }
+      } else if (allServices === "Not Found!") {
+        return res.json({ msg: "Not Found", success: false }).status(400);
+      } else {
+        return res.json({ msg: "Failed!", success: false }).status(400);
+      }
+    } else {
+      return res.json({ msg: "No Seller Exist", success: false }).status(400);
+    }
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+});
 
 Router.post("/update-service-or-certificate-images-in-json", (req, res) => {
   let { _id, images, isServiceOrCertificateImg } = req.body;
@@ -757,38 +905,6 @@ Router.post("/upload", upload.array("image", 1), (req, res) => {
   } else {
     return res.json({ msg: "Failed!", success: false }).status(400);
   }
-});
-
-Router.post("/show-all-services-of-specific-category", (req, res) => {
-  let { categoryID, userID } = req.body;
-  Service.find({ category: categoryID, isBlock: false, isLive: true })
-    .populate({ path: "seller" })
-    .then((foundService) => {
-      new ServiceClass()
-        .checkServiceInCart(foundService, userID)
-        .then((servicesWithStatus) => {
-          if (servicesWithStatus.length > 0) {
-            return res
-              .json({
-                msg: "all-services-of-specific-category-with-cart-status",
-                foundService: servicesWithStatus,
-                success: true,
-              })
-              .status(200);
-          } else {
-            return res
-              .json({
-                msg: "No Service Found!",
-                success: false,
-              })
-              .status(400);
-          }
-        });
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
-    });
 });
 
 Router.post(

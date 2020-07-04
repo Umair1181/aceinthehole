@@ -76,13 +76,22 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
             console.log("step 2");
             await allTopServices.push(topServices[index]._id);
           }
+          let allServicesArray = [];
           if (topServices.length === index + 1) {
             if (allTopServices.length > 0) {
+              for (let k = 0; k < allTopServices.length; k++) {
+                for (let j = 0; j < allTopServices[k].length; j++) {
+                  // const element = array[j];
+                  console.log(allTopServices[k][j]);
+                  await allServicesArray.push(allTopServices[k][j]);
+                }
+              }
+
               return res
                 .json({
                   msg: "Top Ten Most Hired Services in Your Area!",
                   // demo: topServices[0]._id.seller.location,
-                  topServices: allTopServices,
+                  topServices: allServicesArray,
                   success: true,
                 })
                 .status(200);
@@ -208,12 +217,21 @@ Router.post("/show-all-services-of-specific-category", async (req, res) => {
         if (allServices.length > 0) {
           new ServiceClass()
             .checkServiceInCart(allServices, userID)
-            .then((servicesWithStatus) => {
+            .then(async (servicesWithStatus) => {
+              let allServicesArray = [];
               if (servicesWithStatus.length > 0) {
+                for (let k = 0; k < servicesWithStatus.length; k++) {
+                  for (let j = 0; j < servicesWithStatus[k].length; j++) {
+                    // const element = array[j];
+                    console.log(servicesWithStatus[k][j]);
+                    await allServicesArray.push(servicesWithStatus[k][j]);
+                  }
+                }
+
                 return res
                   .json({
                     msg: "all-services-of-specific-category-with-cart-status",
-                    foundService: servicesWithStatus,
+                    foundService: allServicesArray,
                     success: true,
                   })
                   .status(200);

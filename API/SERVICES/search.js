@@ -12,13 +12,14 @@ Router.post("/search-services-by-name", (req, res) => {
   }
   if (message === false) {
     Service.find({ serviceName: new RegExp(`^${serviceName}`, "i") })
-      .then(foundServices => {
+      .populate({ path: "seller" })
+      .then((foundServices) => {
         if (foundServices.length > 0) {
           return res
             .json({
               msg: "Search Found",
               foundServices: foundServices,
-              success: true
+              success: true,
             })
             .status(200);
         } else {
@@ -26,12 +27,12 @@ Router.post("/search-services-by-name", (req, res) => {
           return res
             .json({
               msg: "Invalid!",
-              success: false
+              success: false,
             })
             .status(400);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return res.json({ msg: "catch error", success: false }).status(404);
       });
@@ -51,15 +52,15 @@ Router.post("/search-categories-by-name", (req, res) => {
   }
   if (message === false) {
     ServiceCategory.find({
-      serviceCategoryName: new RegExp(`^${categoryName}`, "i")
+      serviceCategoryName: new RegExp(`^${categoryName}`, "i"),
     })
-      .then(foundCategories => {
+      .then((foundCategories) => {
         if (foundCategories.length > 0) {
           return res
             .json({
               msg: "Search Found",
               foundCategories: foundCategories,
-              success: true
+              success: true,
             })
             .status(200);
         } else {
@@ -67,12 +68,12 @@ Router.post("/search-categories-by-name", (req, res) => {
           return res
             .json({
               msg: "Invalid!",
-              success: false
+              success: false,
             })
             .status(400);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return res.json({ msg: "catch error", success: false }).status(404);
       });

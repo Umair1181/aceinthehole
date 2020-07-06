@@ -152,7 +152,7 @@ const getServicesOfNearesSellersSpecificCategory = async (
         category: categoryID,
         isBlock: false,
         isLive: true,
-      });
+      }).populate({ path: "seller" });
       // let obj = {
       //   dist: distance,
       //   sellerID: SellersList[x]._id,
@@ -201,7 +201,7 @@ Router.post("/show-all-services-of-specific-category", async (req, res) => {
     message = false;
   }
   if (message === false) {
-    let SellersList = await Seller.find();
+    let SellersList = await Seller.find().populate({ path: "seller" });
     if (SellersList.length > 0) {
       let bLo = location.longitude;
       let bLa = location.latitude;
@@ -321,7 +321,7 @@ Router.post("/show-all-services", async (req, res) => {
   }
   if (message === false) {
     ////////////////////////
-    let SellersList = await Seller.find();
+    let SellersList = await Seller.find().populate({ path: "seller" });
     if (SellersList.length > 0) {
       let bLo = location.longitude;
       let bLa = location.latitude;
@@ -463,7 +463,9 @@ const getServicesOfNearesSellers = async (
     // if (distance <= findCoustomValue[0].locationRadius) {
     if (distance <= 100) {
       console.log(SellersList[x]._id);
-      let founServices = await Service.find({ seller: SellersList[x]._id });
+      let founServices = await Service.find({
+        seller: SellersList[x]._id,
+      }).populate({ path: "seller" });
       // let obj = {
       //   dist: distance,
       //   sellerID: SellersList[x]._id,

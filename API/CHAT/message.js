@@ -1,6 +1,17 @@
 const Router = require("express").Router();
 const { Chat, Seller } = require("../../MODELS");
+Router.post("/delete-all-chats", async (req, res) => {
+  let allChats = await Chat.find();
 
+  for (let index = 0; index < allChats.length; index++) {
+    const element = allChats[index];
+
+    let deleted = await Chat.deleteOne({ _id: element._id });
+    if (allChats.length === index + 1) {
+      return res.json({ msg: "Deleted", success: true });
+    }
+  }
+});
 Router.post("/enable-offers", (req, res) => {
   Chat.findOne({ _id: ID }).then();
 });

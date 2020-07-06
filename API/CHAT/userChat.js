@@ -1,5 +1,6 @@
 // const { Chat, Seller, User, Cart, SellerBank } = require("../../MODALS");
-const { Chat, Seller, User, Cart, SellerBank,  } = require("../../MODELS");
+const { Chat, Seller, User, Cart, SellerBank } = require("../../MODELS");
+const { Router } = require("express");
 
 ///updating online ofline status of connected disconnected uder
 // const acceptOffer = (data, socket) => {
@@ -47,13 +48,13 @@ const { Chat, Seller, User, Cart, SellerBank,  } = require("../../MODELS");
 //                         .populate({ path: "seller", select: "_id sellerName shopName" })
 //                         .then( async foundCartofBuyer => {
 //                           if (foundCartofBuyer !== null) {
-                            
+
 //                               let sellerBank = await SellerBank.findOne({ seller: foundCartofBuyer.seller._id });
 //                               foundCartofBuyer.seller.paypalAccountEmail = sellerBank.paypalAccountEmail;
-  
+
 //                              let offerCartEntry ={
 //                                       msg: "Previous Cart Updated",
-//                                       cart : foundCartofBuyer, 
+//                                       cart : foundCartofBuyer,
 //                                       success: true
 //                                     };
 
@@ -114,7 +115,7 @@ const { Chat, Seller, User, Cart, SellerBank,  } = require("../../MODELS");
 //                               foundCart.products[0].product.inCart = true ;
 //                               let sellerBank = await SellerBank.findOne({ seller: foundCart.seller._id });
 //                               foundCart.seller.paypalAccountEmail = sellerBank.paypalAccountEmail;
-  
+
 //                              let offerCartEntry = {
 //                                   msg: "New Cart List Added",
 //                                   AddedCart: foundCart,
@@ -129,7 +130,7 @@ const { Chat, Seller, User, Cart, SellerBank,  } = require("../../MODELS");
 //                                 socket.in(data.to).emit("onAcceptOffer", { query: data });
 
 //                             } else {
-//                                   console.log("Cart Not Found error") 
+//                                   console.log("Cart Not Found error")
 //                             }
 //                           });
 //                       } else {
@@ -144,14 +145,12 @@ const { Chat, Seller, User, Cart, SellerBank,  } = require("../../MODELS");
 //               .catch(err => {
 //                 console.log( "catch error: product not exist" );
 //               });
-//               // add to cart 
+//               // add to cart
 //               // import cart modal above
-//               // find user cart with this seller 
+//               // find user cart with this seller
 //               // push cart in that arrayof products
 //               // else create new cart of this seller and user with this product
 
-
-              
 //             })
 //             .catch(err => {
 //               console.log("SAVING ERROR");
@@ -162,7 +161,7 @@ const { Chat, Seller, User, Cart, SellerBank,  } = require("../../MODELS");
 //         console.log("not found CHAT HERE.");
 //         console.log(index);
 //       }
-      
+
 //     })
 //     .catch(err => {
 //       console.log("Chat Find Catch error");
@@ -171,19 +170,19 @@ const { Chat, Seller, User, Cart, SellerBank,  } = require("../../MODELS");
 
 const setOnlineStatusSeller = (id, status) => {
   Seller.findOne({ _id: id })
-    .then(fSeller => {
+    .then((fSeller) => {
       if (fSeller !== null) {
         fSeller.isOnline = status;
         fSeller
           .save()
-          .then(sSeller => {
+          .then((sSeller) => {
             if (sSeller !== null) {
               console.log(`Seller is ${status ? " online" : " offline"} `);
             } else {
               console.log("Check form db");
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(
               `Saving Seller ${status ? " online" : " offline"}  Catch error`
             );
@@ -195,26 +194,26 @@ const setOnlineStatusSeller = (id, status) => {
         console.log(`${fSeller}`);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(`catch error finding ${status ? " online" : " offline"}`);
     });
 };
 
 const setOnlineStatusUser = (id, status) => {
   User.findOne({ _id: id })
-    .then(fUser => {
+    .then((fUser) => {
       if (fUser !== null) {
         fUser.isOnlineStatus = status;
         fUser
           .save()
-          .then(sUser => {
+          .then((sUser) => {
             if (sUser !== null) {
               console.log(`USER is ${status ? " online" : " offline"} `);
             } else {
               console.log("Check form db");
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(
               `Saving USER ${status ? " online" : " offline"}  Catch error`
             );
@@ -225,29 +224,28 @@ const setOnlineStatusUser = (id, status) => {
         );
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(`USER error finding ${status ? " online" : " offline"}`);
     });
 };
 
-const saveToDbChat = data => {
+const saveToDbChat = (data) => {
   if (data.isSeller == true) {
-    
     let seller = data.from;
     let user = data.to;
     Chat.findOne({ user: user, seller: seller })
-      .then(foundPreviousChat => {
+      .then((foundPreviousChat) => {
         if (foundPreviousChat != null) {
           //update previous chat
           foundPreviousChat.msgOffer.push({
             myType: data.type,
             payload: data.payload,
             from: data.from,
-            to: data.to
+            to: data.to,
           });
           foundPreviousChat
             .save()
-            .then(savedChat => {
+            .then((savedChat) => {
               if (savedChat !== null) {
                 console.log("Message Sent and Saved");
                 // return res
@@ -264,7 +262,7 @@ const saveToDbChat = data => {
                 //   .status(404);
               }
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err);
               console.log("catch error: newChat.save ");
 
@@ -276,14 +274,14 @@ const saveToDbChat = data => {
               myType: data.type,
               payload: data.payload,
               from: seller,
-              to: user
+              to: user,
             },
             user: user,
-            seller: seller
+            seller: seller,
           });
           newChat
             .save()
-            .then(savedChat => {
+            .then((savedChat) => {
               if (savedChat) {
                 console.log("Message Sent and Saved");
                 // return res
@@ -300,7 +298,7 @@ const saveToDbChat = data => {
                 //   .status(404);
               }
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err);
               console.log("Failed Catch Error!");
               // return res
@@ -309,7 +307,7 @@ const saveToDbChat = data => {
             });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         console.log("Find User Seller catch error 1");
         // return res
@@ -322,21 +320,21 @@ const saveToDbChat = data => {
     let user = data.from;
     let seller = data.to;
     Chat.findOne({ user: user, seller: seller })
-      .then(foundPreviousChat => {
+      .then((foundPreviousChat) => {
         if (foundPreviousChat != null) {
           //update previous chat
           foundPreviousChat.msgOffer.push({
             myType: data.type,
             from: data.from,
             to: data.to,
-            payload: data.payload
+            payload: data.payload,
           });
           console.log(`${data.from} and  ${data.to}`);
           console.log("After Push");
 
           foundPreviousChat
             .save()
-            .then(savedChat => {
+            .then((savedChat) => {
               if (savedChat !== null) {
                 console.log(savedChat);
                 console.log("Chat is Updated");
@@ -354,7 +352,7 @@ const saveToDbChat = data => {
                 //   .status(404);
               }
             })
-            .catch(err => {
+            .catch((err) => {
               console.log("catch error: newChat.save ");
               // return res.json({ msg: "catch error: newChat.save " });
             });
@@ -364,14 +362,14 @@ const saveToDbChat = data => {
               myType: data.type,
               payload: data.payload,
               from: user,
-              to: seller
+              to: seller,
             },
             user: user,
-            seller: seller
+            seller: seller,
           });
           newChat
             .save()
-            .then(savedChat => {
+            .then((savedChat) => {
               if (savedChat) {
                 console.log("Chat is Saved");
                 // return res
@@ -388,7 +386,7 @@ const saveToDbChat = data => {
                 //   .status(404);
               }
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err);
               console.log("Catch error of New Chat save");
 
@@ -398,7 +396,7 @@ const saveToDbChat = data => {
             });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         console.log("Find User Seller catch error ''");
         // return res
@@ -413,18 +411,18 @@ const saveOfferToDbChat = (data, socket) => {
   console.log(data);
 
   if (data.isSeller === true) {
-    console.log( "check 1" );
+    console.log("check 1");
     let seller = data.from;
     let user = data.to;
     Chat.findOne({ user: user, seller: seller })
-      .then(foundPreviousChat => {
+      .then((foundPreviousChat) => {
         if (foundPreviousChat != null) {
-          console.log( "chat found!" );
+          console.log("chat found!");
           //update previous chat
           // console.log( data.randomId );
           // console.log( "data.randomId" );
-          console.log( " data.type" );
-          console.log(  data.type );
+          console.log(" data.type");
+          console.log(data.type);
           foundPreviousChat.msgOffer.push({
             myType: data.type,
             payload: data.payload,
@@ -435,7 +433,7 @@ const saveOfferToDbChat = (data, socket) => {
           });
           foundPreviousChat
             .save()
-            .then(savedChat => {
+            .then((savedChat) => {
               if (savedChat !== null) {
                 console.log("Message Sent and Saved");
                 // @todo
@@ -462,28 +460,28 @@ const saveOfferToDbChat = (data, socket) => {
                 //   .status(404);
               }
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err);
               console.log("catch error: newChat.save ");
 
               // return res.json({ msg: "catch error: newChat.save " });
             });
         } else {
-          console.log( "chat not found!" );
+          console.log("chat not found!");
           let newChat = new Chat({
             msgOffer: {
               myType: data.type,
               payload: data.payload,
               from: seller,
               to: user,
-              randomId : data.randomId
+              randomId: data.randomId,
             },
             user: user,
-            seller: seller
+            seller: seller,
           });
           newChat
             .save()
-            .then(savedChat => {
+            .then((savedChat) => {
               if (savedChat) {
                 // @todo
                 data.payload = savedChat.payload;
@@ -508,7 +506,7 @@ const saveOfferToDbChat = (data, socket) => {
                 //   .status(404);
               }
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err);
               console.log("Failed Catch Error!");
               // return res
@@ -517,15 +515,15 @@ const saveOfferToDbChat = (data, socket) => {
             });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         console.log("Find User Seller catch error 1");
         // return res
         //   .json({ msg: "Find User Seller catch error 1", success: false })
         //   .status(500);
       });
-  } else{
-    console.log( "else case" );
+  } else {
+    console.log("else case");
   }
   // else {
   //   let user = data.from;

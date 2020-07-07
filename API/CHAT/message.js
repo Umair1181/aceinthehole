@@ -110,7 +110,7 @@ Router.post("/send-offer", (req, res) => {
               return res
                 .json({
                   msg: "Message Sent and Saved",
-                  savedChat: savedChat,
+                  data: savedChat,
                   success: true,
                 })
                 .status(200);

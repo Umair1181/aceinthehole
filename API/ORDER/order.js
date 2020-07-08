@@ -697,9 +697,9 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
           let tokensArray = [];
           let payload = {
             notification: {
-              title: "New Order!",
+              title: "Service Hired!",
 
-              body: `You Received New Order`,
+              body: `Service Hired`,
             },
             data: {
               orderID: `${orderSaved._id}`,

@@ -16,7 +16,7 @@ Router.post("/add-wishlist", (req, res) => {
     message = false;
   }
   if (message === false) {
-    WishList.findOne({ seller: wishlist.sellerID, user: wishlist.userID })
+    WishList.findOne({ user: wishlist.userID })
       .populate({
         path: "seller",
       })
@@ -109,7 +109,7 @@ Router.post("/add-wishlist", (req, res) => {
                     // resNewWsihlList.service[0].inWishList = true; // updating inWishlist status
                     return res
                       .json({
-                        msg: "New Wish List Added",
+                        msg: "Services Added to WishlList",
                         AddedWishList: resNewWsihlList,
                         success: true,
                       })
@@ -301,14 +301,15 @@ Router.post("/show-wishlist-buyer", (req, res) => {
     message = false;
   }
   if (message === false) {
-    WishList.find({ user: userID })
+    WishList.findOne({ user: userID })
+      //   .populate({
+      //     path: "seller",
+      //     // select: "_id isOnline sellerImgURL email shopName sellerName",
+      //   })
+      //   .populate({ path: "service" })
       .populate({
-        path: "seller",
-        // select: "_id isOnline sellerImgURL email shopName sellerName",
-      })
-      .populate({ path: "service" })
-      .populate({
-        path: "service", //populate: { path: "size" }
+        path: "services",
+        populate: { path: "seller" },
       })
       .then((foundWishList) => {
         if (foundWishList.length > 0) {
@@ -319,7 +320,7 @@ Router.post("/show-wishlist-buyer", (req, res) => {
             return res
               .json({
                 msg: "found WishList",
-                foundWishList: foundWishList,
+                foundWishList: foundWishList.services,
                 success: true,
               })
               .status(200);

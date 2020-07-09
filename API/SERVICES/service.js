@@ -13,6 +13,44 @@ const { COMPLETED, DISPUTE, ORDERCANCELED } = require("../ORDER/orderStatus");
 const ServiceClass = require("../BusinessLogics/service");
 const ServiceRating = require("../BusinessLogics/rating");
 
+//  calculateServiceRat(sellerID) {
+//   let sumation = 0;
+//   let foundServices = await Service.find({ seller: sellerID })
+//     .populate({
+//       path: "seller",
+//     })
+//     .populate({
+//       path: "category",
+//     });
+//   for (let i = 0; i < foundServices.length; i++) {
+//     let foundReviews = await Reviews.find({ service: foundServices[i]._id });
+//     console.log("************************************");
+//     console.log(foundReviews);
+//     let avg = 0;
+//     // .then((foundReviews) => {
+//     if (foundReviews.length > 0) {
+//       for (let k = 0; k < foundReviews.length; k++) {
+//         sumation = sumation + foundReviews[k].rating;
+//       }
+//       avg = sumation / foundReviews.length;
+//       // this.avgRating.push(avg);
+//     } else {
+//       console.log("no rating of this service");
+//     }
+//     console.log("Befor Round Off");
+//     console.log(avg);
+//     console.log("After Round Off");
+//     console.log(Math.round(avg));
+//     foundServices[i].avgRating = Math.round(avg);
+//     let savedRating = await foundServices[i].save();
+//     console.log("savedRating");
+//     console.log(savedRating);
+//     // })
+//   }
+
+//   return foundServices;
+// }
+
 Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
   let { location } = req.body;
   let allTopServices = [];
@@ -588,32 +626,6 @@ Router.post("/show-all-services-of-specific-seller", (req, res) => {
       console.log(err);
       return res.json({ msg: "Failed!", success: false }).status(505);
     });
-
-  // Service.find({ seller: sellerID, isBlock: false })
-  //   .populate({ path: "seller" })
-  //   .then((foundService) => {
-  //     if (foundService.length > 0) {
-
-  //       return res
-  //         .json({
-  //           msg: "all-services-of-specific-seller",
-  //           foundService: foundService,
-  //           success: true,
-  //         })
-  //         .status(200);
-  //     } else {
-  //       return res
-  //         .json({
-  //           msg: "No Service Found!",
-  //           success: false,
-  //         })
-  //         .status(400);
-  //     }
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //     return res.json({ msg: "Failed!", success: false }).status(505);
-  //   });
 });
 
 Router.post(

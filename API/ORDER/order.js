@@ -1,6 +1,7 @@
 const Router = require("express").Router();
 const { Order, Reviews, Service, Notifications } = require("../../MODELS");
 const notificationSend = require("../NOTIFICATIONS/notifyConfig");
+const { update } = require("../../MODELS/cart");
 ////////////////////////////////////////////////////////////////
 Router.post("/change-order-status", (req, res) => {
   let { orderID, orderStatus } = req.body;
@@ -568,7 +569,32 @@ Router.post("/show-orders-with-status", (req, res) => {
       return res.json({ msg: "Failed", success: false }).status(404);
     });
 });
+updateServicesAvgRating = async (serviceID) => {
+  let foundReviews = await Reviews.find({
+    service: serviceID,
+  });
 
+  if (foundReviews.length > 0) {
+    console.log(foundReviews);
+    let ratingSum = 0;
+    let ratingAvg = 0;
+    for (let i = 0; i < foundReviews.length; i++) {
+      const eachReview = foundReviews[i];
+
+      ratingSum = eachReview.rating + ratingSum;
+    }
+    ratingAvg = ratingSum / foundReviews.length;
+    let foundService = await Service.findOne({
+      _id: serviceID,
+    });
+    foundService.avgRating = ratingAvg;
+    let updateServieRating = await foundService.save();
+    if (updateServieRating) {
+      console.log("updated Service Rating");
+    }
+  }
+  return "Updated";
+};
 ////////////////////////////////////////////////////////////////
 Router.post("/add-new-review", (req, res) => {
   let { orderID, serviceID, userID, description, rating } = req.body;
@@ -583,11 +609,19 @@ Router.post("/add-new-review", (req, res) => {
 
   newReviews
     .save()
-    .then((reviewSaved) => {
+    .then(async (reviewSaved) => {
       if (reviewSaved) {
-        return res
-          .json({ msg: "newReview Created", reviewSaved, success: true })
-          .status(200);
+        let updateRating = await updateServicesAvgRating(serviceID);
+        if (updateRating === "Updated") {
+          return res
+            .json({
+              msg: "newReview Created",
+              reviewSaved,
+              updateRating,
+              success: true,
+            })
+            .status(200);
+        }
       } else {
         return res
           .json({ msg: "No Review Created", success: false })

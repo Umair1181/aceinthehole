@@ -319,7 +319,9 @@ Router.post("/show-wishlist-buyer", (req, res) => {
           return res
             .json({
               msg: "found WishList",
-              foundWishList: foundWishList.services,
+              wishListID: foundWishList._id,
+
+              wishListServices: foundWishList.services,
               success: true,
             })
             .status(200);

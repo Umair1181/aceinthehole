@@ -17,12 +17,13 @@ Router.post("/add-wishlist", (req, res) => {
   }
   if (message === false) {
     WishList.findOne({ user: wishlist.userID })
-      .populate({
-        path: "seller",
-      })
+      //   .populate({
+      //     path: "seller",
+      //   })
       .then((WishListExist) => {
         if (WishListExist !== null) {
-          WishListExist.service.push(wishlist.serviceID);
+          //   return res.json(WishListExist);
+          WishListExist.services.push(wishlist.serviceID);
           WishListExist.save()
             .then((savedWishList) => {
               if (savedWishList !== null) {
@@ -32,7 +33,7 @@ Router.post("/add-wishlist", (req, res) => {
                     // select:
                     //   "_id isOnline sellerImgURL email shopName sellerName",
                   })
-                  .populate({ path: "seller" })
+                  //   .populate({ path: "seller" })
                   //   .populate({ path: "size" })
                   //   .populate({
                   //     path: "review",
@@ -146,7 +147,7 @@ Router.post("/add-wishlist", (req, res) => {
       })
       .catch((err) => {
         return res
-          .json({ msg: "catch error: service not exist", success: false })
+          .json({ msg: "catch error: service not exist", err, success: false })
           .status(400);
       });
   } else {

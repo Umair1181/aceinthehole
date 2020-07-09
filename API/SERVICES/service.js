@@ -577,16 +577,6 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
           .status(200);
       }
     });
-    // return res
-    //   .json({
-    //     msg: "Top Ten Most Hired Services",
-    //     topServices,
-    //     // toalOrders,
-    //     // total: toalOrders.length,
-    //     // foundService: servicesWithStatus,
-    //     success: true,
-    //   })
-    //   .status(200);
   } else {
     return res
       .json({
@@ -596,17 +586,11 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
       .status(400);
   }
 });
-// })
-// .catch((err) => {
-//   console.log(err);
-//   return res.json({ msg: "Failed!", success: false }).status(505);
-// });
-// });
 
 Router.post("/show-all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;
-  new ServiceRating()
-    .calculateServiceRat(sellerID)
+
+  Service.find({ seller: sellerID })
     .then((foundServices) => {
       if (foundServices.length > 0) {
         return res

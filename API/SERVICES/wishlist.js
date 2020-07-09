@@ -10,7 +10,7 @@ Router.post("/add-wishlist", (req, res) => {
     message = "Invalid Seller";
   } else if (wishlist.userID === "") {
     message = "Invalid userID";
-  } else if (wishlist.serviceID === "") {
+  } else if (wishlist.serviceID === "" && wishlist.serviceID === null) {
     message = "Invalid serviceID";
   } else {
     message = false;
@@ -209,18 +209,18 @@ Router.post("/delete-wishlist", (req, res) => {
       .then((wishListDeleted) => {
         console.log(wishListDeleted);
         if (wishListDeleted) {
-          WishList.findOne({ _id: wishlist.wishlistID })
+          WishList.findOne({ user: wishlist.userID })
             .then((foundWishlst) => {
               if (foundWishlst !== null) {
                 if (foundWishlst.services.length < 1) {
-                  WishList.remove({ _id: wishlist.wishlistID })
+                  WishList.remove({ _id: foundWishlst._id })
                     .then((widhListRemove) => {
                       return res
                         .json({
-                          msg: "service Deleted From WishList",
+                          msg: "WishList Deleted",
                           Deleted: {
-                            wishlistID: wishlist.wishlistID,
-                            sellerID: wishlist.sellerID,
+                            // wishlistID: wishlist.wishlistID,
+                            // sellerID: wishlist.sellerID,
                             serviceID: wishlist.serviceID,
                           },
 
@@ -244,8 +244,8 @@ Router.post("/delete-wishlist", (req, res) => {
                     .json({
                       msg: "service Deleted From WishList",
                       Deleted: {
-                        wishlistID: wishlist.wishlistID,
-                        sellerID: wishlist.sellerID,
+                        // wishlistID: wishlist.wishlistID,
+                        // sellerID: wishlist.sellerID,
                         serviceID: wishlist.serviceID,
                       },
                       success: true,

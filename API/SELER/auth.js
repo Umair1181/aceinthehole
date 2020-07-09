@@ -158,9 +158,9 @@ Router.post("/seller-order-completion-rate", async (req, res) => {
 });
 
 Router.post("/all-sellers-details", (req, res) => {
-  new SellerRating()
-    .calculateSellerRat()
-    // Seller.find()
+  // new SellerRating()
+  //   .calculateSellerRat()
+  Seller.find()
     .then((foundSeller) => {
       if (foundSeller.length > 0) {
         foundSeller.password = "";

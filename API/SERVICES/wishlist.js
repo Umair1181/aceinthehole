@@ -193,67 +193,72 @@ Router.post("/add-wishlist", (req, res) => {
 Router.post("/delete-wishlist", (req, res) => {
   let { wishlist } = req.body;
   let message = "";
-  if (wishlist.seller === "") {
-    message = "Invalid seller";
-  } else if (wishlist.user === "") {
-    message = "Invalid User";
-  } else if (wishlist._id === "") {
-    message = "Invalid _id";
-  } else if (wishlist.service === "") {
-    message = "Invalid service";
+  if (wishlist.sellerID === "") {
+    message = "Invalid sellerID";
+  } else if (wishlist.userID === "") {
+    message = "Invalid UserID";
+  } else if (wishlist.wishlistID === "") {
+    message = "Invalid wishlistID";
+  } else if (wishlist.serviceID === "") {
+    message = "Invalid serviceID";
   } else {
     message = false;
   }
   if (message === false) {
-    console.log("wishlist here");
-    console.log(wishlist.service);
     WishList.update(
-      { _id: wishlist._id },
-      { $pull: { service: wishlist.service } }
+      { _id: wishlist.wishlistID },
+      { $pull: { services: wishlist.serviceID } }
     )
       .then((wishListDeleted) => {
         console.log(wishListDeleted);
         if (wishListDeleted) {
-          WishList.findOne({ _id: wishlist._id })
+          WishList.findOne({ _id: wishlist.wishlistID })
             .then((foundWishlst) => {
-              if (foundWishlst.service.length < 1) {
-                WishList.remove({ _id: wishlist._id })
-                  .then((widhListRemove) => {
-                    return res
-                      .json({
-                        msg: "service Deleted From WishList",
-                        Deledservice: {
-                          _id: wishlist._id,
-                          seller: wishlist.seller,
-                          service: wishlist.service,
-                        },
+              if (foundWishlst !== null) {
+                if (foundWishlst.services.length < 1) {
+                  WishList.remove({ _id: wishlist.wishlistID })
+                    .then((widhListRemove) => {
+                      return res
+                        .json({
+                          msg: "service Deleted From WishList",
+                          Deleted: {
+                            wishlistID: wishlist.wishlistID,
+                            sellerID: wishlist.sellerID,
+                            serviceID: wishlist.serviceID,
+                          },
 
-                        success: true,
-                      })
-                      .status(200);
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                    console.log("wishList Removed cath error");
-                    return res
-                      .json({
-                        msg: "Failed! Wsh list remove catch error",
-                        success: false,
-                      })
-                      .status(500);
-                  });
+                          success: true,
+                        })
+                        .status(200);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                      console.log("wishList Removed cath error");
+                      return res
+                        .json({
+                          msg: "Failed! Wsh list remove catch error",
+                          success: false,
+                        })
+                        .status(500);
+                    });
+                } else {
+                  console.log("case");
+                  return res
+                    .json({
+                      msg: "service Deleted From WishList",
+                      Deleted: {
+                        wishlistID: wishlist.wishlistID,
+                        sellerID: wishlist.sellerID,
+                        serviceID: wishlist.serviceID,
+                      },
+                      success: true,
+                    })
+                    .status(200);
+                }
               } else {
                 return res
-                  .json({
-                    msg: "service Deleted From WishList",
-                    Deledservice: {
-                      _id: wishlist._id,
-                      seller: wishlist.seller,
-                      service: wishlist.service,
-                    },
-                    success: true,
-                  })
-                  .status(200);
+                  .json({ msg: "Wish List Not Found", success: false })
+                  .status(500);
               }
             })
             .catch((err) => {

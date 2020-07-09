@@ -587,7 +587,7 @@ updateServicesAvgRating = async (serviceID) => {
     let foundService = await Service.findOne({
       _id: serviceID,
     });
-    foundService.avgRating = ratingAvg;
+    foundService.avgRating = Math.round(ratingAvg);
     let updateServieRating = await foundService.save();
     if (updateServieRating) {
       console.log("updated Service Rating");

@@ -286,49 +286,51 @@ Router.post("/delete-wishlist", (req, res) => {
 ///////////////////////////////
 
 Router.post("/show-wishlist-buyer", (req, res) => {
-  let { user } = req.body;
+  let { userID } = req.body;
   let message = false;
   let serviceOfWishlist = [];
   let count = 0;
-  if (user === "") {
-    message = "Invalid User";
+  if (userID === "") {
+    message = "Invalid UserID";
   } else {
     message = false;
   }
   if (message === false) {
-    WishList.find({ user: user })
+    WishList.find({ user: userID })
       .populate({
         path: "seller",
-        select: "_id isOnline sellerImgURL email shopName sellerName",
+        // select: "_id isOnline sellerImgURL email shopName sellerName",
       })
-      .populate({ path: "service", populate: { path: "color" } })
-      .populate({ path: "service", populate: { path: "size" } })
+      .populate({ path: "service" })
+      .populate({
+        path: "service", //populate: { path: "size" }
+      })
       .then((foundWishList) => {
         if (foundWishList.length > 0) {
-          new serviceClass()
-            .checkShowAllWishListservice(foundWishList, user)
-            .then((finalFoundservice) => {
-              if (finalFoundservice !== null) {
-                return res
-                  .json({
-                    msg: "Wisl List service",
-                    foundWishList: finalFoundservice,
-                    success: true,
-                  })
-                  .status(200);
-                // return res
-                //   .json({
-                //     msg: "All service against Categories",
-                //     serviceCategories: finalFoundservice,
-                //     success: true
-                //   })
-                //   .status(400);
-              } else {
-                return res
-                  .json({ msg: "service Not found", success: false })
-                  .status(404);
-              }
-            });
+          //   new serviceClass()
+          // .checkShowAllWishListservice(foundWishList, userID)
+          // .then((finalFoundservice) => {
+          if (foundWishList !== null) {
+            return res
+              .json({
+                msg: "found WishList",
+                foundWishList: foundWishList,
+                success: true,
+              })
+              .status(200);
+            // return res
+            //   .json({
+            //     msg: "All service against Categories",
+            //     serviceCategories: finalFoundservice,
+            //     success: true
+            //   })
+            //   .status(400);
+          } else {
+            return res
+              .json({ msg: "WishList Not found", success: false })
+              .status(404);
+          }
+          // });
           // return res.json({
           //   msg: "Wisl List service",
           //   foundWishList: foundWishList,

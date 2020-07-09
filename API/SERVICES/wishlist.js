@@ -45,7 +45,7 @@ Router.post("/add-wishlist", (req, res) => {
                     //   .then((serviceWithStatus) => {
                     return res
                       .json({
-                        msg: "Previous WishList Updated",
+                        msg: "Services Added to WishlList",
                         savedWishList: savedWishList._id,
                         seller: savedWishList.seller,
                         service: service,
@@ -196,12 +196,8 @@ Router.post("/delete-wishlist", (req, res) => {
   let message = "";
   if (wishlist.sellerID === "") {
     message = "Invalid sellerID";
-  } else if (wishlist.userID === "") {
-    message = "Invalid UserID";
   } else if (wishlist.wishlistID === "") {
     message = "Invalid wishlistID";
-  } else if (wishlist.serviceID === "") {
-    message = "Invalid serviceID";
   } else {
     message = false;
   }

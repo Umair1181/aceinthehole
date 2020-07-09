@@ -312,41 +312,36 @@ Router.post("/show-wishlist-buyer", (req, res) => {
         populate: { path: "seller" },
       })
       .then((foundWishList) => {
-        if (foundWishList.length > 0) {
-          //   new serviceClass()
-          // .checkShowAllWishListservice(foundWishList, userID)
-          // .then((finalFoundservice) => {
-          if (foundWishList !== null) {
-            return res
-              .json({
-                msg: "found WishList",
-                foundWishList: foundWishList.services,
-                success: true,
-              })
-              .status(200);
-            // return res
-            //   .json({
-            //     msg: "All service against Categories",
-            //     serviceCategories: finalFoundservice,
-            //     success: true
-            //   })
-            //   .status(400);
-          } else {
-            return res
-              .json({ msg: "WishList Not found", success: false })
-              .status(404);
-          }
-          // });
-          // return res.json({
-          //   msg: "Wisl List service",
-          //   foundWishList: foundWishList,
-          //   success: true
-          // });
+        //   new serviceClass()
+        // .checkShowAllWishListservice(foundWishList, userID)
+        // .then((finalFoundservice) => {
+        if (foundWishList !== null) {
+          return res
+            .json({
+              msg: "found WishList",
+              foundWishList: foundWishList.services,
+              success: true,
+            })
+            .status(200);
+          // return res
+          //   .json({
+          //     msg: "All service against Categories",
+          //     serviceCategories: finalFoundservice,
+          //     success: true
+          //   })
+          //   .status(400);
         } else {
           return res
-            .json({ msg: "No service Found!", success: false })
-            .status(500);
+            .json({ msg: "WishList Not found", success: false })
+            .status(404);
         }
+        // });
+        // return res.json({
+        //   msg: "Wisl List service",
+        //   foundWishList: foundWishList,
+        //   success: true
+        // });
+
         // foundWishList.forEach(pro => {
         //   console.log(pro.service.length);
         //   if (pro.service.length > 0) {
@@ -379,7 +374,9 @@ Router.post("/show-wishlist-buyer", (req, res) => {
       })
       .catch((err) => {
         console.log("cath 1");
-        return res.json({ msg: "catch error", success: false }).status(500);
+        return res
+          .json({ msg: "catch error", err, success: false })
+          .status(500);
       });
   } else {
     return res.json({ msg: message, success: false }).status(404);

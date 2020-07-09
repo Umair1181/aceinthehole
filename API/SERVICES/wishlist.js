@@ -215,16 +215,16 @@ Router.post("/add-wishlist", (req, res) => {
 Router.post("/delete-wishlist", (req, res) => {
   let { wishlist } = req.body;
   let message = "";
-  if (wishlist.sellerID === "") {
-    message = "Invalid sellerID";
-  } else if (wishlist.wishlistID === "") {
-    message = "Invalid wishlistID";
+  if (wishlist.serviceID === "") {
+    message = "Invalid serviceID";
+  } else if (wishlist.userID === "") {
+    message = "Invalid userID";
   } else {
     message = false;
   }
   if (message === false) {
     WishList.update(
-      { _id: wishlist.wishlistID },
+      { user: wishlist.userID },
       { $pull: { services: wishlist.serviceID } }
     )
       .then((wishListDeleted) => {

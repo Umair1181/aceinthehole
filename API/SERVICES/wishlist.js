@@ -5,23 +5,44 @@ const { WishList, Service } = require("../../MODELS");
 Router.post("/add-wishlist", (req, res) => {
   let { wishlist } = req.body;
   let serviceArray = [];
-  let message = "";
+  let message = false;
   if (wishlist.sellerID === "") {
     message = "Invalid Seller";
-  } else if (wishlist.userID === "") {
+  }
+  if (wishlist.userID === "") {
     message = "Invalid userID";
-  } else if (wishlist.serviceID === "" && wishlist.serviceID === null) {
+  }
+  if (wishlist.serviceID === "" && wishlist.serviceID == null) {
     message = "Invalid serviceID";
   } else {
     message = false;
   }
+
   if (message === false) {
+    // return res.json({ wishlist: wishlist.sellerID });
+
     WishList.findOne({ user: wishlist.userID })
       //   .populate({
       //     path: "seller",
       //   })
-      .then((WishListExist) => {
+      .then(async (WishListExist) => {
         if (WishListExist !== null) {
+          console.log("WishListExist.services.length");
+          console.log(WishListExist.services.length);
+          for (let index = 0; index < WishListExist.services.length; index++) {
+            const element = await WishListExist.services[index];
+            console.log(`${wishlist.serviceID == element}`);
+
+            if (wishlist.serviceID == element) {
+              return res
+                .json({
+                  msg: "This Service Already added in wishList",
+                  success: false,
+                })
+                .status(500);
+            }
+          }
+          //   return res.json({ m: WishListExist, msg: "Not matched in loop" });
           //   return res.json(WishListExist);
           WishListExist.services.push(wishlist.serviceID);
           WishListExist.save()

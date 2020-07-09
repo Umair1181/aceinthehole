@@ -10,6 +10,7 @@ const Reviews = require("./reviews");
 const Cart = require("./cart");
 const Chat = require("./chat");
 const Notifications = require("./notifications");
+const WishList = require("./whishList");
 //////////////// Modals Are Exporting ///////////////
 module.exports = {
   Seller,
@@ -24,4 +25,5 @@ module.exports = {
   Cart,
   Chat,
   Notifications,
+  WishList,
 };

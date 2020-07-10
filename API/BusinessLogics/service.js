@@ -9,8 +9,10 @@ class Service {
   async checkServiceinWishList(serviceArray, userID) {
     for (let index = 0; index < serviceArray.length; index++) {
       const eachService = serviceArray[index];
-      console.log("in Loop of checking servie in wishlist");
 
+      console.log("in Loop of checking servie in wishlist");
+      console.log("eachService");
+      // console.log(eachService[0]._id);
       let wishListStatus = await new Wishlist().checkinWishList(
         eachService._id,
         userID

@@ -4,6 +4,8 @@ class wishlist {
     this.inWishList = false;
   }
   async checkinWishList(serviceID, userID) {
+    console.log("serviceID");
+    console.log(serviceID);
     await WishList.findOne({ user: userID, services: serviceID })
       .then((foundWishList) => {
         if (foundWishList !== null) {

@@ -370,30 +370,32 @@ Router.post("/show-all-services", async (req, res) => {
         bLo
       );
       if (allServices !== false) {
-        console.log("allServices");
-        console.log(allServices);
+        // console.log("allServices");
+        // console.log(allServices);
         if (allServices.length > 0) {
+          let allServicesArray = [];
+          for (let k = 0; k < allServices.length; k++) {
+            for (let j = 0; j < allServices[k].length; j++) {
+              await allServicesArray.push(allServices[k][j]);
+            }
+          }
+          // return res.json(allServices);
           await new ServiceClass()
-            .checkServiceinWishList(allServices, userID)
+            .checkServiceinWishList(allServicesArray, userID)
             .then(async (servicesWithStatus) => {
               if (servicesWithStatus.length > 0) {
-                console.log("**************waooo********************");
-                console.log("servicesWithStatus.length");
-                console.log(servicesWithStatus.length);
-                let allServicesArray = [];
-                for (let k = 0; k < servicesWithStatus.length; k++) {
-                  for (let j = 0; j < servicesWithStatus[k].length; j++) {
-                    // const element = array[j];
-                    console.log(servicesWithStatus[k][j]);
-                    await allServicesArray.push(servicesWithStatus[k][j]);
-                  }
-                }
+                // let allServicesArray = [];
+                // for (let k = 0; k < servicesWithStatus.length; k++) {
+                //   for (let j = 0; j < servicesWithStatus[k].length; j++) {
+                //     await allServicesArray.push(servicesWithStatus[k][j]);
+                //   }
+                // }
 
-                console.log("*************kaoo*********************");
                 return res
                   .json({
-                    msg: "All Nearest Seller Services with status of in cart!",
-                    foundServices: allServicesArray,
+                    msg:
+                      "All Nearest Seller Services with status of in wishlist!",
+                    foundServices: servicesWithStatus,
                     success: true,
                   })
                   .status(200);

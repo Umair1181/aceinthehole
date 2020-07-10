@@ -253,8 +253,8 @@ Router.post("/show-all-services-of-specific-category", async (req, res) => {
         console.log("allServices");
         console.log(allServices);
         if (allServices.length > 0) {
-          new ServiceClass()
-            .checkServiceInCart(allServices, userID)
+          await new ServiceClass()
+            .checkServiceinWishList(allServices, userID)
             .then(async (servicesWithStatus) => {
               let allServicesArray = [];
               if (servicesWithStatus.length > 0) {
@@ -374,7 +374,7 @@ Router.post("/show-all-services", async (req, res) => {
         console.log(allServices);
         if (allServices.length > 0) {
           await new ServiceClass()
-            .checkServiceInCart(allServices, userID)
+            .checkServiceinWishList(allServices, userID)
             .then(async (servicesWithStatus) => {
               if (servicesWithStatus.length > 0) {
                 console.log("**************waooo********************");
@@ -432,39 +432,39 @@ Router.post("/show-all-services", async (req, res) => {
     }
 
     /////////////////
-    Service.find({ isBlock: false, isLive: true })
-      .populate({ path: "seller" })
-      .populate({ path: "category" })
-      .then((foundServices) => {
-        new ServiceClass()
-          .checkServiceInCart(foundServices, userID)
-          .then((servicesWithStatus) => {
-            if (servicesWithStatus.length > 0) {
-              return res
-                .json({
-                  msg: "All Services with status of in cart!",
-                  foundServices: servicesWithStatus,
-                  success: true,
-                })
-                .status(200);
-            } else {
-              return res
-                .json({
-                  msg: "No Service Found!",
-                  success: false,
-                })
-                .status(400);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            return res.json({ msg: "Failed!", success: false }).status(505);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-        return res.json({ msg: "Failed!", success: false }).status(505);
-      });
+    // Service.find({ isBlock: false, isLive: true })
+    //   .populate({ path: "seller" })
+    //   .populate({ path: "category" })
+    //   .then(async (foundServices) => {
+    //     await new ServiceClass()
+    //       .checkServiceinWishList(foundServices, userID)
+    //       .then((servicesWithStatus) => {
+    //         if (servicesWithStatus.length > 0) {
+    //           return res
+    //             .json({
+    //               msg: "All Services with status of in cart!",
+    //               foundServices: servicesWithStatus,
+    //               success: true,
+    //             })
+    //             .status(200);
+    //         } else {
+    //           return res
+    //             .json({
+    //               msg: "No Service Found!",
+    //               success: false,
+    //             })
+    //             .status(400);
+    //         }
+    //       })
+    //       .catch((err) => {
+    //         console.log(err);
+    //         return res.json({ msg: "Failed!", success: false }).status(505);
+    //       });
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     return res.json({ msg: "Failed!", success: false }).status(505);
+    //   });
   } else {
     return res.json({ msg: message, success: false }).status(500);
   }

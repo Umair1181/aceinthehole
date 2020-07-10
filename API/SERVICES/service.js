@@ -253,23 +253,22 @@ Router.post("/show-all-services-of-specific-category", async (req, res) => {
         console.log("allServices");
         console.log(allServices);
         if (allServices.length > 0) {
+          let allServicesArray = [];
+          for (let k = 0; k < allServices.length; k++) {
+            for (let j = 0; j < allServices[k].length; j++) {
+              // const element = array[j];
+              console.log(allServices[k][j]);
+              await allServicesArray.push(allServices[k][j]);
+            }
+          }
           await new ServiceClass()
-            .checkServiceinWishList(allServices, userID)
-            .then(async (servicesWithStatus) => {
-              let allServicesArray = [];
-              if (servicesWithStatus.length > 0) {
-                for (let k = 0; k < servicesWithStatus.length; k++) {
-                  for (let j = 0; j < servicesWithStatus[k].length; j++) {
-                    // const element = array[j];
-                    console.log(servicesWithStatus[k][j]);
-                    await allServicesArray.push(servicesWithStatus[k][j]);
-                  }
-                }
-
+            .checkServiceinWishList(allServicesArray, userID)
+            .then(async (allServicesArr) => {
+              if (allServicesArr.length > 0) {
                 return res
                   .json({
                     msg: "all-services-of-specific-category-with-cart-status",
-                    foundService: allServicesArray,
+                    foundService: allServicesArr,
                     success: true,
                   })
                   .status(200);

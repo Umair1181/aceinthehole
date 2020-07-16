@@ -34,7 +34,7 @@ Router.post("/change-order-status", (req, res) => {
               let tokensArray = [];
               let payload = {
                 notification: {
-                  title: `Order ${orderStatus}`,
+                  title: `Order ${orderStatus + "by" + statusChangeBy}`,
 
                   body: `Order ${orderStatus}`,
                 },

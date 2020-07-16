@@ -159,7 +159,7 @@ Router.post(
 Router.post("/show-completed-paid-nonpaid-orders-list", (req, res) => {
   let { isPaid } = req.body;
   console.log(isPaid);
-  Order.find({ isPaid: isPaid })
+  Order.find({ orderStatus: "COMPLETED", isPaid: isPaid })
     .populate({ path: "user" })
     .populate({ path: "service" })
     .populate({ path: "service", populate: { path: "seller" } })

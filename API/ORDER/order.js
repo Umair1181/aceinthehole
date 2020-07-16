@@ -9,6 +9,9 @@ Router.post("/change-order-status", (req, res) => {
     .then((foundOrder) => {
       if (foundOrder !== null) {
         foundOrder.orderStatus = orderStatus;
+        if (statusChangeBy !== null) {
+          foundOrder.statusChangeBy = statusChangeBy;
+        }
         foundOrder.sattusUpdateDate = Date.now();
         foundOrder
           .save()
@@ -94,6 +97,9 @@ Router.post("/change-order-status", (req, res) => {
             return res.json({ msg: "Failed!", success: false }).status(505);
           });
       } else {
+        return res
+          .json({ msg: " Order Not Found", success: false })
+          .status(500);
       }
     })
     .catch((err) => {

@@ -27,6 +27,11 @@ const Order = new Schema({
     type: Boolean,
     default: false,
   },
+  statusChangeBy: {
+    //ORDER STATUS CHANGE BY
+    type: String,
+    default: "SELLER",
+  },
   orderStatus: {
     type: String,
     default: "NEWORDER", // COMPLETED,DISPUTE,ORDERCANCELED,DELIVERED

@@ -73,7 +73,7 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
           let payload = {
             notification: {
               title: "Dispute Created!",
-              body: `Your Order has dispute`,
+              body: `Your Order has been disputed`,
             },
             data: {
               orderID: `${dispute.orderID}`,

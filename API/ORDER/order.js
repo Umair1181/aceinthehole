@@ -4,7 +4,7 @@ const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 const { update } = require("../../MODELS/cart");
 ////////////////////////////////////////////////////////////////
 Router.post("/change-order-status", (req, res) => {
-  let { orderID, orderStatus } = req.body;
+  let { orderID, orderStatus, statusChangeBy } = req.body;
   Order.findOne({ _id: orderID })
     .then((foundOrder) => {
       if (foundOrder !== null) {
@@ -80,7 +80,7 @@ Router.post("/change-order-status", (req, res) => {
               ////////////////////////////
               return res
                 .json({
-                  msg: `Order status=${savedOrder.orderStatus}`,
+                  msg: `Order status= ${savedOrder.orderStatus}`,
                   savedOrder,
                   success: true,
                 })
@@ -741,7 +741,7 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
             notification: {
               title: "Service Hired!",
 
-              body: `Service Hired`,
+              body: `Service Has Been Hired`,
             },
             data: {
               orderID: `${orderSaved._id}`,

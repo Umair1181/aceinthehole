@@ -11,6 +11,8 @@ Router.post("/change-order-status", (req, res) => {
         foundOrder.orderStatus = orderStatus;
         if (statusChangeBy !== null) {
           foundOrder.statusChangeBy = statusChangeBy;
+        } else {
+          foundOrder.statusChangeBy = "SELLER";
         }
         foundOrder.sattusUpdateDate = Date.now();
         foundOrder

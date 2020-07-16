@@ -503,6 +503,7 @@ const getServicesOfNearesSellers = async (
     if (distance <= 100) {
       console.log(SellersList[x]._id);
       let founServices = await Service.find({
+        isBlock: false,
         seller: SellersList[x]._id,
       }).populate({ path: "seller" });
       // let obj = {
@@ -591,7 +592,7 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
 Router.post("/show-all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;
 
-  Service.find({ seller: sellerID })
+  Service.find({ seller: sellerID, isBlock: false })
     .then((foundServices) => {
       if (foundServices.length > 0) {
         return res

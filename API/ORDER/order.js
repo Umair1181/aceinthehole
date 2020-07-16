@@ -270,7 +270,10 @@ Router.post("/search-top-rated-services-by-name", (req, res) => {
     message = false;
   }
   if (message === false) {
-    Service.find({ serviceName: new RegExp(`^${serviceName}`, "i") })
+    Service.find({
+      isBlock: false,
+      serviceName: new RegExp(`^${serviceName}`, "i"),
+    })
       .then((foundServices) => {
         if (foundServices.length > 0) {
           return res
@@ -331,7 +334,7 @@ Router.post("/show-rating-of-specific-seller", async (req, res) => {
   let sumRating = 0;
   let avgSellerRating = 0;
   let count = 0;
-  let foundServices = await Service.find({ seller: sellerID });
+  let foundServices = await Service.find({ seller: sellerID, isBlock: false });
   if (foundServices.length > 0) {
     for (let k = 0; k < foundServices.length; k++) {
       if (foundServices[k].avgRating !== 0) {
@@ -397,7 +400,7 @@ Router.post("/show-all-orders-of-user-with-status", (req, res) => {
 ////////////////////////////////////////////////////////////////
 Router.post("/show-all-orders-of-seller-with-status", (req, res) => {
   let { sellerID, orderStatus } = req.body;
-  Service.find({ seller: sellerID })
+  Service.find({ seller: sellerID, isBlock: false })
     .populate({
       path: "user",
     })
@@ -438,7 +441,7 @@ Router.post("/show-all-orders-of-seller-with-status", (req, res) => {
 ////////////////////////////////////////////////////////////////
 Router.post("/show-all-orders-of-seller", (req, res) => {
   let { sellerID } = req.body;
-  Service.find({ seller: sellerID })
+  Service.find({ seller: sellerID, isBlock: false })
     .then((foundServices) => {
       if (foundServices.length > 0) {
         Order.find({ service: foundServices })

@@ -7,6 +7,97 @@ const {
   ServiceCategory,
   User,
 } = require("../../MODELS");
+
+Router.post("/admin-can-block-unblock-any-service", (req, res) => {
+  let { serviceID, isBlock } = req.body;
+
+  Service.findOne({ _id: serviceID })
+    .populate({ path: "seller" })
+    .then(async (foundservice) => {
+      if (foundservice !== null) {
+        foundservice.isBlock = isBlock;
+        //////////////////////////////////////
+
+        let tokensArray = [];
+        let payload = {
+          notification: {
+            title: `Service blocked`,
+
+            body: `Your Service Has Been Blocked`,
+          },
+          data: {
+            serviceID: `${serviceID}`,
+          },
+        };
+        //working on save notifications
+        let newNotification = await new Notifications({
+          title: payload.notification.title,
+          body: payload.notification.body,
+          service: serviceID,
+          // user: foundservice.user,
+          notificationFor: "SELLER",
+          notificationType: `BLOCKSERVICE`,
+          // order: savedOrder._id,
+          notificationDateTime: Date.now(),
+        });
+        let saveNotification = newNotification.save();
+        if (saveNotification) {
+          console.log("Notification Saved");
+        } else {
+          console.log("Notification Not Saved");
+        }
+
+        if (foundservice.seller.mobileFcToken !== null) {
+          tokensArray.push(foundservice.seller.mobileFcToken);
+        }
+        if (foundservice.seller.webFcToken !== null) {
+          tokensArray.push(foundservice.seller.webFcToken);
+        }
+        let isSendNotification = await notificationSend(tokensArray, payload);
+        console.log(isSendNotification);
+        if (isSendNotification) {
+          console.log("Notification sent to Seller");
+        }
+        ////////////////////////////////////////
+        foundservice
+          .save()
+          .then((savedservice) => {
+            if (savedservice) {
+              return res
+                .json({
+                  msg: `service ${
+                    savedservice.isBlock ? "Blocked" : "NotBlock"
+                  }`,
+                  savedservice,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: `Not Save`,
+
+                  success: false,
+                })
+                .status(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res
+              .json({ msg: "Failed save!", success: false })
+              .status(505);
+          });
+      } else {
+        return res.json({ msg: "Not Found", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 const getweeklyDates = (month, startDays, endDays, res) => {
   let startDate = new Date().setMonth(month - 1);
   if (endDays === "addMonth") {
@@ -443,53 +534,6 @@ Router.post("/number-of-orders-in-given-duration", (req, res) => {
             success: false,
           })
           .status(404);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.json({ msg: "Failed!", success: false }).status(505);
-    });
-});
-
-Router.post("/admin-can-block-unblock-any-service", (req, res) => {
-  let { serviceID, isBlock } = req.body;
-
-  Service.findOne({ _id: serviceID })
-    .then((foundservice) => {
-      if (foundservice !== null) {
-        foundservice.isBlock = isBlock;
-
-        foundservice
-          .save()
-          .then((savedservice) => {
-            if (savedservice) {
-              return res
-                .json({
-                  msg: `service ${
-                    savedservice.isBlock ? "Blocked" : "NotBlock"
-                  }`,
-                  savedservice,
-                  success: true,
-                })
-                .status(200);
-            } else {
-              return res
-                .json({
-                  msg: `Not Save`,
-
-                  success: false,
-                })
-                .status(404);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            return res
-              .json({ msg: "Failed save!", success: false })
-              .status(505);
-          });
-      } else {
-        return res.json({ msg: "Not Found", success: false }).status(404);
       }
     })
     .catch((err) => {

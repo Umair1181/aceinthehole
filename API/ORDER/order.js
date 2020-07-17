@@ -5,14 +5,17 @@ const { update } = require("../../MODELS/cart");
 ////////////////////////////////////////////////////////////////
 Router.post("/change-order-status", (req, res) => {
   let { orderID, orderStatus, statusChangeBy } = req.body;
+  let setStatusChangeBy = null;
+  setStatusChangeBy = statusChangeBy;
   Order.findOne({ _id: orderID })
     .then((foundOrder) => {
       if (foundOrder !== null) {
         foundOrder.orderStatus = orderStatus;
-        if (statusChangeBy !== null) {
-          foundOrder.statusChangeBy = statusChangeBy;
+        if (setStatusChangeBy !== null) {
+          foundOrder.statusChangeBy = setStatusChangeBy;
         } else {
           foundOrder.statusChangeBy = "SELLER";
+          setStatusChangeBy = "SELLER";
         }
         foundOrder.sattusUpdateDate = Date.now();
         foundOrder
@@ -38,7 +41,7 @@ Router.post("/change-order-status", (req, res) => {
                 notification: {
                   title: `Order ${orderStatus}`,
 
-                  body: `Order ${orderStatus + " by " + statusChangeBy}`,
+                  body: `Order ${orderStatus + " by " + setStatusChangeBy}`,
                 },
                 data: {
                   orderID: `${savedOrder._id}`,

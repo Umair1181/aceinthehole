@@ -13,6 +13,68 @@ const SellerRating = require("../BusinessLogics/rating");
 
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
+
+////////////////////////////////////// update-seller-stripe-id API ///////////////////////////////////
+Router.post("/update-seller-stripe-id", (req, res) => {
+  let { sellerBank } = req.body;
+
+  let message = false;
+  if (sellerBank.sellerID === "") {
+    message = "Invalid seller ";
+  } else if (sellerBank.stripeAccountId === "") {
+    message = "Invalid stripeAccountId";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    Seller.findOne({ _id: sellerBank.sellerID })
+      .then((fseller) => {
+        if (fseller !== null) {
+          fseller.isProfileCompleted = true;
+          fseller.stripeAccountId = sellerBank.stripeAccountId;
+          fseller
+            .save()
+            .then((savedsellerBank) => {
+              if (savedsellerBank) {
+                return res
+                  .json({
+                    msg: "Stripe Added Successfully",
+                    result: savedsellerBank,
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({
+                    msg: "Seller Not Update!",
+                    success: false,
+                  })
+                  .status(400);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              console.log("err found");
+              return res.json({ msg: "failed", success: false }).status(400);
+            });
+        } else {
+          return res
+            .json({ msg: "Such seller Not Exist", success: false })
+            .status(400);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log("err found");
+        return res
+          .json({ msg: "catch error seller not found", success: false })
+          .status(400);
+      });
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+});
+
 ///////////login-or-register-seller-with-image-by-social-media/////////////
 Router.post(
   "/login-or-register-seller-with-image-by-social-media",

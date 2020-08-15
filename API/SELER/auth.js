@@ -14,6 +14,77 @@ const SellerRating = require("../BusinessLogics/rating");
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
 
+////////////////////////////////////// is-payment-method-verified ///////////////////////////////////
+Router.post("/is-payment-method-verified", (req, res) => {
+  let { isPaymentMethod, sellerID } = req.body;
+
+  let message = "";
+  if (isPaymentMethod === "") {
+    message = "Invalid isPaymentMethod ";
+  } else if (sellerID === "") {
+    message = "Invalid sellerID ";
+  } else {
+    message = false;
+  }
+  if (message === false) {
+    Seller.findOne({ _id: sellerID })
+      .then((fseller) => {
+        if (fseller !== null) {
+          console.log(fseller);
+          fseller.isProfileCompleted = isPaymentMethod;
+          fseller
+            .save()
+            .then((savedsellerBank) => {
+              if (savedsellerBank) {
+                if (savedsellerBank.isProfileCompleted === true) {
+                  return res
+                    .json({
+                      msg:
+                        "Payment Method Verified, You Can Add Your Services Now",
+                      result: savedsellerBank,
+                      success: true,
+                    })
+                    .status(200);
+                } else {
+                  return res
+                    .json({
+                      msg: "Payment Method Failed",
+                      success: false,
+                    })
+                    .status(200);
+                }
+              } else {
+                return res
+                  .json({
+                    msg: " seller Not Update!",
+                    success: false,
+                  })
+                  .status(400);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              console.log("err found");
+              return res.json({ msg: "failed", success: false }).status(400);
+            });
+        } else {
+          return res
+            .json({ msg: "Such seller Not Exist", success: false })
+            .status(400);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log("err found");
+        return res
+          .json({ msg: "catch error seller not found", success: false })
+          .status(400);
+      });
+  } else {
+    return res.json({ msg: message, success: false }).status(400);
+  }
+});
+
 ////////////////////////////////////// update-seller-stripe-id API ///////////////////////////////////
 Router.post("/update-seller-stripe-id", (req, res) => {
   let { sellerBank } = req.body;
@@ -30,7 +101,7 @@ Router.post("/update-seller-stripe-id", (req, res) => {
     Seller.findOne({ _id: sellerBank.sellerID })
       .then((fseller) => {
         if (fseller !== null) {
-          fseller.isProfileCompleted = true;
+          // fseller.isProfileCompleted = true;
           fseller.stripeAccountId = sellerBank.stripeAccountId;
           fseller
             .save()
@@ -282,7 +353,7 @@ Router.post("/update-seller-paypal-email", (req, res) => {
       .then((fseller) => {
         if (fseller) {
           console.log(fseller);
-          fseller.isProfileCompleted = true;
+          // fseller.isProfileCompleted = true;
           fseller.paypalAccountEmail = paypalEmail;
           console.log(fseller.paypalAccountEmail);
           fseller
@@ -348,7 +419,7 @@ Router.post("/update-seller-bank-card-info", (req, res) => {
     Seller.findOne({ _id: sellerBank.sellerID })
       .then((fseller) => {
         if (fseller) {
-          fseller.isProfileCompleted = true;
+          // fseller.isProfileCompleted = true;
           fseller.Bank = {
             cardNo: sellerBank.cardNo,
             CVV: sellerBank.CVV,

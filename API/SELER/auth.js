@@ -48,7 +48,10 @@ Router.post("/is-payment-method-verified", (req, res) => {
                 } else {
                   return res
                     .json({
-                      msg: "Payment Method Failed",
+                      msg:
+                        "Payment Method Failed, Please Update Your Payment Method",
+                      result: savedsellerBank,
+
                       success: false,
                     })
                     .status(200);

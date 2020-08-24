@@ -683,8 +683,6 @@ Router.post("/show-orders-of-specific-user", (req, res) => {
 });
 ////////////////////////////////////////////////////////////////
 Router.post("/place-order-of-service-by-user", (req, res) => {
-  console.log(req.body);
-  return res.json(req.body);
   let {
     serviceID,
     userID,

@@ -191,21 +191,16 @@ Router.post("/show-completed-paid-nonpaid-orders-list", (req, res) => {
 });
 
 Router.post("/change-payment-status", (req, res) => {
-  let { orderID, isPaid, paymentThrough } = req.body;
+  let { orderID, isPaid } = req.body;
 
   if (isPaid === "") {
     return res.json({ msg: "Failed", success: false }).status(404);
   }
-  if (paymentThrough !== "PAYPAL" && paymentThrough !== "STRIPE") {
-    return res
-      .json({ msg: "Invalid PaymentThrough", success: false })
-      .status(404);
-  }
+
   Order.findOne({ _id: orderID })
     .then((foundOrder) => {
       if (foundOrder !== null) {
         foundOrder.isPaid = isPaid;
-        foundOrder.paymentThrough = paymentThrough;
         foundOrder
           .save()
           .then((savedOrder) => {
@@ -698,9 +693,12 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
     extras,
     servicePrice,
     extrasPrice,
+    paymentThrough,
   } = req.body;
-  //  return res.json ({ data: req.body });
   let errorMessage = false;
+  if (paymentThrough !== "PAYPAL" && paymentThrough !== "STRIPE") {
+    errorMessage = "Invalid PaymentThrough";
+  }
   if (serviceID === "" || !serviceID) {
     errorMessage = "Please Select Service!";
   } else if (userID == "" || !userID) {
@@ -725,6 +723,7 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
       price: price,
       reqDay: day,
       reqTime: time,
+      paymentThrough: paymentThrough,
       // extras: extras,
       // servicePrice: servicePrice,
       // extrasPrice: extrasPrice

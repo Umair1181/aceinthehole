@@ -724,9 +724,6 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
       reqDay: day,
       reqTime: time,
       paymentThrough: paymentThrough,
-      // extras: extras,
-      // servicePrice: servicePrice,
-      // extrasPrice: extrasPrice
     });
     if (extrasPrice) {
       newOrder.extrasPrice = extrasPrice;

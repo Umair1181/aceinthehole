@@ -681,137 +681,137 @@ Router.post("/show-orders-of-specific-user", (req, res) => {
       return res.json({ msg: "Failed", success: false }).status(404);
     });
 });
-////////////////////////////////////////////////////////////////
-Router.post("/place-order-of-service-by-user", (req, res) => {
-  let {
-    serviceID,
-    userID,
-    description,
-    price,
-    day,
-    time,
-    extras,
-    servicePrice,
-    extrasPrice,
-    paymentThrough,
-  } = req.body;
-  let errorMessage = false;
-  if (paymentThrough !== "PAYPAL" && paymentThrough !== "STRIPE") {
-    errorMessage = "Invalid PaymentThrough";
-  }
-  if (serviceID === "" || !serviceID) {
-    errorMessage = "Please Select Service!";
-  } else if (userID == "" || !userID) {
-    errorMessage = "User id Is Missed!";
-  } else if (description == "" || !description) {
-    errorMessage = "Description id Is Missed!";
-  } else if (price == "" || !price) {
-    errorMessage = "Price Is Missed!";
-  } else if (day == "" || !day) {
-    errorMessage = "Please Select Day For Service!";
-  } else if (time == "" || !time) {
-    errorMessage = "Please Select Time For Service!";
-  } else {
-    errorMessage = false;
-  }
+// ////////////////////////////////////////////////////////////////
+// Router.post("/place-order-of-service-by-user", (req, res) => {
+//   let {
+//     serviceID,
+//     userID,
+//     description,
+//     price,
+//     day,
+//     time,
+//     extras,
+//     servicePrice,
+//     extrasPrice,
+//     paymentThrough,
+//   } = req.body;
+//   let errorMessage = false;
+//   if (paymentThrough !== "PAYPAL" && paymentThrough !== "STRIPE") {
+//     errorMessage = "Invalid PaymentThrough";
+//   }
+//   if (serviceID === "" || !serviceID) {
+//     errorMessage = "Please Select Service!";
+//   } else if (userID == "" || !userID) {
+//     errorMessage = "User id Is Missed!";
+//   } else if (description == "" || !description) {
+//     errorMessage = "Description id Is Missed!";
+//   } else if (price == "" || !price) {
+//     errorMessage = "Price Is Missed!";
+//   } else if (day == "" || !day) {
+//     errorMessage = "Please Select Day For Service!";
+//   } else if (time == "" || !time) {
+//     errorMessage = "Please Select Time For Service!";
+//   } else {
+//     errorMessage = false;
+//   }
 
-  if (errorMessage === false) {
-    let newOrder = new Order({
-      service: serviceID,
-      user: userID,
-      description: description,
-      price: price,
-      reqDay: day,
-      reqTime: time,
-      paymentThrough: paymentThrough,
-    });
-    if (extrasPrice) {
-      newOrder.extrasPrice = extrasPrice;
-    }
-    if (servicePrice) {
-      newOrder.servicePrice = servicePrice;
-    }
-    if (extras) {
-      newOrder.extras = extras;
-    }
+//   if (errorMessage === false) {
+//     let newOrder = new Order({
+//       service: serviceID,
+//       user: userID,
+//       description: description,
+//       price: price,
+//       reqDay: day,
+//       reqTime: time,
+//       paymentThrough: paymentThrough,
+//     });
+//     if (extrasPrice) {
+//       newOrder.extrasPrice = extrasPrice;
+//     }
+//     if (servicePrice) {
+//       newOrder.servicePrice = servicePrice;
+//     }
+//     if (extras) {
+//       newOrder.extras = extras;
+//     }
 
-    newOrder
-      .save()
-      .then(async (orderSaved) => {
-        if (orderSaved) {
-          let foundOrder = await Order.findOne({ _id: orderSaved._id })
-            .populate({
-              path: "user",
-            })
-            .populate({
-              path: "service",
-            })
-            .populate({
-              path: "service",
-              populate: { path: "seller" },
-            });
-          //below token collection and payload prepration
-          let tokensArray = [];
-          let payload = {
-            notification: {
-              title: "Service Hired!",
+//     newOrder
+//       .save()
+//       .then(async (orderSaved) => {
+//         if (orderSaved) {
+//           let foundOrder = await Order.findOne({ _id: orderSaved._id })
+//             .populate({
+//               path: "user",
+//             })
+//             .populate({
+//               path: "service",
+//             })
+//             .populate({
+//               path: "service",
+//               populate: { path: "seller" },
+//             });
+//           //below token collection and payload prepration
+//           let tokensArray = [];
+//           let payload = {
+//             notification: {
+//               title: "Service Hired!",
 
-              body: `Service Has Been Hired`,
-            },
-            data: {
-              orderID: `${orderSaved._id}`,
-            },
-          };
-          //working on save notifications
-          let newNotification = await new Notifications({
-            title: payload.notification.title,
-            body: payload.notification.body,
-            seller: foundOrder.service.seller._id,
-            user: foundOrder.user,
-            notificationFor: "USER",
-            notificationType: "NEW_ORDER",
-            order: orderSaved._id,
-            notificationDateTime: Date.now(),
-          });
-          let saveNotification = newNotification.save();
-          if (saveNotification) {
-            console.log("Notification Saved");
-          } else {
-            console.log("Notification Not Saved");
-          }
+//               body: `Service Has Been Hired`,
+//             },
+//             data: {
+//               orderID: `${orderSaved._id}`,
+//             },
+//           };
+//           //working on save notifications
+//           let newNotification = await new Notifications({
+//             title: payload.notification.title,
+//             body: payload.notification.body,
+//             seller: foundOrder.service.seller._id,
+//             user: foundOrder.user,
+//             notificationFor: "USER",
+//             notificationType: "NEW_ORDER",
+//             order: orderSaved._id,
+//             notificationDateTime: Date.now(),
+//           });
+//           let saveNotification = newNotification.save();
+//           if (saveNotification) {
+//             console.log("Notification Saved");
+//           } else {
+//             console.log("Notification Not Saved");
+//           }
 
-          if (foundOrder.service.seller.mobileFcToken !== null) {
-            tokensArray.push(foundOrder.service.seller.mobileFcToken);
-          }
-          if (foundOrder.service.seller.webFcToken !== null) {
-            tokensArray.push(foundOrder.service.seller.webFcToken);
-          }
-          let isSendNotification = await notificationSend(tokensArray, payload);
-          console.log(isSendNotification);
-          if (isSendNotification) {
-            console.log("New Order Notification sent to Seller");
-          }
-          return res
-            .json({
-              msg: "Order Created",
-              orderSaved: foundOrder,
-              chk: tokensArray,
-              success: true,
-            })
-            .status(200);
-        } else {
-          return res
-            .json({ msg: "Order Not Created", success: false })
-            .status(404);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        return res.json({ msg: "Failed", success: false }).status(404);
-      });
-  } else {
-    return res.json({ msg: errorMessage, success: false }).status(400);
-  }
-});
+//           if (foundOrder.service.seller.mobileFcToken !== null) {
+//             tokensArray.push(foundOrder.service.seller.mobileFcToken);
+//           }
+//           if (foundOrder.service.seller.webFcToken !== null) {
+//             tokensArray.push(foundOrder.service.seller.webFcToken);
+//           }
+//           let isSendNotification = await notificationSend(tokensArray, payload);
+//           console.log(isSendNotification);
+//           if (isSendNotification) {
+//             console.log("New Order Notification sent to Seller");
+//           }
+//           return res
+//             .json({
+//               msg: "Order Created",
+//               orderSaved: foundOrder,
+//               chk: tokensArray,
+//               success: true,
+//             })
+//             .status(200);
+//         } else {
+//           return res
+//             .json({ msg: "Order Not Created", success: false })
+//             .status(404);
+//         }
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//         return res.json({ msg: "Failed", success: false }).status(404);
+//       });
+//   } else {
+//     return res.json({ msg: errorMessage, success: false }).status(400);
+//   }
+// });
 
 module.exports = Router;

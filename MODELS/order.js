@@ -27,6 +27,10 @@ const Order = new Schema({
     type: Boolean,
     default: false,
   },
+  paymentThrough: {
+    //Payment Made by either PAYPAL or STRIPE
+    type: String,
+  },
   statusChangeBy: {
     //ORDER STATUS CHANGE BY
     type: String,

@@ -160,9 +160,13 @@ Router.post(
 );
 
 Router.post("/show-completed-paid-nonpaid-orders-list", (req, res) => {
-  let { isPaid } = req.body;
+  let { isPaid, paymentThrough } = req.body;
   console.log(isPaid);
-  Order.find({ orderStatus: "COMPLETED", isPaid: isPaid })
+  Order.find({
+    orderStatus: "COMPLETED",
+    isPaid: isPaid,
+    paymentThrough: paymentThrough,
+  })
     .populate({ path: "user" })
     .populate({ path: "service" })
     .populate({ path: "service", populate: { path: "seller" } })
@@ -187,12 +191,21 @@ Router.post("/show-completed-paid-nonpaid-orders-list", (req, res) => {
 });
 
 Router.post("/change-payment-status", (req, res) => {
-  let { orderID, isPaid } = req.body;
+  let { orderID, isPaid, paymentThrough } = req.body;
 
+  if (isPaid === "") {
+    return res.json({ msg: "Failed", success: false }).status(404);
+  }
+  if (paymentThrough !== "PAYPAL" && paymentThrough !== "STRIPE") {
+    return res
+      .json({ msg: "Invalid PaymentThrough", success: false })
+      .status(404);
+  }
   Order.findOne({ _id: orderID })
     .then((foundOrder) => {
       if (foundOrder !== null) {
         foundOrder.isPaid = isPaid;
+        foundOrder.paymentThrough = paymentThrough;
         foundOrder
           .save()
           .then((savedOrder) => {

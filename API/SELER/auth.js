@@ -356,7 +356,7 @@ Router.post("/update-seller-paypal-email", (req, res) => {
       .then((fseller) => {
         if (fseller) {
           console.log(fseller);
-          // fseller.isProfileCompleted = true;
+          fseller.isProfileCompleted = true;
           fseller.paypalAccountEmail = paypalEmail;
           console.log(fseller.paypalAccountEmail);
           fseller

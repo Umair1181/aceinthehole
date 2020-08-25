@@ -696,8 +696,10 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
     paymentThrough,
   } = req.body;
   let errorMessage = false;
-  if (paymentThrough !== "PAYPAL" && paymentThrough !== "STRIPE") {
-    errorMessage = "Invalid PaymentThrough";
+  if (paymentThrough === "") {
+    return res
+      .json({ msg: "Invalid Payment Through", success: false })
+      .status(505);
   }
   if (serviceID === "" || !serviceID) {
     errorMessage = "Please Select Service!";

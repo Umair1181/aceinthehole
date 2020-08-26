@@ -145,28 +145,41 @@ const saveAccountId = (stripeId, sellerID) => {
 app.post("/api/create-intent", async (req, res) => {
   console.log("api called");
   const { amount } = req.body;
-  const paymentIntent = await stripe.paymentIntents.create({
-    // payment_method_types: ['card'],
-    // amount,
-    // currency: 'usd',
-    // // application_fee_amount: 5,
-    // transfer_data: {
-    // destination: 'acct_1HD7onEpGBTVAwpl',
-    // },
-    payment_method_types: ["card"],
-    amount,
-    currency: "usd",
-    // application_fee_amount: 123,
-    // transfer_data: {
-    // destination: 'card_1HEK0PLyRGi8tkbzhiDfBIuD',
-    // },
-  });
-
-  return res
-    .json({ client_secret: paymentIntent.client_secret, success: true })
-    .status(200);
+  stripe.paymentIntents.create(
+    {
+      // payment_method_types: ['card'],
+      // amount,
+      // currency: 'usd',
+      // // application_fee_amount: 5,
+      // transfer_data: {
+      //   destination: 'acct_1HD7onEpGBTVAwpl',
+      // },
+      payment_method_types: ["card"],
+      amount,
+      currency: "usd",
+      // application_fee_amount: 123,
+      // transfer_data: {
+      //     destination: 'card_1HEK0PLyRGi8tkbzhiDfBIuD',
+      // },
+    },
+    (err, paymentIntent) => {
+      if (paymentIntent) {
+        return res
+          .json({
+            paymentIntent,
+            client_secret: paymentIntent.client_secret,
+            intentId: paymentIntent.id,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res
+          .json({ err: err.type, msg: "Payment Intent Failed", success: false })
+          .status(400);
+      }
+    }
+  );
 });
-
 app.post("/transfer-to-account", async (req, res) => {
   const { sellerConnectAccountId, sellerId, orderId, amount } = req.body;
 

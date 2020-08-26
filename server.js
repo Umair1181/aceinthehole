@@ -155,7 +155,7 @@ app.post("/api/create-intent", async (req, res) => {
       //   destination: 'acct_1HD7onEpGBTVAwpl',
       // },
       payment_method_types: ["card"],
-      amount,
+      amount: amount * 100,
       currency: "usd",
       // application_fee_amount: 123,
       // transfer_data: {
@@ -238,6 +238,40 @@ app.post("/transfer-to-account", async (req, res) => {
         })
         .status(500);
     });
+});
+////// past as it is
+app.post("/refund-stripe-payment", (req, res) => {
+  const { amount, intentId, orderId } = req.body;
+
+  stripe.refunds.create(
+    {
+      amount: amount * 100,
+      payment_intent: intentId,
+    },
+    (err, refund) => {
+      // return res.json({ refund });
+      if (err) {
+        return res.json({ msg: err.raw.message, success: false }).status(500);
+      } else {
+        if (refund.status === "succeeded") {
+          Order.updateOne(
+            { _id: orderId },
+            { orderStatus: "ORDERCANCELED" }
+          ).then((updateOrder) => {
+            if (updateOrder !== null) {
+              return res
+                .json({ msg: "Payment Refunded", success: true })
+                .status(500);
+            }
+          });
+        } else {
+          return res
+            .json({ msg: "Refunding Failed", success: false })
+            .status(400);
+        }
+      }
+    }
+  );
 });
 ///////////// PORT ENVOIRMENT //////////////////
 const port = process.env.PORT || 8000;

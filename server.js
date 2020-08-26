@@ -2,11 +2,16 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+require("dotenv").config();
 // const { upload, CreateURL } = require("./storage")();
 
 /////////////////////BODY-PARSER CONFIGURATION /////////////////////////
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+//////Stripe config//////////
+const stripe = require("stripe")(process.env.secret_key, {
+  apiVersion: "2020-03-02",
+});
 //////Serve////////////////////////////////////////////////////////////
 const socket = require("socket.io");
 const {
@@ -16,6 +21,7 @@ const {
   saveOfferToDbChat,
   acceptOffer,
 } = require("./API/CHAT/userChat");
+const { Seller, Order } = require("./MODELS");
 ///////////////FRONT END ERROR RESOLVED CODE /////////////////////
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -48,6 +54,178 @@ mongoose
     console.log(err);
     // return res.json({ msg: "db catch error" }).status(400);
   });
+
+////////////STRIPE APIs///////////////
+app.get("/connect", (req, res) => {
+  let { sellerID } = req.body;
+  if (sellerID === "") {
+    return res.json({ msg: "Invalid Seller ID", success: false }).status(505);
+  }
+  const state = sellerID;
+  // req.session.state = state;
+  const suggested_capabilities = ["card_payments", "transfers"];
+  const stripe_user = [{ email: "test@gmail.com" }];
+  const args = new URLSearchParams({ state, client_id: process.env.client_id });
+  const url = `https://connect.stripe.com/express/oauth/authorize?${args.toString()}&suggested_capabilities[]=transfers&suggested_capabilities[]=card_payments`;
+  res.send({ url, state });
+});
+
+app.post("/connect/oauth", async (req, res) => {
+  console.log("oauth # 1");
+  // return res.json ({ msg: "oath" });
+  let { code, state } = req.body;
+  // sellerId = state
+  // Send the authorization code to Stripe's API.
+  stripe.oauth
+    .token({
+      grant_type: "authorization_code",
+      code,
+    })
+    .then(
+      (response) => {
+        console.log("oauth # 2");
+        // response.stripe_user_id seller stripe connect account id
+
+        let connected_account_id = response.stripe_user_id;
+        saveAccountId(connected_account_id, state)
+          .then((result) => {
+            return res.json(result).status(200);
+          })
+          .catch((err) => {
+            return res.json(err).status(500);
+          });
+        // Render some HTML or redirect to a different page.
+      },
+      (err) => {
+        console.log("oauth # 3");
+
+        if (err.type === "StripeInvalidGrantError") {
+          console.log("oauth # 4");
+          return res.status(400).json({
+            success: false,
+            msg: "Invalid authorization code: " + code,
+          });
+        } else {
+          console.log("oauth # 5");
+          return res
+            .status(500)
+            .json({ success: false, msg: "An unknown error occurred." });
+        }
+      }
+    );
+});
+
+const saveAccountId = (stripeId, sellerID) => {
+  return new Promise((resolve, reject) => {
+    Seller.updateOne({ _id: sellerID }, { stripeAccountId: stripeId })
+      .then((response) => {
+        if (response !== null) {
+          resolve({
+            msg: "Seller Account Connected",
+            seller: response,
+            success: true,
+          });
+        } else {
+          reject({ error: { msg: "Seller Id Update Failed" }, success: false });
+        }
+      })
+      .catch((err) => {
+        console.log("Catch Error In Seller Update");
+        console.log(err);
+        reject({
+          error: { msg: "Catch, Faild, Seller Update" },
+          success: false,
+        });
+      });
+  });
+  // Save the connected account ID from the response to your database.
+  console.log("Connected account ID: " + id);
+};
+
+app.post("/api/create-intent", async (req, res) => {
+  console.log("api called");
+  const { amount } = req.body;
+  const paymentIntent = await stripe.paymentIntents.create({
+    // payment_method_types: ['card'],
+    // amount,
+    // currency: 'usd',
+    // // application_fee_amount: 5,
+    // transfer_data: {
+    // destination: 'acct_1HD7onEpGBTVAwpl',
+    // },
+    payment_method_types: ["card"],
+    amount,
+    currency: "usd",
+    // application_fee_amount: 123,
+    // transfer_data: {
+    // destination: 'card_1HEK0PLyRGi8tkbzhiDfBIuD',
+    // },
+  });
+
+  return res
+    .json({ client_secret: paymentIntent.client_secret, success: true })
+    .status(200);
+});
+
+app.post("/transfer-to-account", async (req, res) => {
+  const { sellerConnectAccountId, sellerId, orderId, amount } = req.body;
+
+  if (sellerConnectAccountId === "") {
+    return res
+      .json({ msg: "Invalid sellerConnectAccountId", success: false })
+      .status(500);
+  }
+  if (sellerId === "") {
+    return res.json({ msg: "Invalid sellerId", success: false }).status(500);
+  }
+  if (amount === "") {
+    return res.json({ msg: "Invalid amount", success: false }).status(500);
+  }
+  Seller.findOne({ _id: sellerId })
+    .then(async (foundSeller) => {
+      if (foundSeller !== null) {
+        const transfer = await stripe.transfers.create({
+          amount: amount * 100,
+          currency: "usd",
+          destination: sellerConnectAccountId,
+        });
+        if (transfer.object === "transfer") {
+          // todo Make Order PAID
+
+          Order.updateOne({ _id: orderId }, { isPaid: true }).then(
+            (response) => {
+              if (response !== null) {
+                return res
+                  .json({
+                    msg: "Transfer Succesfully Made",
+                    transfer,
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res.json({ msg: "Failed", success: false }).status(500);
+              }
+            }
+          );
+        } else {
+          return res.json({ msg: "Transection Failed", success: false });
+        }
+      } else {
+        return res
+          .json({ msg: "Seller Not Found", success: false })
+          .status(500);
+      }
+    })
+    .catch((err) => {
+      return res
+        .json({
+          err: err.type,
+          msg: "Catch, Error,Seller Found",
+          success: false,
+        })
+        .status(500);
+    });
+});
 ///////////// PORT ENVOIRMENT //////////////////
 const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {

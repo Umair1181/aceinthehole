@@ -31,6 +31,9 @@ const Order = new Schema({
     //Payment Made by either PAYPAL or STRIPE
     type: String,
   },
+  paymentIntent: {
+    type: String,
+  },
   statusChangeBy: {
     //ORDER STATUS CHANGE BY
     type: String,

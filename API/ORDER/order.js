@@ -684,6 +684,7 @@ Router.post("/show-orders-of-specific-user", (req, res) => {
 ////////////////////////////////////////////////////////////////
 Router.post("/place-order-of-service-by-user", (req, res) => {
   let {
+    _id,
     serviceID,
     userID,
     description,
@@ -727,6 +728,10 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
       reqTime: time,
       paymentThrough: paymentThrough,
     });
+    if (_id !== undefined) {
+      newOrder._id = _id;
+      newOrder.paymentIntent = paymentIntent;
+    }
     if (extrasPrice) {
       newOrder.extrasPrice = extrasPrice;
     }

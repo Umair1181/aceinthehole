@@ -5,6 +5,11 @@ const { update } = require("../../MODELS/cart");
 ////////////////////////////////////////////////////////////////
 Router.post("/change-order-status", (req, res) => {
   let { orderID, orderStatus, statusChangeBy } = req.body;
+  if (statusChangeBy === "" || statusChangeBy === undefined) {
+    return res
+      .json({ msg: "Invalid statusChangeBy", success: false })
+      .status(500);
+  }
   let setStatusChangeBy = null;
   setStatusChangeBy = statusChangeBy;
   Order.findOne({ _id: orderID })
@@ -41,7 +46,7 @@ Router.post("/change-order-status", (req, res) => {
                 notification: {
                   title: `ORDER ${orderStatus}`,
 
-                  body: `ORDER ${orderStatus + " BY " + statusChangeBy}`,
+                  body: `ORDER ${orderStatus + " BY " + setStatusChangeBy}`,
                 },
                 data: {
                   orderID: `${savedOrder._id}`,

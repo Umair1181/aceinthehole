@@ -56,7 +56,7 @@ mongoose
   });
 
 ////////////STRIPE APIs///////////////
-app.get("/connect", (req, res) => {
+app.post("/connect", (req, res) => {
   let { sellerID } = req.body;
   if (sellerID === "") {
     return res.json({ msg: "Invalid Seller ID", success: false }).status(505);

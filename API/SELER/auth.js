@@ -14,79 +14,86 @@ const SellerRating = require("../BusinessLogics/rating");
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
 
-////////////////////////////////////// is-payment-method-verified ///////////////////////////////////
-Router.post("/is-payment-method-verified", (req, res) => {
-  let { isPaymentMethod, sellerID } = req.body;
+// ////////////////////////////////////// is-payment-method-verified ///////////////////////////////////
+// Router.post("/is-payment-method-verified", (req, res) => {
+//   let { isPaypalVerified, isStripeVerified, sellerID } = req.body;
 
-  let message = "";
-  if (isPaymentMethod === "") {
-    message = "Invalid isPaymentMethod ";
-  } else if (sellerID === "") {
-    message = "Invalid sellerID ";
-  } else {
-    message = false;
-  }
-  if (message === false) {
-    Seller.findOne({ _id: sellerID })
-      .then((fseller) => {
-        if (fseller !== null) {
-          console.log(fseller);
-          fseller.isProfileCompleted = isPaymentMethod;
-          fseller
-            .save()
-            .then((savedsellerBank) => {
-              if (savedsellerBank) {
-                if (savedsellerBank.isProfileCompleted === true) {
-                  return res
-                    .json({
-                      msg:
-                        "Payment Method Verified, You Can Add Your Services Now",
-                      result: savedsellerBank,
-                      success: true,
-                    })
-                    .status(200);
-                } else {
-                  return res
-                    .json({
-                      msg:
-                        "Payment Method Failed, Please Update Your Payment Method",
-                      result: savedsellerBank,
+//   let message = "";
+//   if (isPaymentMethod === "") {
+//     message = "Invalid isPaymentMethod ";
+//   } else if (sellerID === "") {
+//     message = "Invalid sellerID ";
+//   } else {
+//     message = false;
+//   }
+//   if (message === false) {
+//     Seller.findOne({ _id: sellerID })
+//       .then((fseller) => {
+//         if (fseller !== null) {
+//           console.log(fseller);
+//           if (isPaypalVerified === true) {
+//             console.log("paypal verified");
+//             fseller.isPaypalVerified = isPaypalVerified;
+//           }
+//           if (isStripeVerified === true) {
+//             console.log("stripe verified");
+//             fseller.isStripeVerified = isStripeVerified;
+//           }
+//           fseller
+//             .save()
+//             .then((savedsellerBank) => {
+//               if (savedsellerBank) {
+//                 if (savedsellerBank.isProfileCompleted === true) {
+//                   return res
+//                     .json({
+//                       msg:
+//                         "Payment Method Verified, You Can Add Your Services Now",
+//                       result: savedsellerBank,
+//                       success: true,
+//                     })
+//                     .status(200);
+//                 } else {
+//                   return res
+//                     .json({
+//                       msg:
+//                         "Payment Method Failed, Please Update Your Payment Method",
+//                       result: savedsellerBank,
 
-                      success: false,
-                    })
-                    .status(200);
-                }
-              } else {
-                return res
-                  .json({
-                    msg: " seller Not Update!",
-                    success: false,
-                  })
-                  .status(400);
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-              console.log("err found");
-              return res.json({ msg: "failed", success: false }).status(400);
-            });
-        } else {
-          return res
-            .json({ msg: "Such seller Not Exist", success: false })
-            .status(400);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        console.log("err found");
-        return res
-          .json({ msg: "catch error seller not found", success: false })
-          .status(400);
-      });
-  } else {
-    return res.json({ msg: message, success: false }).status(400);
-  }
-});
+//                       success: false,
+//                     })
+//                     .status(200);
+//                 }
+//               } else {
+//                 return res
+//                   .json({
+//                     msg: " seller Not Update!",
+//                     success: false,
+//                   })
+//                   .status(400);
+//               }
+//             })
+//             .catch((err) => {
+//               console.log(err);
+//               console.log("err found");
+//               return res.json({ msg: "failed", success: false }).status(400);
+//             });
+//         } else {
+//           return res
+//             .json({ msg: "Such seller Not Exist", success: false })
+//             .status(400);
+//         }
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//         console.log("err found");
+//         return res
+//           .json({ msg: "catch error seller not found", success: false })
+//           .status(400);
+//       });
+//   } else {
+//     return res.json({ msg: message, success: false }).status(400);
+//   }
+// });
 
 ////////////////////////////////////// update-seller-stripe-id API ///////////////////////////////////
 Router.post("/update-seller-stripe-id", (req, res) => {
@@ -104,8 +111,16 @@ Router.post("/update-seller-stripe-id", (req, res) => {
     Seller.findOne({ _id: sellerBank.sellerID })
       .then((fseller) => {
         if (fseller !== null) {
-          // fseller.isProfileCompleted = true;
           fseller.stripeAccountId = sellerBank.stripeAccountId;
+          fseller.isStripeVerified = true;
+          if (
+            fseller.isStripeVerified === true &&
+            fseller.isPaypalVerified === true
+          ) {
+            console.log("Profile Completed Succesfully in Stripe");
+            fseller.isProfileCompleted = true;
+          }
+
           fseller
             .save()
             .then((savedsellerBank) => {
@@ -354,11 +369,18 @@ Router.post("/update-seller-paypal-email", (req, res) => {
   if (message === false) {
     Seller.findOne({ _id: sellerID })
       .then((fseller) => {
-        if (fseller) {
-          console.log(fseller);
-          fseller.isProfileCompleted = true;
+        if (fseller !== null) {
           fseller.paypalAccountEmail = paypalEmail;
-          console.log(fseller.paypalAccountEmail);
+          fseller.isPaypalVerified = true;
+          //todooo
+          if (
+            fseller.isStripeVerified === true &&
+            fseller.isPaypalVerified === true
+          ) {
+            console.log("Profile Completed Succesfully in payapl api");
+            fseller.isProfileCompleted = true;
+          }
+
           fseller
             .save()
             .then((savedsellerBank) => {

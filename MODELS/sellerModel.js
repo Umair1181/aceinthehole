@@ -116,8 +116,16 @@ const Seller = new Schema({
   paypalAccountEmail: {
     type: String,
   },
+  isPaypalVerified: {
+    type: Boolean,
+    default: false,
+  },
   stripeAccountId: {
     type: String,
+  },
+  isStripeVerified: {
+    type: Boolean,
+    default: false,
   },
 });
 module.exports = mongoose.model("tblsellers", Seller);

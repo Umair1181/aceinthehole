@@ -22,7 +22,7 @@ Router.post("/is-seller-block-or-not", (req, res) => {
         return res
           .json({
             msg: "Seller Details!",
-            isBlock: foundSeller.isBlock,
+            isBlocked: foundSeller.isBlock,
             success: true,
           })
           .status(200);

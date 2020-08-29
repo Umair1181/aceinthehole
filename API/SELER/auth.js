@@ -14,6 +14,28 @@ const SellerRating = require("../BusinessLogics/rating");
 const randomize = require("randomatic");
 const transporter = require("../emailSend");
 
+Router.post("/is-seller-block-or-not", (req, res) => {
+  let { sellerID } = req.body;
+  Seller.findOne({ _id: sellerID })
+    .then((foundSeller) => {
+      if (foundSeller) {
+        return res
+          .json({
+            msg: "Seller Details!",
+            isBlock: foundSeller.isBlock,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "No Seller", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 // ////////////////////////////////////// is-payment-method-verified ///////////////////////////////////
 // Router.post("/is-payment-method-verified", (req, res) => {
 //   let { isPaypalVerified, isStripeVerified, sellerID } = req.body;

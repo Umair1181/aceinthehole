@@ -864,7 +864,14 @@ Router.post("/verify-code-of-email", (req, res) => {
 Router.post("/send-random-code-on-email", async (req, res) => {
   let { email, isSellerorUser } = req.body;
   const RandomNumber = randomize("0", 6);
-
+  if (email === "") {
+    return res.json({ msg: "Invalid Email", success: false }).status(500);
+  }
+  if (isSellerorUser === "") {
+    return res
+      .json({ msg: "Invalid isSellerorUser", success: false })
+      .status(500);
+  }
   if (isSellerorUser == true) {
     let foundSeller = await Seller.findOne({ email: email });
     if (foundSeller !== null) {

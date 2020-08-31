@@ -891,7 +891,7 @@ Router.post("/send-random-code-on-email", async (req, res) => {
                     if (err) {
                       console.log(err);
                       return res
-                        .json({ msg: "Email Failed!", success: false })
+                        .json({ msg: "Email Failed", success: false })
                         .status(400);
                     } else {
                       console.log("Email Sent!!!!!");

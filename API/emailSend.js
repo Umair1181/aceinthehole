@@ -1,9 +1,9 @@
 var nodemailer = require("nodemailer");
 
 module.exports = transporter = nodemailer.createTransport({
-  host: "host",
-  port: 25,
-  secure: false,
+  // host: "host",
+  // port: 25,
+  // secure: false,
   service: "gmail",
   auth: {
     user: "aceintheholeapp@gmail.com",

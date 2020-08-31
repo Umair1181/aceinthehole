@@ -10,10 +10,10 @@ module.exports = transporter = nodemailer.createTransport({
     user: "aceintheholeapp@gmail.com",
     pass: "Aith2020",
   },
-  // tls: {
-  //   // do not fail on invalid certs
-  //   rejectUnauthorized: false,
-  // },
+  tls: {
+    // do not fail on invalid certs
+    rejectUnauthorized: false,
+  },
 });
 
 // module.exports = transporter = nodemailer.createTransport({

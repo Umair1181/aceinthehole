@@ -7,8 +7,9 @@ module.exports = transporter = nodemailer.createTransport({
   secure: true,
   // service: "gmail",
   auth: {
-    user: "aceintheholeapp@gmail.com",
-    pass: "Aith2020",
+    user: "info.aceinhole@gmail.com",
+    pass: '!)(090)"!@#!!',
+    // pass: "Aith2020",
   },
   tls: {
     // do not fail on invalid certs

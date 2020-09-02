@@ -6,8 +6,9 @@ module.exports = transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   // service: "gmail",
+  // user: "info.aceinhole@gmail.com",
   auth: {
-    user: "info.aceinhole@gmail.com",
+    user: "info.aceinthehole@gmail.com",
     pass: '!)(090)"!@#!!',
     // pass: "Aith2020",
   },

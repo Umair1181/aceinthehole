@@ -349,7 +349,25 @@ io.on("connection", async (socket) => {
     socket.leave(query.uid);
   });
 });
-
+app.post("/retrieve-stripe-connect-account", (req, res) => {
+  const { userConnectId } = req.body;
+  stripe.accounts
+    .listCapabilities(userConnectId)
+    // stripe.accounts.retrieve(userConnectId)
+    .then((account) => {
+      return res.json({
+        account,
+      });
+    })
+    .catch((err) => {
+      return res
+        .json({
+          msg: "User Catch Error",
+          success: false,
+        })
+        .status(400);
+    });
+});
 // app.post("/upload", upload.array("image", 1), (req, res) => {
 //   let imageArrays = req.files;
 //   let ImageURLsArray = [];

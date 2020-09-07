@@ -367,15 +367,18 @@ app.post("/retrieve-stripe-connect-account", (req, res) => {
         stripe.accounts
           .listCapabilities(foundSeller.stripeAccountId)
           // stripe.accounts.retrieve(userConnectId)
-          .then((account) => {
+          .then(async (account) => {
             let stripeMessage = false;
             if (account.data.length > 0) {
               // return res.json({ account });
               for (let index = 0; index < account.data.length; index++) {
                 const element = account.data[index];
-                // if( element.id === "card_payments" && element.status === "inactive" ){
-                // stripeMessage = "Inactive Card Payment";
-                // }
+                if (
+                  element.id === "card_payments" &&
+                  element.status === "inactive"
+                ) {
+                  stripeMessage = "Inactive Card Payment";
+                }
 
                 if (
                   element.id === "transfers" &&
@@ -389,9 +392,17 @@ app.post("/retrieve-stripe-connect-account", (req, res) => {
                 }
               }
               if (stripeMessage === false) {
+                //todo
+                foundSeller.isStripeVerified = true;
+
+                if (foundSeller.isPaypalVerified === true) {
+                  foundSeller.isProfileCompleted = true;
+                }
+                let foundSellerSave = await foundSeller.save();
                 return res
                   .json({
                     msg: "Account Connected Successfully",
+                    seller: foundSellerSave,
                     success: true,
                   })
                   .status(200);

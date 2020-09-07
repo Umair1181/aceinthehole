@@ -22,7 +22,7 @@ const {
   saveOfferToDbChat,
   acceptOffer,
 } = require("./API/CHAT/userChat");
-const { Seller, Order } = require("./MODELS");
+const { Seller, Order, User } = require("./MODELS");
 ///////////////FRONT END ERROR RESOLVED CODE /////////////////////
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -349,25 +349,84 @@ io.on("connection", async (socket) => {
     socket.leave(query.uid);
   });
 });
+
 app.post("/retrieve-stripe-connect-account", (req, res) => {
-  const { userConnectId } = req.body;
-  stripe.accounts
-    .listCapabilities(userConnectId)
-    // stripe.accounts.retrieve(userConnectId)
-    .then((account) => {
-      return res.json({
-        account,
-      });
+  const { sellerId } = req.body;
+  if (sellerId === "") {
+    return res.json({ msg: "Invalid Seller", success: false }).status(500);
+  }
+
+  Seller.findOne({ _id: sellerId })
+    .then((foundSeller) => {
+      // return res.json(foundSeller);
+      if (
+        foundSeller.stripeAccountId !== null &&
+        foundSeller.stripeAccountId !== undefined &&
+        foundSeller.stripeAccountId !== ""
+      ) {
+        stripe.accounts
+          .listCapabilities(foundSeller.stripeAccountId)
+          // stripe.accounts.retrieve(userConnectId)
+          .then((account) => {
+            let stripeMessage = false;
+            if (account.data.length > 0) {
+              // return res.json({ account });
+              for (let index = 0; index < account.data.length; index++) {
+                const element = account.data[index];
+                // if( element.id === "card_payments" && element.status === "inactive" ){
+                // stripeMessage = "Inactive Card Payment";
+                // }
+
+                if (
+                  element.id === "transfers" &&
+                  element.status === "inactive"
+                ) {
+                  if (stripeMessage !== false) {
+                    stripeMessage = stripeMessage + " & " + "Transfers Detail";
+                  } else {
+                    stripeMessage = "Inactive Transfers Detail";
+                  }
+                }
+              }
+              if (stripeMessage === false) {
+                return res
+                  .json({
+                    msg: "Account Connected Successfully",
+                    success: true,
+                  })
+                  .status(200);
+              } else {
+                return res
+                  .json({ msg: stripeMessage, success: false })
+                  .status(500);
+              }
+            } else {
+              return res
+                .json({ msg: "Stripe Validation Error", success: false })
+                .status(500);
+            }
+          })
+          .catch((err) => {
+            return res
+              .json({
+                err,
+                msg: "User Catch Error",
+                success: false,
+              })
+              .status(400);
+          });
+      } else {
+        return res
+          .json({ msg: "No Stripe Connection", success: false })
+          .status(500);
+      }
     })
     .catch((err) => {
-      return res
-        .json({
-          msg: "User Catch Error",
-          success: false,
-        })
-        .status(400);
+      console.log(err);
+      return res.json({ msg: "Failed", success: false }).status(500);
     });
 });
+
 // app.post("/upload", upload.array("image", 1), (req, res) => {
 //   let imageArrays = req.files;
 //   let ImageURLsArray = [];

@@ -122,6 +122,7 @@ const Seller = new Schema({
   },
   stripeAccountId: {
     type: String,
+    // default: "not found",
   },
   isStripeVerified: {
     type: Boolean,

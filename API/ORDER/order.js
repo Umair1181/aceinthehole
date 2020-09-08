@@ -791,17 +791,23 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
           } else {
             console.log("Notification Not Saved");
           }
-
+          console.log("foundOrder.service.seller.mobileFcToken*********");
+          console.log(foundOrder.service.seller.mobileFcToken);
           if (foundOrder.service.seller.mobileFcToken !== null) {
             tokensArray.push(foundOrder.service.seller.mobileFcToken);
           }
           if (foundOrder.service.seller.webFcToken !== null) {
             tokensArray.push(foundOrder.service.seller.webFcToken);
           }
-          let isSendNotification = await notificationSend(tokensArray, payload);
-          console.log(isSendNotification);
-          if (isSendNotification) {
-            console.log("New Order Notification sent to Seller");
+          if (tokensArray.length > 0) {
+            let isSendNotification = await notificationSend(
+              tokensArray,
+              payload
+            );
+            console.log(isSendNotification);
+            if (isSendNotification) {
+              console.log("New Order Notification sent to Seller");
+            }
           }
           return res
             .json({

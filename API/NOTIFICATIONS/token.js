@@ -156,7 +156,7 @@ Router.post("/update-fcToken-partner", (req, res) => {
         foundPartner
           .save()
           .then((tokenSaved) => {
-            if (tokenSaved) {
+            if (tokenSaved !== null) {
               return res
                 .json({ msg: "Partner's Token Updated!", success: true })
                 .status(200);

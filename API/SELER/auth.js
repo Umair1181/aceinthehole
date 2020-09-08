@@ -395,10 +395,7 @@ Router.post("/update-seller-paypal-email", (req, res) => {
           fseller.paypalAccountEmail = paypalEmail;
           fseller.isPaypalVerified = true;
           //todooo
-          if (
-            fseller.isStripeVerified === true &&
-            fseller.isPaypalVerified === true
-          ) {
+          if (fseller.isStripeVerified === true) {
             console.log("Profile Completed Succesfully in payapl api");
             fseller.isProfileCompleted = true;
           }

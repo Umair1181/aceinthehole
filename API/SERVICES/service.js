@@ -380,13 +380,14 @@ Router.post("/show-all-services", async (req, res) => {
       if (SellersList.length > 0) {
         let bLo = location.longitude;
         let bLa = location.latitude;
-
+        console.log(SellersList);
         let allServices = await getServicesOfNearesSellers(
           SellersList,
           userID,
           bLa,
           bLo
         );
+        console.log(allServices);
         // return res.json(allServices);
         if (allServices !== false && allServices !== undefined) {
           // console.log("allServices");
@@ -500,16 +501,15 @@ const getServicesOfNearesSellers = async (
   latitude2,
   longitude2
 ) => {
-  // let allSellersIDs = [];
   let allServices = [];
   for (let x = 0; x < SellersList.length; x++) {
     // 31.472472, 73.131969
     //31.433812, 73.111198
     let latitude1 = SellersList[x].location.latitude;
     let longitude1 = SellersList[x].location.longitude;
+
     var p = 0.017453292519943295; //This is  Math.PI / 180
     var c = Math.cos;
-
     var a =
       0.5 -
       c((latitude2 - latitude1) * p) / 2 +
@@ -519,46 +519,20 @@ const getServicesOfNearesSellers = async (
         2;
     var R = 6371; //  Earth distance in km so it will return the distance in km
     var distance = 2 * R * Math.asin(Math.sqrt(a));
-    // console.log("distance of one buyer to its all nearest sellers");
-    // console.log(distance);
-    // let findCoustomValue = await coustomAdmin.find();
-    // if (distance <= findCoustomValue[0].locationRadius) {
     if (distance <= 100) {
-      console.log(SellersList[x]._id);
       let founServices = await Service.find({
         isBlock: false,
         seller: SellersList[x]._id,
       }).populate({ path: "seller" });
-      // let obj = {
-      //   dist: distance,
-      //   sellerID: SellersList[x]._id,
-      // };
-      console.log("*****************************");
+      console.log("founServices");
       console.log(founServices);
-      console.log("*****************************");
       if (founServices.length > 0) {
-        allServices.push(founServices);
+        await allServices.push(founServices);
       }
-      if (x + 1 === SellersList.length) {
-        return allServices;
-        // let SortedSellers = await sortBulkStageDforList(allSellersDists);
-        // for (let k = 0; k < SortedSellers.length; k++) {
-        //   allSellersIDs.push(SortedSellers[k].sellerID);
-        //   if (SortedSellers.length == k + 1) {
-        //     // let foundBuyer = await Buyer.findOne({ _id: buyerID });
-        //     // console.log("foundBuyer");
-        //     // console.log(foundBuyer);
-        //     // foundBuyer.nearesTenSellers = allSellersIDs;
-        //     // let updateBuyer = await foundBuyer.save();
-        //     // if (updateBuyer !== null) {
-        //     let ssSeller = await Seller.find({ _id: allSellersIDs });
-        //     return ssSeller;
-        //     // } else {
-        //     //   return false;
-        //     // }
-        //   }
-        // }
-      }
+    }
+    if (x + 1 === SellersList.length) {
+      console.log(SellersList.length);
+      return allServices;
     }
   }
 };

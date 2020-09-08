@@ -67,7 +67,7 @@ Router.post("/update-fc-token-of-any-person", (req, res) => {
         } else {
           return res
             .json({ msg: "Seller Not Exist!", success: false })
-            .state(404);
+            .status(404);
         }
       })
       .catch((err) => {
@@ -175,7 +175,7 @@ Router.post("/update-fcToken-partner", (req, res) => {
       } else {
         return res
           .json({ msg: "Partner Not Exist!", success: false })
-          .state(404);
+          .status(404);
       }
     })
     .catch((err) => {

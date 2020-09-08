@@ -6,6 +6,7 @@ const {
   Reviews,
   Order,
   Seller,
+  User,
 } = require("../../MODELS");
 const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 const { upload, CreateURL } = require("../../storage")();
@@ -348,89 +349,110 @@ Router.post("/update-service-or-certificate-images-in-json", (req, res) => {
 Router.post("/show-all-services", async (req, res) => {
   let { userID, location } = req.body;
   let message = false;
-  if (location.longitude === "") {
+  if (
+    location === "" &&
+    location.longitude === "" &&
+    location.longitude === null &&
+    location.longitude === undefined
+  ) {
     message = "Invalid Longitude!";
-  } else if (location.latitude === "") {
+  } else if (
+    location === "" &&
+    location.latitude === "" &&
+    location.latitude === null &&
+    location.latitude === undefined
+  ) {
     message = "Invalid latitude!";
-  } else if (userID === "") {
+  } else if (
+    location.userID === "" &&
+    location.userID === null &&
+    location.userID === undefined
+  ) {
     message = "Invalid userID!";
   } else {
     message = false;
   }
   if (message === false) {
-    ////////////////////////
-    let SellersList = await Seller.find().populate({ path: "seller" });
-    if (SellersList.length > 0) {
-      let bLo = location.longitude;
-      let bLa = location.latitude;
-      let allServices = await getServicesOfNearesSellers(
-        SellersList,
-        userID,
-        bLa,
-        bLo
-      );
-      if (allServices !== false) {
-        // console.log("allServices");
-        // console.log(allServices);
-        if (allServices.length > 0) {
-          let allServicesArray = [];
-          for (let k = 0; k < allServices.length; k++) {
-            for (let j = 0; j < allServices[k].length; j++) {
-              await allServicesArray.push(allServices[k][j]);
-            }
-          }
-          // return res.json(allServices);
-          await new ServiceClass()
-            .checkServiceinWishList(allServicesArray, userID)
-            .then(async (servicesWithStatus) => {
-              if (servicesWithStatus.length > 0) {
-                // let allServicesArray = [];
-                // for (let k = 0; k < servicesWithStatus.length; k++) {
-                //   for (let j = 0; j < servicesWithStatus[k].length; j++) {
-                //     await allServicesArray.push(servicesWithStatus[k][j]);
-                //   }
-                // }
+    let foundUser = await User.findOne({ _id: userID });
+    if (foundUser !== null) {
+      ////////////////////////
+      let SellersList = await Seller.find().populate({ path: "seller" });
+      if (SellersList.length > 0) {
+        let bLo = location.longitude;
+        let bLa = location.latitude;
 
-                return res
-                  .json({
-                    msg:
-                      "All Nearest Seller Services with status of in wishlist!",
-                    foundServices: servicesWithStatus,
-                    success: true,
-                  })
-                  .status(200);
-              } else {
-                return res
-                  .json({
-                    msg: "No Service Found!",
-                    success: false,
-                  })
-                  .status(400);
+        let allServices = await getServicesOfNearesSellers(
+          SellersList,
+          userID,
+          bLa,
+          bLo
+        );
+        // return res.json(allServices);
+        if (allServices !== false && allServices !== undefined) {
+          // console.log("allServices");
+          // console.log(allServices);
+          if (allServices.length > 0) {
+            let allServicesArray = [];
+            for (let k = 0; k < allServices.length; k++) {
+              for (let j = 0; j < allServices[k].length; j++) {
+                await allServicesArray.push(allServices[k][j]);
               }
-            })
-            .catch((err) => {
-              console.log(err);
-              return res.json({ msg: "Failed!", success: false }).status(505);
-            });
-          // return res
-          //   .json({
-          //     msg: "Services Of Nearest  Sellers",
-          //     services: allServices,
-          //     success: true,
-          //   })
-          //   .status(200);
+            }
+            // return res.json(allServices);
+            await new ServiceClass()
+              .checkServiceinWishList(allServicesArray, userID)
+              .then(async (servicesWithStatus) => {
+                if (servicesWithStatus.length > 0) {
+                  // let allServicesArray = [];
+                  // for (let k = 0; k < servicesWithStatus.length; k++) {
+                  //   for (let j = 0; j < servicesWithStatus[k].length; j++) {
+                  //     await allServicesArray.push(servicesWithStatus[k][j]);
+                  //   }
+                  // }
+
+                  return res
+                    .json({
+                      msg:
+                        "All Nearest Seller Services with status of in wishlist!",
+                      foundServices: servicesWithStatus,
+                      success: true,
+                    })
+                    .status(200);
+                } else {
+                  return res
+                    .json({
+                      msg: "No Service Found!",
+                      success: false,
+                    })
+                    .status(400);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                return res.json({ msg: "Failed!", success: false }).status(505);
+              });
+            // return res
+            //   .json({
+            //     msg: "Services Of Nearest  Sellers",
+            //     services: allServices,
+            //     success: true,
+            //   })
+            //   .status(200);
+          } else {
+            return res
+              .json({ msg: "No Nearest Seller", success: false })
+              .status(505);
+          }
+        } else if (allServices === "Not Found!") {
+          return res.json({ msg: "Not Found", success: false }).status(400);
         } else {
-          return res
-            .json({ msg: "No Nearest Seller", success: false })
-            .status(505);
+          return res.json({ msg: "No Service", success: false }).status(400);
         }
-      } else if (allServices === "Not Found!") {
-        return res.json({ msg: "Not Found", success: false }).status(400);
       } else {
-        return res.json({ msg: "Failed!", success: false }).status(400);
+        return res.json({ msg: "No Seller Exist", success: false }).status(400);
       }
     } else {
-      return res.json({ msg: "No Seller Exist", success: false }).status(400);
+      return res.json({ msg: "User Not Exist", success: false });
     }
 
     /////////////////

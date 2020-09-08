@@ -3,6 +3,35 @@ const { Seller, User, Admin } = require("../../MODELS");
 
 Router.post("/update-fc-token-of-any-person", (req, res) => {
   let { token } = req.body;
+
+  if (
+    token.personType === "" &&
+    token.personType === undefined &&
+    token.personType === null
+  ) {
+    return res.json({ msg: "Invalid person type", success: false });
+  }
+  if (
+    token.personID === "" &&
+    token.personID === undefined &&
+    token.personID === null
+  ) {
+    return res.json({ msg: "Invalid personID", success: false });
+  }
+  if (
+    token.fcToken === "" &&
+    token.fcToken === undefined &&
+    token.fcToken === null
+  ) {
+    return res.json({ msg: "Invalid fcToken", success: false });
+  }
+  if (
+    token.appType === "" &&
+    token.appType === undefined &&
+    token.appType === null
+  ) {
+    return res.json({ msg: "Invalid appType", success: false });
+  }
   if (token.personType === "SELLER") {
     Seller.findOne({ _id: token.personID })
       .then((foundSeller) => {

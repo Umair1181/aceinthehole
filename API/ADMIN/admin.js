@@ -11,6 +11,12 @@ const {
 Router.post("/admin-can-block-unblock-any-service", (req, res) => {
   let { serviceID, isBlock } = req.body;
 
+  if (serviceID === null && serviceID === undefined && serviceID === "null") {
+    return res.json({ msg: "Invalid Service id", success: false });
+  }
+  if (isBlock === null && isBlock === undefined && isBlock === "null") {
+    return res.json({ msg: "Invalid isBlock", success: false });
+  }
   Service.findOne({ _id: serviceID })
     .populate({ path: "seller" })
     .then(async (foundservice) => {
@@ -53,10 +59,12 @@ Router.post("/admin-can-block-unblock-any-service", (req, res) => {
         if (foundservice.seller.webFcToken !== null) {
           tokensArray.push(foundservice.seller.webFcToken);
         }
-        let isSendNotification = await notificationSend(tokensArray, payload);
-        console.log(isSendNotification);
-        if (isSendNotification) {
-          console.log("Notification sent to Seller");
+        if (tokensArray.length > 0) {
+          let isSendNotification = await notificationSend(tokensArray, payload);
+          console.log(isSendNotification);
+          if (isSendNotification) {
+            console.log("Notification sent to Seller");
+          }
         }
         ////////////////////////////////////////
         foundservice

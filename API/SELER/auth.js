@@ -1330,9 +1330,47 @@ Router.post("/seller-login", (req, res) => {
               }
             }
           } else {
-            return res
-              .json({ msg: "You Are Blocked", success: false })
-              .status(202);
+            if (fndseller.isOrderBlocked !== true) {
+              if (fndseller) {
+                ///////////// Password Compare /////////
+                bcrypt
+                  .compare(seller.password, fndseller.password)
+                  .then((findseller) => {
+                    if (findseller) {
+                      fndseller.password = "";
+                      return res
+                        .json({
+                          msg: "Authenticated Seller",
+                          result: fndseller,
+                          success: true,
+                        })
+                        .status(200);
+                    } else {
+                      return res
+                        .json({ msg: "Invalid Password", success: false })
+                        .status(400);
+                    }
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                    return res
+                      .json({
+                        msg: "Invalid Password",
+                        success: false,
+                      })
+                      .status(400);
+                  });
+              } else {
+                return res
+                  .json({ msg: "Invalid Email", success: false })
+                  .status(400);
+              }
+            } else {
+              console.log(fndseller.isOrderBlocked);
+              return res
+                .json({ msg: "You Are Blocked", success: false })
+                .status(202);
+            }
           }
         } else {
           return res

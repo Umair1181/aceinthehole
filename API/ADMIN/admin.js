@@ -689,7 +689,12 @@ Router.post("/show-requested-sellers-list", (req, res) => {
 
 Router.post("/admin-can-block-unblock-any-seller", (req, res) => {
   let { sellerID, isBlock } = req.body;
-
+  if (sellerID === null && sellerID === undefined && sellerID === "null") {
+    return res.json({ msg: "Invalid sellerID", success: false });
+  }
+  if (isBlock === null && isBlock === undefined && isBlock === "null") {
+    return res.json({ msg: "Invalid isBlock", success: false });
+  }
   Seller.findOne({ _id: sellerID })
     .then((foundSeller) => {
       if (foundSeller !== null) {
@@ -697,14 +702,30 @@ Router.post("/admin-can-block-unblock-any-seller", (req, res) => {
 
         foundSeller
           .save()
-          .then((savedSeller) => {
+          .then(async (savedSeller) => {
             if (savedSeller) {
+              let foundServices = await Service.find({
+                seller: savedSeller._id,
+                isBlock: false,
+              });
+              let foundOrders = await Order.find({
+                service: foundServices,
+                // isPaid: true,
+                orderStatus: "NEWORDER",
+              });
+
+              if (foundOrders.length > 0) {
+                savedSeller.isOrderBlocked = false;
+              } else {
+                savedSeller.isOrderBlocked = true;
+              }
+              let saveSellerAgain = await savedSeller.save();
               return res
                 .json({
                   msg: `Seller is ${
                     savedSeller.isBlock ? "Seller Blocked" : "Seller Unblocked"
                   }`,
-                  savedSeller,
+                  savedSeller: saveSellerAgain,
                   success: true,
                 })
                 .status(200);

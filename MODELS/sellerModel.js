@@ -77,6 +77,10 @@ const Seller = new Schema({
     type: String,
     default: null,
   },
+  isOrderBlocked: {
+    type: Boolean,
+    default: false,
+  },
   isProfileCompleted: {
     type: Boolean,
     default: false,

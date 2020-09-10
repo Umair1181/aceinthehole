@@ -1087,17 +1087,25 @@ Router.post(
             // return res.json({ aaa: req.files["serviceImgs"] === null });
             if (req.files["serviceImgs"]) {
               // for (let x = 0; x < req.files["serviceImgs"].length; x++) {
-              serviceImgArray.push(
-                CreateURL(req.files["serviceImgs"][0].filename)
-              );
+              if (
+                req.files["serviceImgs"][0].filename !== null &&
+                req.files["serviceImgs"][0].filename !== "" &&
+                req.files["serviceImgs"][0].filename !== undefined
+              ) {
+                serviceImgArray.push(
+                  CreateURL(req.files["serviceImgs"][0].filename)
+                );
+              } else {
+                return res.json({ msg: "Invalid Images", success: false });
+              }
               // }
               foundService.serviceImgsURLs = serviceImgArray;
             }
-
-            if (req.files["certificatesImgs"]) {
-              foundService.certificatesImgsURLs =
-                foundService.certificatesImgsURLs;
-            }
+            //
+            // if (req.files["certificatesImgs"]) {
+            foundService.certificatesImgsURLs =
+              foundService.certificatesImgsURLs;
+            // }
             foundService
               .save()
               .then((sService) => {

@@ -1095,11 +1095,11 @@ Router.post(
                 serviceImgArray.push(
                   CreateURL(req.files["serviceImgs"][0].filename)
                 );
+                foundService.serviceImgsURLs = serviceImgArray;
               } else {
                 return res.json({ msg: "Invalid Images", success: false });
               }
               // }
-              foundService.serviceImgsURLs = serviceImgArray;
             }
             //
             // if (req.files["certificatesImgs"]) {

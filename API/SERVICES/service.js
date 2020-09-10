@@ -589,7 +589,7 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
 Router.post("/show-all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;
 
-  Service.find({ seller: sellerID, isBlock: false })
+  Service.find({ seller: sellerID, isBlock: false, isLive: true })
     .then((foundServices) => {
       if (foundServices.length > 0) {
         return res

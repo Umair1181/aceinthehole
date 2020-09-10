@@ -711,9 +711,16 @@ Router.post("/admin-can-block-unblock-any-seller", (req, res) => {
               let foundOrders = await Order.find({
                 service: foundServices,
                 // isPaid: true,
-                orderStatus: "NEWORDER",
+                orderStatus: [
+                  "NEWORDER",
+                  "DELIVERED",
+                  "DISPUTE",
+                  // "ORDERCANCELED",
+                  //"COMPLETED",
+                ],
               });
-
+              console.log("***foundOrders.length");
+              console.log(foundOrders.length);
               if (foundOrders.length > 0) {
                 savedSeller.isOrderBlocked = false;
               } else {

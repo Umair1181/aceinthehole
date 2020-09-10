@@ -1083,6 +1083,7 @@ Router.post(
             foundService.serviceDaysArray = service.serviceDaysArray;
             foundService.toTime = service.toTime;
             foundService.fromTime = service.fromTime;
+            foundService.serviceImgsURLs = foundService.serviceImgsURLs;
             // return res.json({ aaa: req.files["serviceImgs"] === null });
             if (req.files["serviceImgs"]) {
               // for (let x = 0; x < req.files["serviceImgs"].length; x++) {
@@ -1092,7 +1093,6 @@ Router.post(
               // }
               foundService.serviceImgsURLs = serviceImgArray;
             }
-            foundService.serviceImgsURLs = foundService.serviceImgsURLs;
 
             if (req.files["certificatesImgs"]) {
               foundService.certificatesImgsURLs =

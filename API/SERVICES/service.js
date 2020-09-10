@@ -1038,8 +1038,8 @@ Router.post("/upload", upload.array("image", 1), (req, res) => {
 Router.post(
   "/update-service-of-seller-with-image",
   upload.fields([
-    { name: "certificatesImgs", maxCount: 4 },
-    { name: "serviceImgs", maxCount: 3 },
+    { name: "certificatesImgs", maxCount: 1 },
+    { name: "serviceImgs", maxCount: 1 },
   ]),
   (req, res) => {
     let { data } = req.body;
@@ -1084,12 +1084,13 @@ Router.post(
             foundService.toTime = service.toTime;
             foundService.fromTime = service.fromTime;
             foundService.serviceImgsURLs = foundService.serviceImgsURLs;
-            if (req.files["serviceImgs"].length > 0) {
-              for (let x = 0; x < req.files["serviceImgs"].length; x++) {
-                serviceImgArray.push(
-                  CreateURL(req.files["serviceImgs"][x].filename)
-                );
-              }
+
+            if (req.files["serviceImgs"]) {
+              // for (let x = 0; x < req.files["serviceImgs"].length; x++) {
+              serviceImgArray.push(
+                CreateURL(req.files["serviceImgs"][0].filename)
+              );
+              // }
               foundService.serviceImgsURLs = serviceImgArray;
             }
 

@@ -523,6 +523,7 @@ const getServicesOfNearesSellers = async (
       let founServices = await Service.find({
         isBlock: false,
         seller: SellersList[x]._id,
+        isLive: true,
       }).populate({ path: "seller" });
       console.log("founServices");
       console.log(founServices);
@@ -1139,6 +1140,7 @@ Router.post("/live-or-hide-service-by-seller", (req, res) => {
     .then((foundService) => {
       if (foundService !== null) {
         foundService.isLive = isLive;
+        found;
         foundService
           .save()
           .then((updateService) => {

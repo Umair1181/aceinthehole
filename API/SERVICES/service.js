@@ -1084,7 +1084,7 @@ Router.post(
             foundService.toTime = service.toTime;
             foundService.fromTime = service.fromTime;
             foundService.serviceImgsURLs = foundService.serviceImgsURLs;
-            if (req.files["serviceImgs"]) {
+            if (req.files["serviceImgs"].length > 0) {
               for (let x = 0; x < req.files["serviceImgs"].length; x++) {
                 serviceImgArray.push(
                   CreateURL(req.files["serviceImgs"][x].filename)
@@ -1092,9 +1092,11 @@ Router.post(
               }
               foundService.serviceImgsURLs = serviceImgArray;
             }
-            foundService.certificatesImgsURLs =
-              foundService.certificatesImgsURLs;
 
+            if (req.files["certificatesImgs"]) {
+              foundService.certificatesImgsURLs =
+                foundService.certificatesImgsURLs;
+            }
             foundService
               .save()
               .then((sService) => {

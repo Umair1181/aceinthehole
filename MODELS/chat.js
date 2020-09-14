@@ -36,6 +36,14 @@ const Chat = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "tblsellers"
   },
+  userSeenStatus: {
+    type: Boolean,
+    default: true,
+  },
+  sellerSeenStatus: {
+    type: Boolean,
+    default: true,
+  },
   date: {
     type: Date,
     default: Date.now()

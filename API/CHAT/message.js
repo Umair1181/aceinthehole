@@ -1,5 +1,26 @@
 const Router = require("express").Router();
 const { Chat, Seller } = require("../../MODELS");
+
+
+Router.post( "/chat-readed", ( req, res ) => {
+  const { chat }  = req.body;
+
+  Chat.findOne({ _id: chat._id })
+  .then( async foundChat => {
+    if( foundChat.user === chat.user ){
+      foundChat.userSeenStatus = true;
+    }else{
+      foundChat.sellerSeenStatus = true;
+    }
+    let sChat = await foundChat.save();
+    return res.json({ sChat, msg: "Chat Updated For Seen status", success:true }).status( 200 );
+  } )
+  .catch( err=>  {
+    return res.json({ msg: "Chat finding catch Error", success: false }).status( 500 );
+  } )
+} )
+
+
 Router.post("/delete-all-chats", async (req, res) => {
   let allChats = await Chat.find();
 
@@ -365,8 +386,19 @@ Router.post("/all-chats-of-user", (req, res) => {
       if (foundChat.length > 0) {
         let AllSellers = [];
         for (let index = 0; index < foundChat.length; index++) {
-          const element = foundChat[index];
-          AllSellers.push(element.seller);
+          const element = foundChat[index].seller;
+
+          // , seenStatus: foundChat[index].sellerSeenStatus }
+          
+
+
+          AllSellers.push( {
+            _id: element._id,
+            isOnline: element.isOnline,
+            sellerName: element.sellerName, 
+            profileImgURL: element.profileImgURL, 
+            seenStatus: foundChat[index].sellerSeenStatus,
+          } );
           if (index + 1 == foundChat.length) {
             return res
               .json({
@@ -398,8 +430,14 @@ Router.post("/all-chats-of-seller", (req, res) => {
         let AllUsers = [];
 
         for (let index = 0; index < foundChat.length; index++) {
-          const element = foundChat[index];
-          AllUsers.push(element.user);
+          const element = foundChat[index].user;
+          AllUsers.push({
+            _id: element._id,
+            isOnline: element.isOnline,
+            userName: element.userName, 
+            profileImgURL: element.profileImgURL, 
+            seenStatus: foundChat[index].userSeenStatus,
+          });
           if (index + 1 == foundChat.length) {
             return res
               .json({

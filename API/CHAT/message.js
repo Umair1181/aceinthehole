@@ -467,6 +467,7 @@ Router.post("/chat-of-sender-and-receiver", (req, res) => {
           .json({
             msg: "Chat of Sender & Receiver",
             messages: foundChat.msgOffer,
+            chatId: foundChat._id,
             success: true,
           })
           .status(200);

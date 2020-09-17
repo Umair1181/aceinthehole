@@ -7,11 +7,11 @@ Router.post( "/chat-readed", ( req, res ) => {
 
   Chat.findOne({ _id: chat._id })
   .then( async foundChat => {
-    if( foundChat.user === chat.user ){
-      foundChat.userSeenStatus = true;
-    }else{
-      foundChat.sellerSeenStatus = true;
-    }
+    // if( foundChat.user === chat.user ){
+    //   foundChat.userSeenStatus = true;
+    // }else{
+    //   foundChat.sellerSeenStatus = true;
+    // }
     let sChat = await foundChat.save();
     return res.json({ sChat, msg: "Chat Updated For Seen status", success:true }).status( 200 );
   } )

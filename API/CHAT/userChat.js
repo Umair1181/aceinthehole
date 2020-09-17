@@ -243,11 +243,11 @@ const saveToDbChat = (data) => {
             from: data.from,
             to: data.to,
           });
-          if( foundPreviousChat.user === data.to ){
-            foundPreviousChat.userSeenStatus = false;
-          }else{
-            foundPreviousChat.sellerSeenStatus = false;
-          }
+          // if( foundPreviousChat.user === data.to ){
+          //   foundPreviousChat.userSeenStatus = false;
+          // }else{
+          // }
+          foundPreviousChat.userSeenStatus = false;
           foundPreviousChat
             .save()
             .then((savedChat) => {
@@ -340,11 +340,11 @@ const saveToDbChat = (data) => {
           // }else{
           //   foundPreviousChat.sellerSeenStatus = false;
           // }
-          if( foundPreviousChat.seller === data.to ){
-            foundPreviousChat.sellerSeenStatus = false;
-          }else{
-            foundPreviousChat.userSeenStatus = false;
-          }
+          foundPreviousChat.sellerSeenStatus = false;
+          // if( foundPreviousChat.seller === data.to ){
+          // }else{
+          //   foundPreviousChat.userSeenStatus = false;
+          // }
           console.log(`${data.from} and  ${data.to}`);
           console.log("After Push");
 

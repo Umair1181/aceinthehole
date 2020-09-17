@@ -328,6 +328,7 @@ const saveToDbChat = (data) => {
       .then((foundPreviousChat) => {
         if (foundPreviousChat != null) {
           //update previous chat
+          console.log(  "update previous chat>>>>>>>>>>>>");
           foundPreviousChat.msgOffer.push({
             myType: data.type,
             from: data.from,
@@ -367,6 +368,7 @@ const saveToDbChat = (data) => {
               // return res.json({ msg: "catch error: newChat.save " });
             });
         } else {
+          console.log( "create new chat>>>>>>>>>>> " );
           let newChat = new Chat({
             msgOffer: {
               myType: data.type,

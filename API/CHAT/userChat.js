@@ -340,10 +340,10 @@ const saveToDbChat = (data) => {
           // }else{
           //   foundPreviousChat.sellerSeenStatus = false;
           // }
-          if( foundPreviousChat.user === data.to ){
-            foundPreviousChat.userSeenStatus = false;
-          }else{
+          if( foundPreviousChat.seller === data.to ){
             foundPreviousChat.sellerSeenStatus = false;
+          }else{
+            foundPreviousChat.userSeenStatus = false;
           }
           console.log(`${data.from} and  ${data.to}`);
           console.log("After Push");

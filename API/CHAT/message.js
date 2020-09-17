@@ -7,13 +7,16 @@ Router.post( "/chat-readed", ( req, res ) => {
 
   Chat.findOne({ _id: chat._id })
   .then( async foundChat => {
-    if( foundChat.user === chat.user ){
+    if( foundChat.user.toString() === chat.user.toString() ){
+      console.log( "check 1" );
+
       foundChat.userSeenStatus = true;
     }else{
+      console.log( "check 2" );
       foundChat.sellerSeenStatus = true;
     }
     let sChat = await foundChat.save();
-    return res.json({ sChat, msg: "Chat Updated For Seen status", success:true }).status( 200 );
+    return res.json({ sChat ,msg: "Chat Updated For Seen status", success:true }).status( 200 );
   } )
   .catch( err=>  {
     return res.json({ msg: "Chat finding catch Error", success: false }).status( 500 );

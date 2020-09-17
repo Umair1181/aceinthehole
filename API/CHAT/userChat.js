@@ -335,7 +335,12 @@ const saveToDbChat = (data) => {
             to: data.to,
             payload: data.payload,
           });
-          if( foundPreviousChat.user === data.from ){
+          // if( foundPreviousChat.user === data.from ){
+          //   foundPreviousChat.userSeenStatus = false;
+          // }else{
+          //   foundPreviousChat.sellerSeenStatus = false;
+          // }
+          if( foundPreviousChat.user === data.to ){
             foundPreviousChat.userSeenStatus = false;
           }else{
             foundPreviousChat.sellerSeenStatus = false;

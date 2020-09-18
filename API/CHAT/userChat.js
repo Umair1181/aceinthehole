@@ -261,7 +261,6 @@ const saveToDbChat = (data) => {
                 //   .status(200);
               } else {
                 console.log("Message Not Saved");
-
                 // return res
                 //   .json({ msg: "Message Not Saved", success: false })
                 //   .status(404);

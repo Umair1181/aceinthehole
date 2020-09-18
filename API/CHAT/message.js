@@ -2,6 +2,44 @@ const Router = require("express").Router();
 const { Chat, Seller, User } = require("../../MODELS");
 
 
+Router.post( "/has-new-message" , ( req, res ) => {
+  const { userId, isSeller } = req.body ;
+  let findObject = "" ; 
+  if( isSeller === true ){
+    findObject = {
+      seller: userId,
+      sellerSeenStatus: false
+      // userSeenStatus : false,
+    };
+  }else{
+    findObject = {
+      user: userId,
+      userSeenStatus: false
+    };
+  }
+  
+  Chat.find( findObject
+    // {
+    // $or: [
+    //   { user: userId, isDeleted: false, friendSeenStatus: false },
+    //   { friend: userId, isDeleted: false, userSeenStatus: false }
+    // ],
+  // } 
+  )
+  .select("sellerSeenStatus userSeenStatus")
+  .then( chatsList => { 
+      if( chatsList.length > 0 ){
+        return res.json({ count : chatsList.length, msg: "New Messages", success: true }).status( 200 ) ;
+      }else{
+        return res.json({findObject, msg: "No New Message", success: false }).status( 500 );
+      }
+    }
+   )
+   .catch( err=> {
+     return res.json({ msg: "Catch Error Checking newMessagews", success: false }).status( 500 );
+   } )
+})
+
 Router.post( "/chat-readed", ( req, res ) => {
   const { chat }  = req.body;
 
@@ -10,14 +48,15 @@ Router.post( "/chat-readed", ( req, res ) => {
   .then( async foundChat => {
     let fuser = await User.findOne({ _id: foundChat.user }).select( "_id userName" );
     let fSeller  = await Seller.findOne({ _id: foundChat.seller }).select( "_id sellerName" );
-    if( foundChat.user.toString() === chat.user.toString() ){
-      console.log( "check 1" );
+    // if( foundChat.user.toString() === chat.user.toString() ){
+    //   console.log( "check 1" );
 
-      foundChat.userSeenStatus = true;
-    }else{
-      console.log( "check 2" ); 
-      foundChat.sellerSeenStatus = true;
-    }
+    //   foundChat.userSeenStatus = true;
+    // }
+    // if( foundChat.seller.toString() !== chat.user.toString() ){
+    //   console.log( "check 2" ); 
+    //   foundChat.sellerSeenStatus = true;
+    // }
     let sChat = await foundChat.save();
     return res.json({ fuser ,fSeller ,sChat ,msg: "Chat Updated For Seen status", success:true }).status( 200 );
   } )

@@ -15,7 +15,7 @@ Router.post( "/chat-readed", ( req, res ) => {
 
       foundChat.userSeenStatus = true;
     }else{
-      console.log( "check 2" );
+      console.log( "check 2" ); 
       foundChat.sellerSeenStatus = true;
     }
     let sChat = await foundChat.save();

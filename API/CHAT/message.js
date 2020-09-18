@@ -19,7 +19,7 @@ Router.post( "/has-new-message" , ( req, res ) => {
   }
   
   Chat.find( findObject
-    // {
+    // { 
     // $or: [
     //   { user: userId, isDeleted: false, friendSeenStatus: false },
     //   { friend: userId, isDeleted: false, userSeenStatus: false }

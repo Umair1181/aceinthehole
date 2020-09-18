@@ -243,11 +243,11 @@ const saveToDbChat = (data) => {
             from: data.from,
             to: data.to,
           });
-          if( foundPreviousChat.user.toString() === data.to.toString() ){
-            foundPreviousChat.userSeenStatus = false;
-          }else{
-            foundPreviousChat.sellerSeenStatus = false;
-          }
+          foundPreviousChat.userSeenStatus = false;
+          // if( foundPreviousChat.user.toString() === data.to.toString() ){
+          // }else{
+          //   foundPreviousChat.sellerSeenStatus = false;
+          // }
           foundPreviousChat
             .save()
             .then((savedChat) => {
@@ -335,16 +335,8 @@ const saveToDbChat = (data) => {
             to: data.to,
             payload: data.payload,
           });
-          // if( foundPreviousChat.user === data.from ){
-          //   foundPreviousChat.userSeenStatus = false;
-          // }else{
-          //   foundPreviousChat.sellerSeenStatus = false;
-          // }
-          if( foundPreviousChat.seller.toString() === data.to.toString() ){
-            foundPreviousChat.sellerSeenStatus = false;
-          }else{
-            foundPreviousChat.userSeenStatus = false;
-          }
+          // seen status
+          foundPreviousChat.sellerSeenStatus = false;
           console.log(`${data.from} and  ${data.to}`);
           console.log("After Push");
 

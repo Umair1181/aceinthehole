@@ -10,14 +10,14 @@ Router.post( "/chat-readed", ( req, res ) => {
   .then( async foundChat => {
     let fuser = await User.findOne({ _id: foundChat.user }).select( "_id userName" );
     let fSeller  = await Seller.findOne({ _id: foundChat.seller }).select( "_id sellerName" );
-    // if( foundChat.user.toString() === chat.user.toString() ){
-    //   console.log( "check 1" );
+    if( foundChat.user.toString() === chat.user.toString() ){
+      console.log( "check 1" );
 
-    //   foundChat.userSeenStatus = true;
-    // }else{
-    //   console.log( "check 2" );
-    //   foundChat.sellerSeenStatus = true;
-    // }
+      foundChat.userSeenStatus = true;
+    }else{
+      console.log( "check 2" );
+      foundChat.sellerSeenStatus = true;
+    }
     let sChat = await foundChat.save();
     return res.json({ fuser ,fSeller ,sChat ,msg: "Chat Updated For Seen status", success:true }).status( 200 );
   } )

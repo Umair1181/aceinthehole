@@ -53,7 +53,7 @@ Router.post( "/chat-readed", ( req, res ) => {
 
       foundChat.userSeenStatus = true;
     }
-    if( foundChat.seller.toString() !== chat.user.toString() ){
+    if( foundChat.seller.toString() === chat.user.toString() ){
       console.log( "check 2" ); 
       foundChat.sellerSeenStatus = true;
     }

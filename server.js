@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 //////Stripe config//////////
 const stripe = require("stripe")(process.env.secret_key, {
-  apiVersion: "2020-03-02",
+  apiVersion: "2020-03-02"
 });
 //////Serve////////////////////////////////////////////////////////////
 const socket = require("socket.io");
@@ -352,7 +352,7 @@ io.on("connection", async (socket) => {
 
 app.post("/retrieve-stripe-connect-account", (req, res) => {
   const { sellerId } = req.body;
-  if (sellerId === "") {
+  if (sellerId === "" || sellerId === undefined) {
     return res.json({ msg: "Invalid Seller", success: false }).status(500);
   }
 
@@ -370,7 +370,7 @@ app.post("/retrieve-stripe-connect-account", (req, res) => {
           .then(async (account) => {
             let stripeMessage = false;
             if (account.data.length > 0) {
-              // return res.json({ account });
+              // return res.json({ l: foundSeller.stripeAccountId,  account });
               for (let index = 0; index < account.data.length; index++) {
                 const element = account.data[index];
                 if (

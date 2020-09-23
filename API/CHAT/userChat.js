@@ -439,6 +439,7 @@ const saveOfferToDbChat = (data, socket) => {
             to: user,
             // randomId : data.randomId
           });
+          foundPreviousChat.userSeenStatus = false;
           foundPreviousChat
             .save()
             .then((savedChat) => {

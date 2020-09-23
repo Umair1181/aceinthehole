@@ -28,6 +28,10 @@ Router.post( "/add-update", ( req, res ) => {
                 if(  data.paypalBusinessEmail !== "" &&  data.paypalBusinessEmail !== undefined )
                 {
                     newConfig.paypalBusinessEmail = data.paypalBusinessEmail;
+                }                
+                if(  data.paypalPaymentLink !== "" &&  data.paypalPaymentLink !== undefined )
+                {
+                    newConfig.paypalPaymentLink = data.paypalPaymentLink;
                 }
                 if(  data.stripePaymentLink !== "" &&  data.stripePaymentLink !== undefined )
                 {

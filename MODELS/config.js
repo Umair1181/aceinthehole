@@ -8,6 +8,9 @@ const Configs = new Schema({
     stripePaymentLink: {
         type: String
     },
+    paypalPaymentLink:{
+        type: String
+    },
     superAdminCharges:{
         type: Number
     },

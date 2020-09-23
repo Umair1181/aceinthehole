@@ -110,6 +110,7 @@ Router.post("/send-offer", (req, res) => {
           to: user,
           // randomId : data.randomId
         });
+        foundPreviousChat.userSeenStatus = false;
         foundPreviousChat
           .save()
           .then((savedChat) => {

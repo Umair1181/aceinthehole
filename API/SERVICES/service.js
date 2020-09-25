@@ -56,7 +56,7 @@ const ServiceRating = require("../BusinessLogics/rating");
 Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
   let { location } = req.body;
   let allTopServices = [];
-  if (location === "") {
+  if (location === "" || location === undefined) {
     message = "Invalid location!";
   } else {
     message = false;

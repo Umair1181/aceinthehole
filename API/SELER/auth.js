@@ -278,56 +278,127 @@ Router.post("/client-satisfaction-rate", async (req, res) => {
   let reviewsLength = 0;
   let avgRatingAllServices = 0;
   let totalServices = 0;
-  let foundServices = await Service.find({ seller: sellerID });
-  totalServices = foundServices.length;
-  if (foundServices.length > 0) {
-    for (let k = 0; k < foundServices.length; k++) {
-      let foundReviews = await Reviews.find({ service: foundServices[k]._id });
 
-      if (foundReviews.length > 0) {
-        reviewsLength = foundReviews.length;
-        for (let l = 0; l < foundReviews.length; l++) {
-          ratingSum = ratingSum + foundReviews[l].rating;
-        }
-        avgRatingService = ratingSum / foundReviews.length;
-        avgRatingAllServices = avgRatingService + avgRatingAllServices;
+  let foundServices = [];
+  let data = await Service.find({ seller: sellerID }).select( "_id" );
+  for (let index = 0; index < data.length; index++) {
+    foundServices.push(data[index]._id);
+  }
+  Reviews.aggregate([
+    {
+      $match: { service: { $in: foundServices }} 
+    },
+    {
+      $group: {
+        _id: "$service",
+        serviceCount: { $sum: 1 },
+        serviceRating: { $sum: "$rating" },
       }
     }
-    sellerRating = avgRatingAllServices / totalServices;
-    return res
-      .json({
-        msg: "client-satisfaction-rate",
-        sellerRating: sellerRating / reviewsLength,
-        success: true,
-      })
-      .status(200);
-  } else {
-    return res
-      .json({
-        msg: "No Service",
-        success: false,
-      })
-      .status(404);
-  }
+  ])
+  .then( topServices => {
+    // return res.json({ f });
+  // return res.json({f :f.length, count: data.length,foundServices, data });
+    let obtainedRaiting = 0;
+    let totalRaiting = 0;
+    for (let index = 0; index < topServices.length; index++) {
+      const element = topServices[index];
+
+      let serviceRating = ( element.serviceRating / ( element.serviceCount * 5 )) * 100;
+      console.log( "serviceRating" );
+      console.log( serviceRating );
+      if( element.serviceCount > 0 ){
+        obtainedRaiting = obtainedRaiting + element.serviceRating;
+        totalRaiting = totalRaiting + ( element.serviceCount * 5 );
+      }
+    }
+    let avgRaiting = ( obtainedRaiting / totalRaiting ) * 100;
+    return res.json({ obtainedRaiting,totalRaiting, sellerRating:avgRaiting  , success: true }).status( 200 );
+
+  } )
+  .catch( err => {
+    return res.json({ err, msg:"Failed" , success: false }).status( 500 );
+  } );
+  // 
+  
+  // if (foundServices.length > 0) {
+  //   for (let k = 0; k < foundServices.length; k++) {
+  //     let foundReviews = await Reviews.find({ service: foundServices[k]._id });
+
+  //     if (foundReviews.length > 0) {
+  //       reviewsLength = foundReviews.length;
+  //       for (let l = 0; l < foundReviews.length; l++) {
+  //         ratingSum = ratingSum + foundReviews[l].rating;
+  //       }
+  //       avgRatingService = ratingSum / foundReviews.length;
+  //       avgRatingAllServices = avgRatingService + avgRatingAllServices;
+  //     }
+  //   }
+  //   sellerRating = avgRatingAllServices / totalServices;
+  //   return res
+  //     .json({
+  //       msg: "client-satisfaction-rate",
+  //       sellerRating: sellerRating / reviewsLength,
+  //       success: true,
+  //     })
+  //     .status(200);
+  // } else {
+  //   return res
+  //     .json({
+  //       msg: "No Service",
+  //       success: false,
+  //     })
+  //     .status(404);
+  // }
 });
 
 Router.post("/seller-order-completion-rate", async (req, res) => {
   let { sellerID } = req.body;
+  let errorMessage = false;
+  if( sellerID === "" || sellerID === undefined ){
+    errorMessage = "Invalid Seller Id";
+  }else{
+    errorMessage = false;
+  }
 
-  let allServices = await Service.find({ seller: sellerID });
-  let allOrders = await Order.find({ service: allServices });
-  let allORDERCANCELED = await Order.find({
-    service: allServices,
-    orderStatus: "ORDERCANCELED",
-  });
-  let calculate = 100 - allORDERCANCELED.length / allOrders.length;
-  return res.json({
-    msg: "seller-order-completion-rate",
-    totalOrders: allOrders.length,
-    totalCanceledOrders: allORDERCANCELED.length,
-    orderCompletionRate: calculate,
-    // allOrders,
-  });
+  if( errorMessage === false ){
+    let totalOrders = 0;
+    let totalCanceledOrders = 0;
+    let orderCompletionRate = 100;
+    let calculation = true; // = false -> when no calculation will be done due to lack of data
+    let allServices = await Service.find({ seller: sellerID });
+    if( allServices.length > 0 ){
+      let allOrders = await Order.find({ service: allServices });
+      if( allOrders.length > 0 ){
+        let allORDERCANCELED = await Order.find({
+          service: allServices,
+          orderStatus: "ORDERCANCELED",
+        });
+        let completeOrders = allOrders.length - allORDERCANCELED.length;
+        let calculate = 100 * ( completeOrders / allOrders.length );
+        totalOrders = allOrders.length;
+        totalCanceledOrders = allORDERCANCELED.length;
+        orderCompletionRate = calculate;
+      }else{
+        calculation = false;
+      }
+    }else{
+      calculation = false;
+    }
+
+    return res.json({
+      msg: "Order Complition Rate",
+      totalOrders,
+      totalCanceledOrders,
+      orderCompletionRate,      
+      success: calculation   
+    });
+
+   
+  }else{
+    return res.json({ msg: errorMessage, success: false }).status( 500 );
+  }
+ 
 });
 
 Router.post("/all-sellers-details", (req, res) => {

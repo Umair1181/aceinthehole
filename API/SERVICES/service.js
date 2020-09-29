@@ -143,7 +143,7 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
                   // demo: topServices[0]._id.seller.location,
                   length: allTopServices.length,
                   topServices: allTopServices,
-                  allServicesArray: allServicesArray,
+                  // allServicesArray: allServicesArray,
                   success: true,
                 })
                 .status(200);
@@ -549,55 +549,55 @@ const getServicesOfNearesSellers = async (
     }
   }
 };
-Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
-  let { userID } = req.body;
-  // Service.find({ isBlock: false, isLive: true })
-  //   // .distinct("_id")
-  //   .then((foundService) => {
-  //     new ServiceClass()
-  //       .checkServiceInCart(foundService, userID)
-  //       .then(async (servicesWithStatus) => {
-  //         return res.json({
-  //           servicesWithStatus,
-  //           total: servicesWithStatus.length,
-  //         });
-  if (true) {
-    let topServices = await Order.aggregate([
-      {
-        $group: {
-          _id: "$service",
-          count: { $sum: 1 },
-        },
-      },
-    ]).limit(10);
+// Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
+//   let { userID } = req.body;
+//   // Service.find({ isBlock: false, isLive: true })
+//   //   // .distinct("_id")
+//   //   .then((foundService) => {
+//   //     new ServiceClass()
+//   //       .checkServiceInCart(foundService, userID)
+//   //       .then(async (servicesWithStatus) => {
+//   //         return res.json({
+//   //           servicesWithStatus,
+//   //           total: servicesWithStatus.length,
+//   //         });
+//   if (true) {
+//     let topServices = await Order.aggregate([
+//       {
+//         $group: {
+//           _id: "$service",
+//           count: { $sum: 1 },
+//         },
+//       },
+//     ]).limit(10);
 
-    Service.populate(topServices, {
-      path: "_id",
-      populate: { path: "seller" },
-    }).then((topServices) => {
-      if (topServices.length < 1) {
-        return res
-          .json({ msg: "No Service Ordered Yet!", success: false })
-          .status(200);
-      } else {
-        return res
-          .json({
-            msg: "Top Ten Most Hired Services!",
-            topServices: topServices,
-            success: true,
-          })
-          .status(200);
-      }
-    });
-  } else {
-    return res
-      .json({
-        msg: "No Service Found!",
-        success: false,
-      })
-      .status(400);
-  }
-});
+//     Service.populate(topServices, {
+//       path: "_id",
+//       populate: { path: "seller" },
+//     }).then((topServices) => {
+//       if (topServices.length < 1) {
+//         return res
+//           .json({ msg: "No Service Ordered Yet!", success: false })
+//           .status(200);
+//       } else {
+//         return res
+//           .json({
+//             msg: "Top Ten Most Hired Services!",
+//             topServices: topServices,
+//             success: true,
+//           })
+//           .status(200);
+//       }
+//     });
+//   } else {
+//     return res
+//       .json({
+//         msg: "No Service Found!",
+//         success: false,
+//       })
+//       .status(400);
+//   }
+// });
 
 Router.post("/show-all-services-of-specific-seller", (req, res) => {
   let { sellerID } = req.body;

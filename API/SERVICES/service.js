@@ -69,7 +69,10 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
           count: { $sum: 1 },
         },
       },
-    ]).limit(10);
+    ]);
+    // .limit(10);
+
+
 
     Service.populate(topServices, {
       path: "_id",
@@ -80,9 +83,12 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
           .json({ msg: "No Service Ordered Yet!", success: false })
           .status(200);
       } else {
+        // return res.json({ topServices });
         console.log(topServices.length);
         for (let index = 0; index < topServices.length; index++) {
-          console.log("Lopp");
+          if(  topServices[index]._id === null ){
+            continue;
+          }
           // const sellerLongitude =
           //   topServices[index]._id.seller.location.longitude;
           // const sellerLatitude =
@@ -110,32 +116,39 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
           var R = 6371; //  Earth distance in km so it will return the distance in km
           var distance = 2 * R * Math.asin(Math.sqrt(a));
 
-          console.log("step 1");
+          console.log("distance");
           console.log(distance);
           if (distance <= 100) {
-            console.log("step 2");
+            console.log( "pushed" );
             await allTopServices.push(topServices[index]._id);
           }
-          let allServicesArray = [];
-          if (topServices.length === index + 1) {
+          
+          // filter length we need services to show
+          
+          if (topServices.length === index + 1 || allTopServices.length === 10) {
             if (allTopServices.length > 0) {
-              for (let k = 0; k < allTopServices.length; k++) {
-                for (let j = 0; j < allTopServices[k].length; j++) {
-                  // const element = array[j];
-                  console.log(allTopServices[k][j]);
-                  await allServicesArray.push(allTopServices[k][j]);
-                }
-              }
+              console.log( "check 1" );
+              // let allServicesArray = [];
+              // for (let k = 0; k < allTopServices.length; k++) {
+              //   for (let j = 0; j < allTopServices[k].length; j++) {
+              //     // const element = array[j];
+              //     console.log(allTopServices[k][j]);
+              //     await allServicesArray.push(allTopServices[k][j]);
+              //   }
+              // }
 
               return res
                 .json({
                   msg: "Top Ten Most Hired Services in Your Area!",
                   // demo: topServices[0]._id.seller.location,
-                  topServices: allServicesArray,
+                  // topServices: allServicesArray,
+                  length: allTopServices.length,
+                  topServices: allTopServices,
                   success: true,
                 })
                 .status(200);
             } else {
+              console.log( "check 2" );
               return res
                 .json({ msg: "No Nearest Service", success: false })
                 .status(500);

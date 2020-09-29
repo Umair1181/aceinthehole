@@ -306,6 +306,7 @@ Router.post("/client-satisfaction-rate", async (req, res) => {
   // return res.json({f :f.length, count: data.length,foundServices, data });
     let obtainedRaiting = 0;
     let totalRaiting = 0;
+    let ratingsCount = 0;
     for (let index = 0; index < topServices.length; index++) {
       const element = topServices[index];
 
@@ -314,11 +315,15 @@ Router.post("/client-satisfaction-rate", async (req, res) => {
       console.log( serviceRating );
       if( element.serviceCount > 0 ){
         obtainedRaiting = obtainedRaiting + element.serviceRating;
+        ratingsCount = ratingsCount + element.serviceCount;
         totalRaiting = totalRaiting + ( element.serviceCount * 5 );
+
       }
     }
-    let avgRaiting = ( obtainedRaiting / totalRaiting ) * 100;
-    return res.json({ obtainedRaiting,totalRaiting, sellerRating: avgRaiting  , success: true }).status( 200 );
+    let avgRating =  obtainedRaiting / ratingsCount;
+
+    let percentagRaiting = ( obtainedRaiting / totalRaiting ) * 100;
+    return res.json({ mag: "Raiting Calculation", avgRating ,percentagRaiting, success: true }).status( 200 );
 
   } )
   .catch( err => {

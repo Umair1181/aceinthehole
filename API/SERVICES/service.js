@@ -128,7 +128,7 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
           if (topServices.length === index + 1 || allTopServices.length === 10) {
             if (allTopServices.length > 0) {
               console.log( "check 1" );
-              // let allServicesArray = [];
+              let allServicesArray = [];
               // for (let k = 0; k < allTopServices.length; k++) {
               //   for (let j = 0; j < allTopServices[k].length; j++) {
               //     // const element = array[j];
@@ -141,9 +141,9 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
                 .json({
                   msg: "Top Ten Most Hired Services in Your Area!",
                   // demo: topServices[0]._id.seller.location,
-                  // topServices: allServicesArray,
                   length: allTopServices.length,
                   topServices: allTopServices,
+                  // topServices: allTopServices,
                   success: true,
                 })
                 .status(200);

@@ -313,7 +313,7 @@ Router.post("/client-satisfaction-rate", async (req, res) => {
       }
     }
     let avgRaiting = ( obtainedRaiting / totalRaiting ) * 100;
-    return res.json({ obtainedRaiting,totalRaiting, sellerRating:avgRaiting  , success: true }).status( 200 );
+    return res.json({ obtainedRaiting,totalRaiting, sellerRating: avgRaiting  , success: true }).status( 200 );
 
   } )
   .catch( err => {

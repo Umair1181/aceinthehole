@@ -596,7 +596,7 @@ Router.post("/show-orders-with-status", (req, res) => {
       return res.json({ msg: "Failed", success: false }).status(404);
     });
 });
-updateServicesAvgRating = async (serviceID) => {
+const updateServicesAvgRating = async (serviceID) => {
   let foundReviews = await Reviews.find({
     service: serviceID,
   });
@@ -614,7 +614,7 @@ updateServicesAvgRating = async (serviceID) => {
     let foundService = await Service.findOne({
       _id: serviceID,
     });
-    foundService.avgRating = Math.round(ratingAvg);
+    foundService.avgRating = Math.round(ratingAvg, 2);
     let updateServieRating = await foundService.save();
     if (updateServieRating) {
       console.log("updated Service Rating");

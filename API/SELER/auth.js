@@ -269,6 +269,11 @@ Router.post(
     }
   }
 );
+// const sellerRating = ( ) => {
+//   return new Promise(( resolve, reject )=>{
+
+//   })  
+// }
 ////////////////////////////////////////////////////////////////
 Router.post("/client-satisfaction-rate", async (req, res) => {
   let { sellerID } = req.body;

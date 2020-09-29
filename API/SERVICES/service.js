@@ -129,13 +129,13 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
             if (allTopServices.length > 0) {
               console.log( "check 1" );
               let allServicesArray = [];
-              // for (let k = 0; k < allTopServices.length; k++) {
-              //   for (let j = 0; j < allTopServices[k].length; j++) {
-              //     // const element = array[j];
-              //     console.log(allTopServices[k][j]);
-              //     await allServicesArray.push(allTopServices[k][j]);
-              //   }
-              // }
+              for (let k = 0; k < allTopServices.length; k++) {
+                for (let j = 0; j < allTopServices[k].length; j++) {
+                  // const element = array[j];
+                  console.log(allTopServices[k][j]);
+                  await allServicesArray.push(allTopServices[k][j]);
+                }
+              }
 
               return res
                 .json({
@@ -143,7 +143,7 @@ Router.post("/show-most-hired-services-top-fifteen", async (req, res) => {
                   // demo: topServices[0]._id.seller.location,
                   length: allTopServices.length,
                   topServices: allTopServices,
-                  // topServices: allTopServices,
+                  allServicesArray: allServicesArray,
                   success: true,
                 })
                 .status(200);
@@ -400,18 +400,17 @@ Router.post("/show-all-services", async (req, res) => {
           bLa,
           bLo
         );
-        console.log(allServices);
         // return res.json(allServices);
         if (allServices !== false && allServices !== undefined) {
           // console.log("allServices");
           // console.log(allServices);
           if (allServices.length > 0) {
-            let allServicesArray = [];
-            for (let k = 0; k < allServices.length; k++) {
-              for (let j = 0; j < allServices[k].length; j++) {
-                await allServicesArray.push(allServices[k][j]);
-              }
-            }
+            let allServicesArray = allServices;
+            // for (let k = 0; k < allServices.length; k++) {
+            //   for (let j = 0; j < allServices[k].length; j++) {
+            //     await allServicesArray.push(allServices[k][j]);
+            //   }
+            // }
             // return res.json(allServices);
             await new ServiceClass()
               .checkServiceinWishList(allServicesArray, userID)
@@ -541,10 +540,10 @@ const getServicesOfNearesSellers = async (
       console.log("founServices");
       console.log(founServices);
       if (founServices.length > 0) {
-        await allServices.push(founServices);
+        await allServices.push(founServices[0]);
       }
     }
-    if (x + 1 === SellersList.length) {
+    if (x + 1 === SellersList.length || allServices.length === 10 ) {
       console.log(SellersList.length);
       return allServices;
     }

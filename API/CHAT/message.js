@@ -387,7 +387,21 @@ Router.post("/all-chats-of-seller", (req, res) => {
 //////////////////////chat-of-sender-and-receiver/////////////////////////
 Router.post("/chat-of-sender-and-receiver", (req, res) => {
   let { chat } = req.body;
-  Chat.findOne({ user: chat.user, seller: chat.seller })
+  let message = false;
+  if( chat.offset === "" || chat.offset === undefined ){
+    message = "Invalid Offset Value";
+  }else if ( chat.limit  === ""  || chat.limit === undefined ) {
+    message = "Invalid Limit Value";
+  }else if( chat.user === "" || chat.user === undefined ){
+    message = "Invalid Use Id";
+  }else if( chat.seller === "" || chat.seller === undefined ){
+    message = "Invalid Seller Id";
+  }else  {
+    message = false;
+  }
+
+  if( message === false ){
+    Chat.findOne({ user: chat.user, seller: chat.seller })
     .then((foundChat) => {
       if (foundChat !== null) {
         // 
@@ -410,6 +424,10 @@ Router.post("/chat-of-sender-and-receiver", (req, res) => {
       console.log(err);
       return res.json({ msg: "catch error", success: false }).status(500);
     });
+  }else{
+    return res.json({ msg: message , success: false }).status( 500 );
+  }
+
 });
 
 

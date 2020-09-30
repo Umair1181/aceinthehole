@@ -265,8 +265,6 @@ Router.post("/show-all-services-of-specific-category", async (req, res) => {
         bLo
       );
       if (allServices !== false) {
-        console.log("allServices");
-        console.log(allServices);
         if (allServices.length > 0) {
           let allServicesArray = [];
           for (let k = 0; k < allServices.length; k++) {
@@ -276,6 +274,8 @@ Router.post("/show-all-services-of-specific-category", async (req, res) => {
               await allServicesArray.push(allServices[k][j]);
             }
           }
+          // return res.json({ allServicesArray });
+
           await new ServiceClass()
             .checkServiceinWishList(allServicesArray, userID)
             .then(async (allServicesArr) => {

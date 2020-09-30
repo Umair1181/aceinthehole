@@ -602,7 +602,6 @@ const updateServicesAvgRating = async (serviceID) => {
   });
 
   if (foundReviews.length > 0) {
-    console.log(foundReviews);
     let ratingSum = 0;
     let ratingAvg = 0;
     for (let i = 0; i < foundReviews.length; i++) {
@@ -610,20 +609,27 @@ const updateServicesAvgRating = async (serviceID) => {
 
       ratingSum = eachReview.rating + ratingSum;
     }
-    ratingAvg = ratingSum / foundReviews.length;
+    ratingAvg = ratingSum / ( foundReviews.length );
+    // console.log( "ratingSum" );
+    // console.log( ratingSum );
+    // console.log( "foundReviews" );
+    // console.log( foundReviews.length );
+    // console.log( "ratingAvg" );
+    // console.log( ratingAvg );
     let foundService = await Service.findOne({
       _id: serviceID,
     });
-    foundService.avgRating = Math.round(ratingAvg, 2);
+    foundService.avgRating = ratingAvg ;
     let updateServieRating = await foundService.save();
     if (updateServieRating) {
       console.log("updated Service Rating");
     }
   }
+  // return foundReviews;
   return "Updated";
 };
 ////////////////////////////////////////////////////////////////
-Router.post("/add-new-review", (req, res) => {
+Router.post("/add-new-review",async (req, res) => {
   let { orderID, serviceID, userID, description, rating } = req.body;
 
   let newReviews = new Reviews({
@@ -633,16 +639,22 @@ Router.post("/add-new-review", (req, res) => {
     description: description,
     rating: rating,
   });
-
+  // let up = await updateServicesAvgRating(serviceID);
+  // let s  = await Service.findOne({ _id: serviceID });
+  // return res.json({ up, s });
+        
   newReviews
     .save()
     .then(async (reviewSaved) => {
       if (reviewSaved) {
         let updateRating = await updateServicesAvgRating(serviceID);
         if (updateRating === "Updated") {
+          let s  = await Service.findOne({ _id: serviceID });
+      
           return res
             .json({
               msg: "newReview Created",
+              s,
               reviewSaved,
               updateRating,
               success: true,

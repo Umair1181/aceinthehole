@@ -8,6 +8,7 @@ Router.post("/show-all-notifications-of-specific-seller", (req, res) => {
     .populate({ path: "user" })
     .populate({ path: "seller" })
     .populate({ path: "order" })
+    .sort({ notificationDateTime: -1 })
     .then((foundNotifications) => {
       if (foundNotifications.length > 0) {
         return res
@@ -38,6 +39,7 @@ Router.post("/show-all-notifications-of-specific-user", (req, res) => {
     .populate({ path: "user" })
     .populate({ path: "seller" })
     .populate({ path: "order" })
+    .sort({ notificationDateTime: -1 })
     .then((foundNotifications) => {
       if (foundNotifications.length > 0) {
         return res
@@ -69,6 +71,7 @@ Router.post("/show-all-notifications-of-system", (req, res) => {
     .populate({ path: "user" })
     .populate({ path: "seller" })
     .populate({ path: "order" })
+    .sort({ notificationDateTime: -1 })
     .then((foundNotifications) => {
       if (foundNotifications.length > 0) {
         return res

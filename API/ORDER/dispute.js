@@ -62,7 +62,7 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
       if (foundOrder !== null) {
         if (foundOrder.orderStatus === DISPUTE) {
           return res
-            .json({ msg: "Order Alredy in Dispute", success: false })
+            .json({ msg: "Order Already in Dispute", success: false })
             .status(404);
         } else {
           foundOrder.orderStatus = DISPUTE;
@@ -73,7 +73,7 @@ Router.post("/create-dispute", upload.array("imgs", 2), (req, res) => {
           let payload = {
             notification: {
               title: "Dispute Created!",
-              body: `Your Order has been disputed`,
+              body: `${foundOrder.service.serviceName} Order has been disputed`,
             },
             data: {
               orderID: `${dispute.orderID}`,

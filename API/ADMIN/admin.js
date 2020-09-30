@@ -30,8 +30,7 @@ Router.post("/admin-can-block-unblock-any-service", (req, res) => {
         let payload = {
           notification: {
             title: `Service blocked`,
-
-            body: `Your Service Has Been Blocked`,
+            body: `${foundservice.serviceName} is Blocked`,
           },
           data: {
             serviceID: `${serviceID}`,

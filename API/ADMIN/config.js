@@ -2,11 +2,6 @@ const Router = require("express").Router();
 
 const { Configs } = require("../../MODELS");
 
-
-
-
-
-
 Router.post( "/add-update", ( req, res ) => {
     const { data } = req.body;
     let eMessage = false;

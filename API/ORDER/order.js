@@ -46,7 +46,7 @@ Router.post("/change-order-status", (req, res) => {
                 notification: {
                   title: `ORDER ${orderStatus}`,
 
-                  body: `ORDER ${orderStatus + " BY " + setStatusChangeBy}`,
+                  body: `${ foundOrder.service.serviceName } ORDER ${orderStatus + " BY " + setStatusChangeBy}`,
                 },
                 data: {
                   orderID: `${savedOrder._id}`,
@@ -780,7 +780,7 @@ Router.post("/place-order-of-service-by-user", (req, res) => {
             notification: {
               title: "Service Hired!",
 
-              body: `Service Has Been Hired`,
+              body: `${foundOrder.service.serviceName} Has Been Hired`,
             },
             data: {
               orderID: `${orderSaved._id}`,

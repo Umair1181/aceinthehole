@@ -390,10 +390,14 @@ Router.post("/chat-of-sender-and-receiver", (req, res) => {
   Chat.findOne({ user: chat.user, seller: chat.seller })
     .then((foundChat) => {
       if (foundChat !== null) {
+        // 
+        let myChat = foundChat.msgOffer.reverse();
+        myChat = myChat.slice(chat.offset, chat.offset + chat.limit);
         return res
           .json({
             msg: "Chat of Sender & Receiver",
-            messages: foundChat.msgOffer,
+            chatLength: myChat.length,
+            messages: myChat,
             chatId: foundChat._id,
             success: true,
           })

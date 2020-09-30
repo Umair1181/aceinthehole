@@ -320,77 +320,30 @@ Router.post("/show-wishlist-buyer", (req, res) => {
   }
   if (message === false) {
     WishList.findOne({ user: userID })
-      //   .populate({
-      //     path: "seller",
-      //     // select: "_id isOnline sellerImgURL email shopName sellerName",
-      //   })
-      //   .populate({ path: "service" })
       .populate({
         path: "services",
         populate: { path: "seller" },
       })
       .then((foundWishList) => {
-        //   new serviceClass()
-        // .checkShowAllWishListservice(foundWishList, userID)
-        // .then((finalFoundservice) => {
         if (foundWishList !== null) {
+          for (let index = 0; index < foundWishList.services.length; index++) {
+            foundWishList.services[index].inWishList = true;
+            serviceOfWishlist.push( foundWishList.services[index] );
+          }
           return res
             .json({
               msg: "found WishList",
               wishListID: foundWishList._id,
 
-              wishListServices: foundWishList.services,
+              wishListServices: serviceOfWishlist,
               success: true,
             })
             .status(200);
-          // return res
-          //   .json({
-          //     msg: "All service against Categories",
-          //     serviceCategories: finalFoundservice,
-          //     success: true
-          //   })
-          //   .status(400);
         } else {
           return res
             .json({ msg: "WishList Not found", success: false })
             .status(404);
         }
-        // });
-        // return res.json({
-        //   msg: "Wisl List service",
-        //   foundWishList: foundWishList,
-        //   success: true
-        // });
-
-        // foundWishList.forEach(pro => {
-        //   console.log(pro.service.length);
-        //   if (pro.service.length > 0) {
-        //     serviceOfWishlist.push({
-        //       service: pro.service,
-        //       seller: pro.seller,
-        //       _id: pro._id
-        //     });
-        //   } else {
-        //     count = count + 1;
-        //   }
-
-        //   if (serviceOfWishlist.length + count == foundWishList.length) {
-        //     return res
-        //       .json({
-        //         // serviceOfWishlist,
-        //         foundWishList: serviceOfWishlist,
-        //         success: true
-        //         // pro: serviceOfWishlist.length,
-        //         // pro2: foundWishList.length
-        //       })
-        //       .status(200);
-        //   } else {
-        //     console.log(
-        //       `${serviceOfWishlist.length} != ${serviceOfWishlist.length} `
-        //     );
-        //   }
-        // });
-        // return res.json({ msg: foundWishList });
       })
       .catch((err) => {
         console.log("cath 1");

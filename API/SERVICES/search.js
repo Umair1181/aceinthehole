@@ -1,12 +1,14 @@
 const { ServiceCategory, Service } = require("../../MODELS");
 const Router = require("express").Router();
-
+const WishListCheck = require("../BusinessLogics/service");
 Router.post("/search-services-by-name", (req, res) => {
-  const { serviceName } = req.body;
+  const { serviceName, userId } = req.body;
 
   let message = false;
-  if (serviceName === "") {
+  if (serviceName === "" || serviceName === undefined) {
     message = "Invalid serviceName";
+  }else if( userId === "" || userId === undefined ){
+    message = "Invalid User Id";
   } else {
     message = false;
   }
@@ -15,13 +17,14 @@ Router.post("/search-services-by-name", (req, res) => {
       .populate({ path: "seller" })
       .then((foundServices) => {
         if (foundServices.length > 0) {
-          return res
-            .json({
-              msg: "Search Found",
-              foundServices: foundServices,
-              success: true,
-            })
-            .status(200);
+          new WishListCheck().checkServiceinWishList( foundServices, userId )
+          .then( response => {
+            return res.json({ msg: "Services List", foundServices: response, success: true }).status( 200 );
+          } )
+          .catch(err => {
+            return res.json({ msg: "Error Found" , success: false}).status( 500 );
+          })
+        
         } else {
           console.log("Not Found");
           return res

@@ -407,6 +407,8 @@ Router.post("/chat-of-sender-and-receiver", (req, res) => {
         // 
         let myChat = foundChat.msgOffer.reverse();
         myChat = myChat.slice(chat.offset, chat.offset + chat.limit);
+        myChat = myChat.reverse();
+
         return res
           .json({
             msg: "Chat of Sender & Receiver",

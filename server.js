@@ -195,14 +195,24 @@ app.post("/transfer-to-account", async (req, res) => {
   if (amount === "") {
     return res.json({ msg: "Invalid amount", success: false }).status(500);
   }
+ 
+  // return res.json({ y: true });
+  // acct_1HNUfWC9cdbo7Aeg => usd
   Seller.findOne({ _id: sellerId })
     .then(async (foundSeller) => {
       if (foundSeller !== null) {
+        // return res.json({ foundSeller });
+        const account = await stripe.accounts.retrieve(
+          `${sellerConnectAccountId}`
+        );
+        // return res.json({ account: account.default_currency });
         const transfer = await stripe.transfers.create({
-          amount: amount * 100,
-          currency: "usd",
-          destination: sellerConnectAccountId,
+          amount: 1200 ,
+          currency: `${account.default_currency}`,
+          destination: `${sellerConnectAccountId}`,
+          transfer_group: `Or-${orderId}`,
         });
+        // return res.json({ transfer });
         if (transfer.object === "transfer") {
           // todo Make Order PAID
 
@@ -233,7 +243,7 @@ app.post("/transfer-to-account", async (req, res) => {
     .catch((err) => {
       return res
         .json({
-          err: err.type,
+          err: err,
           msg: "Catch, Error,Seller Found",
           success: false,
         })
@@ -364,6 +374,7 @@ app.post("/retrieve-stripe-connect-account", (req, res) => {
         foundSeller.stripeAccountId !== undefined &&
         foundSeller.stripeAccountId !== ""
       ) {
+        // return res.json({ stripeId: foundSeller.stripeAccountId });
         stripe.accounts
           .listCapabilities(foundSeller.stripeAccountId)
           // stripe.accounts.retrieve(userConnectId)
@@ -391,13 +402,21 @@ app.post("/retrieve-stripe-connect-account", (req, res) => {
                   }
                 }
               }
+              // return res.json({ stripeId: foundSeller.stripeAccountId });
+              const paymentMethod = await stripe.accounts.retrieve(
+                // `${foundSeller.stripeAccountId}`
+                "acct_1HXiYtLBKJdxqCYO"
+              );
+
+              if( paymentMethod.default_currency !== "usd" ){
+                stripeMessage = "Invalid Currency Switch to (USD)";
+              }
               if (stripeMessage === false) {
                 //todo
                 foundSeller.isStripeVerified = true;
-
                 if (foundSeller.isPaypalVerified === true) {
                   foundSeller.isProfileCompleted = true;
-                }
+                } 
                 let foundSellerSave = await foundSeller.save();
                 return res
                   .json({
@@ -428,7 +447,7 @@ app.post("/retrieve-stripe-connect-account", (req, res) => {
           });
       } else {
         return res
-          .json({ msg: "No Stripe Connection", success: false })
+          .json({ msg: "No Stripe Connection", Id: foundSeller.stripeAccountId, success: false })
           .status(500);
       }
     })

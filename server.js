@@ -207,7 +207,7 @@ app.post("/transfer-to-account", async (req, res) => {
         );
         // return res.json({ account: account.default_currency });
         const transfer = await stripe.transfers.create({
-          amount: 1200 ,
+          amount: amount * 100,
           currency: `${account.default_currency}`,
           destination: `${sellerConnectAccountId}`,
           transfer_group: `Or-${orderId}`,
@@ -457,6 +457,25 @@ app.post("/retrieve-stripe-connect-account", (req, res) => {
     });
 });
 
+app.post("/stripe-account-link",async ( req, res ) => {
+    const { stripeId } = req.body;
+    const accountLink = await stripe.accountLinks.create({
+      account: stripeId,
+      refresh_url: 'https://example.com/reauth',
+      return_url: 'https://ace-in-the-hole.herokuapp.com/connect/oauth',
+      type: 'account_onboarding',
+      collect: 'eventually_due'
+    });
+    return res.json({ accountLink });
+})
+app.post( "/create-account" ,async ( req, res ) => {
+  const account = await stripe.accounts.create({
+    country: 'US',
+    type: 'express',
+    requested_capabilities: ['card_payments', 'transfers'],
+  });
+  return res.json({ account }).status ( 200 );
+} ) 
 // app.post("/upload", upload.array("image", 1), (req, res) => {
 //   let imageArrays = req.files;
 //   let ImageURLsArray = [];

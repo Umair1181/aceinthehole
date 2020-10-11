@@ -79,8 +79,9 @@ const cretateAccountLink  = ( aceinholeId , stripeId) => {
   return new Promise(async ( resolve, reject ) => {
     let accountLink = await stripe.accountLinks.create({
       account: stripeId,
+      // /connect/oauth/:aceinholeId?/:stripeId?
       refresh_url: 'https://ace-in-the-hole.herokuapp.com/connectivity/link/' + aceinholeId + '/' + stripeId,
-      return_url: 'https://ace-in-the-hole.herokuapp.com/connectivity/success/' + aceinholeId + '/' + stripeId,
+      return_url: 'https://ace-in-the-hole.herokuapp.com/connect/oauth/' + aceinholeId + '/' + stripeId,
       type: 'account_onboarding',
       collect: 'eventually_due'
     });

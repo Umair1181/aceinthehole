@@ -95,24 +95,39 @@ const cretateAccountLink  = ( stripeId, aceinholeId) => {
   })
 }
 app.post("/connect", (req, res) => {
-  let { sellerID } = req.body;
+  let { sellerID, stripeId } = req.body;
   if (sellerID === "" || sellerID === undefined) {
     return res.json({ msg: "Invalid Seller ID", success: false }).status(505);
   }
-  getStripeID(  )
-  .then( resp_getStripeId => {
-    // return res.json({ resp_getStripeId });
-      cretateAccountLink(resp_getStripeId.id, sellerID)
-      .then( resp_cretateAccountLink => {
-        return res.json( resp_cretateAccountLink ).status( 200 );
-      })
-      .catch( err => {
-          return res.json(err).status( 500 );
-      })
-  } )
-  .catch( err => {
-    return res.json( err ).status( 500 );
-  } )
+  if( stripeId === undefined ){
+    return res.json({ msg: "Invalid Stripe Id Required", success: false }).status(505);
+  }
+  if (stripeId === false) {
+    getStripeID(  )
+    .then( resp_getStripeId => {
+      // return res.json({ resp_getStripeId });
+        cretateAccountLink(resp_getStripeId.id, sellerID)
+        .then( resp_cretateAccountLink => {
+          return res.json( resp_cretateAccountLink ).status( 200 );
+        })
+        .catch( err => {
+            return res.json(err).status( 500 );
+        })
+    } )
+    .catch( err => {
+      return res.json( err ).status( 500 );
+    } )
+  }else{
+    cretateAccountLink( stripeId, sellerID)
+        .then( resp_cretateAccountLink => {
+          return res.json( resp_cretateAccountLink ).status( 200 );
+        })
+        .catch( err => {
+            return res.json(err).status( 500 );
+        })
+  }
+
+  
   // const state = sellerID;
   // // req.session.state = state;
   // const suggested_capabilities = ["card_payments", "transfers"];
@@ -325,6 +340,17 @@ app.post("/transfer-to-account", async (req, res) => {
         .status(500);
     });
 });
+
+app.post( "/add-balance",async ( req, res ) => {
+  const topup =  await stripe.topups.create({
+    amount: 5000000,
+    currency: 'usd',
+    description: 'Top-up for week of May 31',
+    statement_descriptor: 'Weekly top-up',
+  });
+  return res.json({ topup });
+} )  
+
 ////// past as it is
 app.post("/refund-stripe-payment", (req, res) => {
   const { amount, intentId, orderId } = req.body;

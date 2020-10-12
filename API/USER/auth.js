@@ -538,7 +538,7 @@ Router.post("/user-online-offline-toggle", (req, res) => {
                 .json({
                   msg: "You Are Offline",
                   savedUser: savedUser,
-                  success: true,
+                  success: false,
                 })
                 .status(200);
             }

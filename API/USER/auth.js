@@ -521,11 +521,11 @@ Router.post("/user-online-offline-toggle", (req, res) => {
   User.findOne({ _id: userID })
     .then((foundUser) => {
       if (foundUser) {
-        foundUser.isOnlineStatus = !foundUser.isOnlineStatus;
+        foundUser.isOnline = !foundUser.isOnline;
         foundUser
           .save()
           .then((savedUser) => {
-            if (savedUser.isOnlineStatus === true) {
+            if (savedUser.isOnline === true) {
               return res
                 .json({
                   msg: "You Are Online",

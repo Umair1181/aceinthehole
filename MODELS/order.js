@@ -44,6 +44,10 @@ const Order = new Schema({
     default: "NEWORDER", // COMPLETED,DISPUTE,ORDERCANCELED,DELIVERED
     // required: true,
   },
+  isRefunded: {
+    type: Boolean,
+    default: false,
+  },
   sattusUpdateDate: {
     //when status update from new to complete , delivered
     type: Date,

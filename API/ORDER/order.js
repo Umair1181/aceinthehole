@@ -2,6 +2,132 @@ const Router = require("express").Router();
 const { Order, Reviews, Service, Notifications } = require("../../MODELS");
 const notificationSend = require("../NOTIFICATIONS/notifyConfig");
 const { update } = require("../../MODELS/cart");
+
+Router.post("/show-completed-paid-nonpaid-orders-list", (req, res) => {
+  let { isPaid, paymentThrough,orderStatus,isRefunded } = req.body;
+  // console.log(isPaid);
+
+if(orderStatus==="COMPLETED"){
+  if(isPaid===""){
+    return res.json({msg:"isPaid Empty",success:false}).status(500);
+  }
+
+  Order.find({
+    orderStatus: orderStatus,
+    paymentThrough: paymentThrough,
+    isPaid: isPaid,
+    // isRefunded: isRefunded,
+  })
+    .populate({ path: "user" })
+    .populate({ path: "service" })
+    .populate({ path: "service", populate: { path: "seller" } })
+    .then((foundOrder) => {
+      if (foundOrder.length > 0) {
+        return res
+          .json({
+            msg: `Completed ${isPaid ? "Paid" : "NonPaid"} Orders List`,
+            totalOrders: foundOrder.length,
+            foundOrder,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "No Order", success: false }).status(505);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+}
+else if(orderStatus==="ORDERCANCELED"){
+
+if(isRefunded===""){
+  return res.json({msg:"isRefunded Empty",success:false}).status(500);
+}
+
+  Order.find({
+    orderStatus: orderStatus,
+    // paymentThrough: paymentThrough,
+    // isPaid: isPaid,
+    // isRefunded: isRefunded,
+    isRefunded:isRefunded
+  })
+    .populate({ path: "user" })
+    .populate({ path: "service" })
+    .populate({ path: "service", populate: { path: "seller" } })
+    .then((foundOrder) => {
+      if (foundOrder.length > 0) {
+        return res
+          .json({
+            msg: `Completed ${isPaid ? "Paid" : "NonPaid"} Orders List`,
+            totalOrders: foundOrder.length,
+            foundOrder,
+            success: true,
+          })
+          .status(200);
+      } else {
+        return res.json({ msg: "No Order Refended", success: false }).status(505);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+}
+});
+
+
+////////////////new////////////////////////////////////////////////
+
+Router.post("/change-refund-status", (req, res) => {
+  let { orderID, isRefunded } = req.body;
+
+  if (isRefunded === "") {
+    return res.json({ msg: "Failed", success: false }).status(404);
+  }
+
+  Order.findOne({ _id: orderID })
+    .then((foundOrder) => {
+      if (foundOrder !== null) {
+        foundOrder.isRefunded = isRefunded;
+        foundOrder
+          .save()
+          .then((savedOrder) => {
+            if (savedOrder) {
+              return res
+                .json({
+                  msg: `Payment isRefunded:${savedOrder.isRefunded}`,
+                  savedOrder,
+                  success: true,
+                })
+                .status(200);
+            } else {
+              return res
+                .json({
+                  msg: `Not Update`,
+
+                  success: false,
+                })
+                .status(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            return res
+              .json({ msg: "Failed save!", success: false })
+              .status(505);
+          });
+      } else {
+        return res.json({ msg: "Not Found", success: false }).status(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ msg: "Failed!", success: false }).status(505);
+    });
+});
+
 ////////////////////////////////////////////////////////////////
 Router.post("/change-order-status", (req, res) => {
   let { orderID, orderStatus, statusChangeBy } = req.body;

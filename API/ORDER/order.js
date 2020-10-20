@@ -77,6 +77,35 @@ if(isRefunded===""){
 }
 });
 
+////////////////new////////////////////////////////////////////////
+
+Router.post("/change-refund-status-multiple-orders", (req, res) => {
+  let { orderID, isRefunded } = req.body;
+
+  if (orderID.length <=0) {
+    return res.json({ msg: "Invalid Order id", success: false }).status(404);
+  }
+  if (isRefunded === "") {
+    return res.json({ msg: "Failed", success: false }).status(404);
+  }
+  Order.updateMany(
+   {_id : orderID} ,  
+    { orderStatus: "ORDERCANCELED",
+    isRefunded:isRefunded }
+  ).then((updateOrder) => {
+    if (updateOrder !== null) {
+
+      
+      return res
+        .json({ msg: "Payment Refunded", success: true })
+        .status(500);
+    }
+  }).catch(err=>{
+    console.log(err);
+    return res.json({msg:"Failed",success:false}).status(500)
+  });
+  
+});
 
 ////////////////new////////////////////////////////////////////////
 

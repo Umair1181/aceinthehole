@@ -368,7 +368,8 @@ app.post("/refund-stripe-payment", (req, res) => {
         if (refund.status === "succeeded") {
           Order.updateOne(
             { _id: orderId },
-            { orderStatus: "ORDERCANCELED" }
+            { orderStatus: "ORDERCANCELED",
+            isRefunded:true }
           ).then((updateOrder) => {
             if (updateOrder !== null) {
               return res

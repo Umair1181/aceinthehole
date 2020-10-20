@@ -82,7 +82,7 @@ if(isRefunded===""){
 Router.post("/change-refund-status-multiple-orders", (req, res) => {
   let { orderID, isRefunded } = req.body;
 
-  if (orderID.length <=0) {
+  if (orderID.length <=1) {
     return res.json({ msg: "Invalid Order id", success: false }).status(404);
   }
   if (isRefunded === "") {
